@@ -65,7 +65,7 @@ export function ShiftsBoard() {
   return (
     <div>
       <p className="mt-1 text-sm text-ink-2">{t('boards.shifts.intro')}</p>
-      <div className="mt-5 grid gap-10 md:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-10 md:grid-cols-2">
         {col(t('boards.shifts.risingTitle'), data.risers, 'var(--color-s1)')}
         {col(t('boards.shifts.fallingTitle'), data.fallers, 'var(--color-s2)')}
       </div>
@@ -105,7 +105,7 @@ export function FilmsBoard() {
   return (
     <div>
       <p className="mt-1 text-sm text-ink-2">{t('boards.films.intro')}</p>
-      <div className="mt-5 grid gap-x-10 gap-y-8 md:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2">
         {superlativeSections(t, n).map(([key, title, blurb, fmt]) => (
           <section key={key}>
             <h2 className="slug text-sm">{title}</h2>
@@ -270,7 +270,7 @@ export function OverviewBoard() {
   return (
     <div>
       <p className="mt-3 text-sm text-ink-2">{t('boards.overview.intro')}</p>
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
         <TasterCard title={t('boards.shifts.risingTitle')} blurb={t('boards.overview.risingBlurb')} href="#/leaderboard?b=shifts">
           {shiftList(shifts.data.risers, 'var(--color-s1)')}
         </TasterCard>
