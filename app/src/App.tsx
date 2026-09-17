@@ -49,7 +49,7 @@ function ThemeToggle() {
       onClick={toggle}
       aria-label={dark ? t('themeToggle.switchToDay') : t('themeToggle.switchToNight')}
       title={dark ? t('themeToggle.dayShoot') : t('themeToggle.nightShoot')}
-      className="flex items-center gap-1.5 border-2 border-ink px-2.5 py-1 font-script text-sm font-bold hover:bg-mark"
+      className="flex h-8 items-center gap-1.5 border-2 border-ink px-2 font-script text-sm font-bold hover:bg-mark"
     >
       {dark ? (
         // sun
@@ -63,7 +63,7 @@ function ThemeToggle() {
           <path d="M20.6 14.6A9 9 0 1 1 9.4 3.4a7.2 7.2 0 1 0 11.2 11.2Z" />
         </svg>
       )}
-      {dark ? t('themeToggle.day') : t('themeToggle.night')}
+      <span className="hidden sm:inline">{dark ? t('themeToggle.day') : t('themeToggle.night')}</span>
     </button>
   )
 }
@@ -105,12 +105,14 @@ function LanguageFilter() {
     <div ref={ref} className="relative">
       <button onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open}
         aria-label={t('languageFilter.ariaLabel')}
-        className="flex items-center gap-1.5 border-2 border-ink px-2.5 py-1 font-script text-sm font-bold uppercase hover:bg-mark">
+        className="flex h-8 items-center gap-1.5 border-2 border-ink px-2 font-script text-sm font-bold uppercase hover:bg-mark">
         <svg viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <circle cx="12" cy="12" r="9" /><path d="M3 12h18" />
           <path d="M12 3c2.6 2.7 3.9 5.9 3.9 9s-1.3 6.3-3.9 9c-2.6-2.7-3.9-5.9-3.9-9S9.4 5.7 12 3Z" />
         </svg>
-        {label}
+        {/* Hide the label on mobile only in the default state; when a filter is
+            active, keep it visible so the narrowed corpus stays obvious. */}
+        <span className={active.length === 0 ? 'hidden sm:inline' : ''}>{label}</span>
         <svg viewBox="0 0 24 24" className={`size-3 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
       </button>
       {open && (
@@ -173,32 +175,40 @@ export default function App() {
 
   return (
     <div className="mx-auto min-h-screen max-w-5xl px-4 pb-24 sm:px-6">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink py-4">
-        <a href="#/" className="flex items-center gap-2 font-script text-xl font-bold tracking-tight">
-          <Logo className="size-7" />
-          <span>
-            MOVIE<span className="bg-mark px-0.5">WORDS</span>
-          </span>
-        </a>
-        <div className="flex flex-wrap items-center gap-3">
-          <nav className="flex flex-wrap gap-1 font-script text-sm font-bold uppercase" aria-label={t('nav.sectionsLabel')}>
-            {TABS.map((tab) => (
-              <a
-                key={tab.key}
-                href={tab.hash}
-                aria-current={isActive(tab) ? 'page' : undefined}
-                className={`px-3 py-1.5 ${
-                  isActive(tab) ? 'bg-ink text-paper' : 'hover:bg-mark'
-                }`}
-              >
-                {t('nav.' + tab.key)}
-              </a>
-            ))}
-          </nav>
-          <LanguageFilter />
-          <ThemeToggle />
-          <LanguageSelector />
+      <header className="flex flex-col gap-3 border-b-2 border-ink py-3">
+        {/* Utility row: logo on the left, the three controls pushed right. On
+            mobile the controls collapse to icons (see LanguageFilter/ThemeToggle)
+            so they still fit beside the logo. */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <a href="#/" className="mr-auto flex items-center gap-2 font-script text-xl font-bold tracking-tight">
+            <Logo className="size-7" />
+            <span>
+              MOVIE<span className="bg-mark px-0.5">WORDS</span>
+            </span>
+          </a>
+          <div className="flex items-center gap-1.5">
+            <LanguageFilter />
+            <ThemeToggle />
+            <LanguageSelector />
+          </div>
         </div>
+        <nav
+          className="flex flex-wrap gap-0.5 font-script text-sm font-bold uppercase md:gap-1"
+          aria-label={t('nav.sectionsLabel')}
+        >
+          {TABS.map((tab) => (
+            <a
+              key={tab.key}
+              href={tab.hash}
+              aria-current={isActive(tab) ? 'page' : undefined}
+              className={`px-2.5 py-1.5 ${
+                isActive(tab) ? 'bg-ink text-paper' : 'hover:bg-mark'
+              }`}
+            >
+              {t('nav.' + tab.key)}
+            </a>
+          ))}
+        </nav>
       </header>
 
       <main className="pt-4">
