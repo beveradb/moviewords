@@ -24,7 +24,7 @@ export default function LanguageSelector() {
         aria-label={t('languageSwitcher.label')}
         aria-expanded={open}
         title={t('languageSwitcher.current')}
-        className="flex items-center gap-1.5 border-2 border-ink px-2.5 py-1 font-script text-sm font-bold hover:bg-mark"
+        className="flex h-8 items-center gap-1.5 border-2 border-ink px-2 font-script text-sm font-bold hover:bg-mark"
       >
         <span aria-hidden="true">{current.flag}</span>
         <span className="hidden sm:inline">{current.native}</span>
