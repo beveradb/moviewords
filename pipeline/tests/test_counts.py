@@ -322,3 +322,19 @@ def test_selection_report_says_what_was_chosen_and_why(tmp_path):
     (row,) = duckdb.sql(f"SELECT imdb_id, rank_top, reason, candidates, usable, cluster, "
                         f"relaxed, rejected FROM '{out}'").fetchall()
     assert row == ("tt0045251", TOP, "consensus", 3, 3, 2, False, "{}")
+
+
+def test_shards_partition_the_films_and_only_fill_the_cache(tmp_path):
+    """count --shard i/n: n processes each fill the cache for their films
+    (no parquet outputs); an unsharded run then compacts from cache alone."""
+    from moviewords_pipeline.counts import in_shard
+    ids = [f"tt{i:07d}" for i in range(200)]
+    shards = [[i for i in ids if in_shard(i, (k, 4))] for k in range(4)]
+    assert sorted(sum(shards, [])) == ids and all(shards)
+    zip_path = build_zip(tmp_path / "mini.zip")
+    args = (tmp_path / "cache", tmp_path / "wc.parquet", tmp_path / "ms.parquet")
+    for k in range(3):
+        build(zip_path, INDEX, *args, RUNTIMES, shard=(k, 3))
+    assert not args[1].exists()
+    assert build(zip_path, INDEX, *args, RUNTIMES) == {"processed": 0, "skipped": 2, "failed": 0}
+    assert args[1].exists()

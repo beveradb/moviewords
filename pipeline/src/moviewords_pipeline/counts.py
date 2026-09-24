@@ -62,8 +62,14 @@ def _candidate_names(row):
     return [c["name"] if isinstance(c, dict) else c for c in cands]
 
 
+def in_shard(imdb_id, shard):
+    """Whether a film belongs to shard (k, n) - a stable split by id."""
+    k, n = shard
+    return zlib.crc32(imdb_id.encode()) % n == k
+
+
 def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
-          workers=1, out_selection=None):
+          workers=1, out_selection=None, shard=None):
     """Choose and count every indexed film, reusing per-film caches.
 
     Each film's sampled candidates are fingerprinted (cached per file) and
@@ -72,7 +78,12 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     zip; a changed list only fetches the new files. `workers` parallelises
     films (worth it against the remote zip, where each read is a network
     round trip). `out_selection`, if given, gets one row per film saying
-    what was chosen and why (for review)."""
+    what was chosen and why (for review). With `shard` (k, n) only that
+    shard's films are counted, into the cache only - run n shards as
+    separate processes (parsing is GIL-bound), then once unsharded to write
+    the outputs from the warm cache."""
+    if shard:
+        index_rows = [row for row in index_rows if in_shard(row[0], shard)]
     cache_dir.mkdir(parents=True, exist_ok=True)
     records, todo = {}, []
     for row in index_rows:
@@ -144,6 +155,8 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                         failed += 1
                     if i % 1000 == 0:
                         print(f"count stage: {i}/{len(todo)} uncached entries")
+    if shard:
+        return {"processed": processed, "skipped": skipped, "failed": failed}
     ordered = [records[row[0]] for row in index_rows if row[0] in records]
     _compact(ordered, out_counts, out_stats)
     if out_selection:
@@ -188,7 +201,7 @@ def _write_selection(records, out):
     }), out)
 
 
-def run(workers=1):
+def run(workers=1, shard=None):
     index_rows = duckdb.sql(
         f"SELECT imdb_id, zip_name, candidates "
         f"FROM '{config.WORK_DIR / 'corpus_index.parquet'}'"
@@ -201,5 +214,6 @@ def run(workers=1):
                    config.WORK_DIR / "word_counts.parquet",
                    config.WORK_DIR / "movie_stats.parquet", runtimes,
                    workers=workers,
-                   out_selection=config.WORK_DIR / "selection.parquet")
+                   out_selection=config.WORK_DIR / "selection.parquet",
+                   shard=shard)
     print(f"count stage: {report}")

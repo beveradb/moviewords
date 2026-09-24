@@ -32,7 +32,9 @@ def test_derive_accepts_corpus_flag(monkeypatch):
 def test_count_accepts_workers_flag(monkeypatch):
     calls = []
     import moviewords_pipeline.counts as counts_mod
-    monkeypatch.setattr(counts_mod, "run", lambda workers=1: calls.append(workers))
+    monkeypatch.setattr(counts_mod, "run",
+                        lambda workers=1, shard=None: calls.append((workers, shard)))
     main(["count", "--workers", "16"])
     main(["count"])
-    assert calls == [16, 1]
+    main(["count", "--shard", "3/8"])
+    assert calls == [(16, None), (1, None), (1, (3, 8))]
