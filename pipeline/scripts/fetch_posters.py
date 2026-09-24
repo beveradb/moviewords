@@ -55,8 +55,11 @@ def main():
 
     dest_dir = config.OUT_DIR / "posters"
     dest_dir.mkdir(parents=True, exist_ok=True)
-    ids = [r[0] for r in duckdb.sql(
-        f"SELECT imdb_id FROM '{config.OUT_DIR / 'movies.parquet'}'").fetchall()]
+    # the all-films corpus is a superset of the English-originals one
+    movies = config.OUT_DIR / "all" / "movies.parquet"
+    if not movies.exists():
+        movies = config.OUT_DIR / "movies.parquet"
+    ids = [r[0] for r in duckdb.sql(f"SELECT imdb_id FROM '{movies}'").fetchall()]
     session = make_session()
 
     tally = {}

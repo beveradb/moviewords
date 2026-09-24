@@ -1,12 +1,11 @@
 import re
-import zipfile
 from collections import defaultdict
 from pathlib import Path
 
 import duckdb
 import pyarrow as pa
 
-from . import config
+from . import config, opus_zip
 
 PATH_RE = re.compile(r"OpenSubtitles/raw/en/\d{4}/(\d+)/\d+\.xml$")
 
@@ -38,16 +37,52 @@ def imdb_id_from_path(name):
     return "tt" + m.group(1).zfill(7)
 
 
-def select_best(candidates, runtime_minutes):
-    if not candidates:
-        return None
+def rank_candidates(candidates, runtime_minutes):
+    """Order a film's (zip_name, size_bytes) subtitle candidates best-first.
+
+    Only files in the plausible words-per-minute band qualify, and (given
+    enough candidates) none over MAX_SIZE_VS_UPPER_QUARTILE x the upper
+    quartile size. Among those,
+    files with a size PEER (another candidate within MAX_PEER_SIZE_RATIO)
+    come first, largest first, then peerless ones, largest first. Real
+    full-length rips cluster in size across a film's many uploads, while the
+    usual bad picks don't: a doubled/merged file is a lone outlier above the
+    cluster, and a lone featurette or partial sits below it. (Forced-only
+    tracks do cluster, but below the full rips, so largest-first still wins.)
+    [] if nothing is in band."""
     if runtime_minutes:
-        lo = runtime_minutes * config.MIN_TOKENS_PER_MIN
-        hi = runtime_minutes * config.MAX_TOKENS_PER_MIN
+        lo = runtime_minutes * config.MIN_WORDS_PER_MIN
+        hi = runtime_minutes * config.MAX_WORDS_PER_MIN
     else:
-        lo, hi = config.FALLBACK_TOKEN_RANGE
-    in_band = [(est, name) for name, est in candidates if lo <= est <= hi]
-    return max(in_band)[1] if in_band else None
+        lo, hi = config.FALLBACK_WORD_RANGE
+    in_band = sorted(((size, name) for name, size in candidates
+                      if lo <= size / config.BYTES_PER_WORD <= hi), reverse=True)
+    if len(in_band) >= config.MIN_CANDIDATES_FOR_CAP:
+        # doubled files can come in pairs (Forrest Gump: two ~450KB doubles
+        # peer each other above a ~25-file ~250KB cluster), so also cap
+        # against the upper quartile - robust while forced tracks and other
+        # small files are under 3/4 of the directory
+        ascending = sorted(size for size, _ in in_band)
+        upper_quartile = ascending[int(0.75 * (len(ascending) - 1))]
+        in_band = [(size, name) for size, name in in_band
+                   if size <= upper_quartile * config.MAX_SIZE_VS_UPPER_QUARTILE]
+    if len(in_band) <= 1:
+        return [name for _, name in in_band]
+    sizes = [size for size, _ in in_band]
+    ratio = config.MAX_PEER_SIZE_RATIO
+
+    def has_peer(k):   # sorted, so the nearest peer is an adjacent entry
+        return ((k > 0 and sizes[k - 1] <= sizes[k] * ratio)
+                or (k + 1 < len(sizes) and sizes[k + 1] * ratio >= sizes[k]))
+    peered = [name for k, (_, name) in enumerate(in_band) if has_peer(k)]
+    peerless = [name for k, (_, name) in enumerate(in_band) if not has_peer(k)]
+    return peered + peerless
+
+
+def select_best(candidates, runtime_minutes):
+    """The top-ranked candidate (see rank_candidates), or None."""
+    ranked = rank_candidates(candidates, runtime_minutes)
+    return ranked[0] if ranked else None
 
 
 def run():
@@ -58,7 +93,7 @@ def run():
     runtimes = dict(curated)
     blocked_ids, blocked_files = load_blocklist()
     by_movie = defaultdict(list)
-    with zipfile.ZipFile(config.RAW_DIR / "opus_en.zip") as z:
+    with opus_zip.open_source() as z:
         for info in z.infolist():
             imdb_id = imdb_id_from_path(info.filename)
             if imdb_id in blocked_ids:
@@ -66,15 +101,19 @@ def run():
             if imdb_id in runtimes:
                 if (imdb_id, info.filename) in blocked_files:
                     continue
-                by_movie[imdb_id].append((info.filename, info.file_size // 8))
+                by_movie[imdb_id].append((info.filename, info.file_size))
     rows = []
     for imdb_id, cands in by_movie.items():
-        best = select_best(cands, runtimes[imdb_id])
-        if best:
-            rows.append((imdb_id, best))
+        ranked = rank_candidates(cands, runtimes[imdb_id])
+        if ranked:
+            rows.append((imdb_id, ranked[0],
+                         ranked[1:1 + config.MAX_ALTERNATES]))
+    # `alternates` are the next-ranked files, tried by the count stage when
+    # the top pick parses suspiciously sparse (see counts.build)
     table = pa.table({
         "imdb_id": pa.array([r[0] for r in rows], type=pa.string()),
         "zip_name": pa.array([r[1] for r in rows], type=pa.string()),
+        "alternates": pa.array([r[2] for r in rows], type=pa.list_(pa.string())),
     })
     import pyarrow.parquet as pq
     pq.write_table(table, str(config.WORK_DIR / "corpus_index.parquet"))

@@ -41,19 +41,24 @@ export RCLONE_CONFIG_R2_PROVIDER=Cloudflare
 export RCLONE_CONFIG_R2_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID"
 export RCLONE_CONFIG_R2_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY"
 export RCLONE_CONFIG_R2_ENDPOINT="https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com"
+# ~680k small objects (mostly trend JSONs): per-request latency, not
+# bandwidth, is the limit. rclone's default 4 transfers would take ~14h;
+# 64 takes ~1.5h. Override via the environment if needed.
+export RCLONE_TRANSFERS="${RCLONE_TRANSFERS:-64}" RCLONE_CHECKERS="${RCLONE_CHECKERS:-64}"
+export RCLONE_NO_UPDATE_MODTIME=true   # silences R2's harmless 501 modtime noise
 
 # Ordered --filter rules, NOT mixed --include/--exclude: rclone does not
 # apply mixed include/exclude flags in command-line order (excludes never
 # beat `--include '*.json'`); --filter rules ARE first-match-wins in the
 # order given.
-rclone copy . r2:moviewords-data/ --checksum --progress \
+rclone copy . r2:moviewords-data/ --checksum --stats 60s --stats-one-line \
   --filter '+ json/trend/**' --filter '+ all/json/trend/**' --filter '+ all/lang/*/json/trend/**' \
   --filter '+ json/year-totals.json' --filter '+ all/json/year-totals.json' --filter '+ all/lang/*/json/year-totals.json' \
   --filter '+ json/year-films.json' --filter '+ all/json/year-films.json' --filter '+ all/lang/*/json/year-films.json' \
   --filter '+ all/rating/*/json/trend/**' --filter '+ all/rating/*/json/year-totals.json' --filter '+ all/rating/*/json/year-films.json' \
   --filter '+ json/blurb/**' --filter '+ all/json/blurb/**' \
   --filter '- *' --header-upload "Cache-Control: public, max-age=3600"
-rclone copy . r2:moviewords-data/ --checksum --progress \
+rclone copy . r2:moviewords-data/ --checksum --stats 60s --stats-one-line \
   --filter '- json/trend/**' --filter '- all/json/trend/**' --filter '- all/lang/*/json/trend/**' \
   --filter '- json/year-totals.json' --filter '- all/json/year-totals.json' --filter '- all/lang/*/json/year-totals.json' \
   --filter '- json/year-films.json' --filter '- all/json/year-films.json' --filter '- all/lang/*/json/year-films.json' \
@@ -61,15 +66,14 @@ rclone copy . r2:moviewords-data/ --checksum --progress \
   --filter '- json/blurb/**' --filter '- all/json/blurb/**' \
   --filter '+ *.json' --filter '- *' \
   --header-upload "Cache-Control: public, max-age=300"
-rclone copy . r2:moviewords-data/ --checksum --progress \
+rclone copy . r2:moviewords-data/ --checksum --stats 60s --stats-one-line \
   --exclude '*.json' --exclude 'posters/**' \
   --header-upload "Cache-Control: public, max-age=86400"
 echo "Uploaded $(du -sh . | cut -f1) from webdata/out to r2:moviewords-data"
 
 posters="${POSTERS_DIR:-../../../data/out/posters}"
 if [[ -d "$posters" ]]; then
-  rclone copy "$posters" r2:moviewords-data/posters/ --checksum --progress \
-    --transfers 64 --checkers 64 \
+  rclone copy "$posters" r2:moviewords-data/posters/ --checksum --stats 60s --stats-one-line \
     --filter '- *.part.avif' --filter '+ *.jpg' --filter '+ *.avif' --filter '- *' \
     --header-upload "Cache-Control: public, max-age=31536000, immutable"
   echo "Uploaded posters from $posters"
