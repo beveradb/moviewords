@@ -135,6 +135,9 @@ const POSTER_BASE = 'https://data.moviewords.org/posters'
 export function Poster({ id, title, className }: { id: string; title: string; className?: string }) {
   const { t } = useI18n()
   const [failed, setFailed] = useState(false)
+  // A browser that picked the AVIF <source> won't fall back to the JPEG on
+  // its own, so a failed AVIF drops the <picture> and retries as plain JPEG.
+  const [noAvif, setNoAvif] = useState(false)
   if (failed)
     return (
       <div
@@ -143,14 +146,23 @@ export function Poster({ id, title, className }: { id: string; title: string; cl
         {title}
       </div>
     )
-  return (
+  const img = (
     <img
       src={`${POSTER_BASE}/${id}.jpg`}
       alt={t('ui.poster.alt', { title })}
       loading="lazy"
-      onError={() => setFailed(true)}
+      onError={(e) => (e.currentTarget.currentSrc.endsWith('.avif') ? setNoAvif(true) : setFailed(true))}
       className={`aspect-[2/3] object-cover ${className ?? ''}`}
     />
+  )
+  if (noAvif) return img
+  // AVIF where supported, JPEG otherwise; `contents` keeps the <img> as the
+  // layout box so callers' sizing classes and the reserved aspect ratio hold.
+  return (
+    <picture className="contents">
+      <source srcSet={`${POSTER_BASE}/${id}.avif`} type="image/avif" />
+      {img}
+    </picture>
   )
 }
 

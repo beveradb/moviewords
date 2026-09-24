@@ -1,4 +1,5 @@
-"""Fetch movie posters from TMDB into data/out/posters/<imdb_id>.jpg.
+"""Fetch movie posters from TMDB into data/out/posters/<imdb_id>.jpg, then
+encode each to a sibling <imdb_id>.avif (see encode_posters.py).
 
 Self-hosting posters in R2 keeps the site independent of TMDB's CDN (and spares
 it our traffic). Resumable: existing files are skipped, so re-runs only fetch
@@ -18,6 +19,7 @@ import requests  # noqa: E402
 
 from moviewords_pipeline import config  # noqa: E402
 from moviewords_pipeline.tmdb import BASE, make_session  # noqa: E402
+from encode_posters import encode_all  # noqa: E402
 
 IMG_BASE = "https://image.tmdb.org/t/p"
 
@@ -65,6 +67,7 @@ def main():
             if (i + 1) % 1000 == 0:
                 print(f"{i + 1}/{len(ids)} {tally}", flush=True)
     print(f"done: {tally}")
+    print(f"avif: {encode_all(dest_dir)}")
 
 
 if __name__ == "__main__":
