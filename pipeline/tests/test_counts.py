@@ -198,3 +198,34 @@ def test_unparseable_top_pick_falls_back_to_alternate(tmp_path):
                    tmp_path / "wc.parquet", tmp_path / "ms.parquet", {})
     assert report == {"processed": 1, "skipped": 0, "failed": 0}
     assert json.loads((cache / "tt0383574.json").read_text())["zip_name"] == ALT1
+
+
+def test_implausibly_fast_pick_with_half_size_alternate_is_a_double(tmp_path):
+    """Dragon Seed: the pick counts 232 wpm and an alternate holds half its
+    words - the pick is two subtitle tracks glued together."""
+    import zipfile
+    zip_path = tmp_path / "z.zip"
+    line = "we must fight for the land our fathers gave us"   # 10 words
+    with zipfile.ZipFile(zip_path, "w") as z:
+        z.writestr(TOP, _doc([line] * 3000))    # 30,000 words in 100 min
+        z.writestr(ALT1, _doc([line] * 2700))   # 90%: a real variant, not a half
+        z.writestr(ALT2, _doc([line] * 1500))   # 50%: the single copy
+    cache = tmp_path / "cache"
+    build(zip_path, [("tt0036777", TOP, [ALT1, ALT2])], cache,
+          tmp_path / "wc.parquet", tmp_path / "ms.parquet", {"tt0036777": 100})
+    record = json.loads((cache / "tt0036777.json").read_text())
+    assert record["zip_name"] == ALT2 and record["indexed_as"] == TOP
+    assert record["total_words"] == 15_000
+
+
+def test_fast_talker_without_half_size_twin_keeps_pick(tmp_path):
+    import zipfile
+    zip_path = tmp_path / "z.zip"
+    line = "listen here you mug I got a story for the paper"
+    with zipfile.ZipFile(zip_path, "w") as z:
+        z.writestr(TOP, _doc([line] * 2100))
+        z.writestr(ALT1, _doc([line] * 1900))
+    cache = tmp_path / "cache"
+    build(zip_path, [("tt0032599", TOP, [ALT1])], cache,
+          tmp_path / "wc.parquet", tmp_path / "ms.parquet", {"tt0032599": 92})
+    assert json.loads((cache / "tt0032599.json").read_text())["zip_name"] == TOP

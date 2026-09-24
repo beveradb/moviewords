@@ -41,12 +41,22 @@ def test_select_best_takes_full_rip_when_forced_tracks_are_the_majority():
 
 
 def test_rank_candidates_puts_peerless_outliers_last():
-    # 585KB and 442KB have no size peer within 1.25x; the ~316KB cluster does
+    # 442KB has no size peer within 1.25x; the ~316KB cluster does. (The 585KB
+    # double is over 1.5x the upper quartile, so it's out entirely.)
     cands = [("double.xml", 585_000), ("odd.xml", 442_000),
              ("a.xml", 351_000), ("b.xml", 350_000), ("c.xml", 317_000),
              ("featurette.xml", 55_000)]
     assert rank_candidates(cands, 113) == [
-        "a.xml", "b.xml", "c.xml", "double.xml", "odd.xml", "featurette.xml"]
+        "a.xml", "b.xml", "c.xml", "odd.xml", "featurette.xml"]
+
+
+def test_select_best_skips_paired_doubled_files():
+    """Forrest Gump: two doubled files (468KB, 439KB) peer each other above a
+    ~25-file cluster of ~250KB real rips - the upper-quartile cap drops them."""
+    cands = [("double1.xml", 467_652), ("double2.xml", 438_750)]
+    cands += [(f"rip{i}.xml", 245_000 + i * 500) for i in range(25)]
+    cands += [(f"short{i}.xml", 187_000 + i) for i in range(20)]
+    assert select_best(cands, 142) == "rip24.xml"
 
 
 def test_rank_candidates_two_unrelated_sizes_prefers_larger():

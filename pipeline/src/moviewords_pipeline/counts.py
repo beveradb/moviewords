@@ -76,6 +76,7 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
 
             def count_one(row):
                 imdb_id, zip_name, alternates = row
+                runtime = runtimes.get(imdb_id)
                 best, chosen = parse(zip_name), zip_name
                 if (best is None
                         or best[1] / sum(best[0].values()) > config.MAX_BYTES_PER_WORD):
@@ -86,11 +87,19 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                         if parsed and (best is None or sum(parsed[0].values())
                                        > sum(best[0].values())):
                             best, chosen = parsed, alt
+                elif runtime and sum(best[0].values()) / runtime > config.MAX_COUNTED_WPM:
+                    # implausibly fast: if an alternate holds about half the
+                    # words, the pick is a doubled file - take the half
+                    top_total = sum(best[0].values())
+                    for alt in alternates:
+                        parsed = parse(alt)
+                        if parsed and 0.4 <= sum(parsed[0].values()) / top_total <= 0.6:
+                            best, chosen = parsed, alt
+                            break
                 if best is None:
                     return None
                 counts = best[0]
                 total = sum(counts.values())
-                runtime = runtimes.get(imdb_id)
                 record = {"imdb_id": imdb_id, "zip_name": chosen, "counts": counts,
                           "total_words": total, "unique_words": len(counts),
                           "words_per_minute": total / runtime if runtime else None}

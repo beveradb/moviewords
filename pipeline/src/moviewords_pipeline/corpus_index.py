@@ -40,7 +40,9 @@ def imdb_id_from_path(name):
 def rank_candidates(candidates, runtime_minutes):
     """Order a film's (zip_name, size_bytes) subtitle candidates best-first.
 
-    Only files in the plausible words-per-minute band qualify. Among those,
+    Only files in the plausible words-per-minute band qualify, and (given
+    enough candidates) none over MAX_SIZE_VS_UPPER_QUARTILE x the upper
+    quartile size. Among those,
     files with a size PEER (another candidate within MAX_PEER_SIZE_RATIO)
     come first, largest first, then peerless ones, largest first. Real
     full-length rips cluster in size across a film's many uploads, while the
@@ -55,6 +57,15 @@ def rank_candidates(candidates, runtime_minutes):
         lo, hi = config.FALLBACK_WORD_RANGE
     in_band = sorted(((size, name) for name, size in candidates
                       if lo <= size / config.BYTES_PER_WORD <= hi), reverse=True)
+    if len(in_band) >= config.MIN_CANDIDATES_FOR_CAP:
+        # doubled files can come in pairs (Forrest Gump: two ~450KB doubles
+        # peer each other above a ~25-file ~250KB cluster), so also cap
+        # against the upper quartile - robust while forced tracks and other
+        # small files are under 3/4 of the directory
+        ascending = sorted(size for size, _ in in_band)
+        upper_quartile = ascending[int(0.75 * (len(ascending) - 1))]
+        in_band = [(size, name) for size, name in in_band
+                   if size <= upper_quartile * config.MAX_SIZE_VS_UPPER_QUARTILE]
     if len(in_band) <= 1:
         return [name for _, name in in_band]
     sizes = [size for size, _ in in_band]

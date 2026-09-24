@@ -26,6 +26,10 @@ FALLBACK_WORD_RANGE = (2_000, 40_000)  # when runtime unknown
 # Within the band, prefer files with a size peer: another candidate at most
 # this ratio away (see corpus_index.rank_candidates).
 MAX_PEER_SIZE_RATIO = 1.25
+# ...and with at least MIN_CANDIDATES_FOR_CAP in band, skip files bigger than
+# this multiple of the in-band upper-quartile size (paired doubled files).
+MAX_SIZE_VS_UPPER_QUARTILE = 1.5
+MIN_CANDIDATES_FOR_CAP = 4
 # A top pick that parses to more than this many raw bytes per counted word
 # (normal: ~25) is suspect - mis-encoded garbage, or a file that is mostly
 # stripped lyrics/SDH cues. The count stage then also counts up to
@@ -33,5 +37,9 @@ MAX_PEER_SIZE_RATIO = 1.25
 # (so genuinely sparse films like musicals keep their pick).
 MAX_BYTES_PER_WORD = 60
 MAX_ALTERNATES = 3
+# A top pick counting faster than this (words/min of runtime) is checked for
+# being a doubled file: an alternate with 40-60% of its words replaces it.
+# Real fast talkers (Get Shorty, His Girl Friday) have no such half-size twin.
+MAX_COUNTED_WPM = 200
 
 LANG = "en"
