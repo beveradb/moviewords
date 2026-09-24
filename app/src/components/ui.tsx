@@ -143,14 +143,19 @@ export function Poster({ id, title, className }: { id: string; title: string; cl
         {title}
       </div>
     )
+  // AVIF where supported, JPEG otherwise; `contents` keeps the <img> as the
+  // layout box so callers' sizing classes and the reserved aspect ratio hold.
   return (
-    <img
-      src={`${POSTER_BASE}/${id}.jpg`}
-      alt={t('ui.poster.alt', { title })}
-      loading="lazy"
-      onError={() => setFailed(true)}
-      className={`aspect-[2/3] object-cover ${className ?? ''}`}
-    />
+    <picture className="contents">
+      <source srcSet={`${POSTER_BASE}/${id}.avif`} type="image/avif" />
+      <img
+        src={`${POSTER_BASE}/${id}.jpg`}
+        alt={t('ui.poster.alt', { title })}
+        loading="lazy"
+        onError={() => setFailed(true)}
+        className={`aspect-[2/3] object-cover ${className ?? ''}`}
+      />
+    </picture>
   )
 }
 

@@ -39,7 +39,7 @@ corpus (translated subtitles included), e.g.
 The all-films corpus adds `all/word_year_lang.parquet`
 `(word, year, lang, count, movie_count)` - per-original-language trend
 counts, keeping a (word, lang) pair when its corpus-wide total is >= 20.
-Posters are shared at `posters/<imdb_id>.jpg` regardless of corpus.
+Posters are shared at `posters/<imdb_id>.jpg` (plus an `.avif` twin) regardless of corpus.
 
 ## Query it without downloading
 

@@ -10,9 +10,14 @@
 # of featured-series.json once silently pushed the homepage onto the full SQL
 # engine), except the Trends bake (json/trend/** + year-totals.json, including
 # the per-language all/lang/<code>/json/trend/** + year-totals.json), which
-# is one file per word and safe to cache for 1h. Parquets/posters keep 24h -
-# the post-upload purge swaps versions, and parquet range reads revalidate
-# via If-Range/ETag.
+# is one file per word and safe to cache for 1h. Parquets keep 24h - the
+# post-upload purge swaps versions, and parquet range reads revalidate via
+# If-Range/ETag.
+#
+# Posters (.jpg + .avif, keyed by imdb id, never rewritten) are cached for a
+# year as immutable. They live in data/out/posters/ (fetch_posters.py /
+# encode_posters.py), not webdata/out, so they get their own copy step;
+# override the source with POSTERS_DIR. Skipped if the directory is absent.
 #
 # rclone --filter patterns containing a non-trailing `/` (e.g. `all/json/trend/**`)
 # are anchored to the root, so per-language paths need their own explicit
@@ -50,8 +55,18 @@ rclone copy . r2:moviewords-data/ --checksum --progress \
   --filter '+ *.json' --filter '- *' \
   --header-upload "Cache-Control: public, max-age=300"
 rclone copy . r2:moviewords-data/ --checksum --progress \
-  --exclude '*.json' --header-upload "Cache-Control: public, max-age=86400"
+  --exclude '*.json' --exclude 'posters/**' \
+  --header-upload "Cache-Control: public, max-age=86400"
 echo "Uploaded $(du -sh . | cut -f1) from webdata/out to r2:moviewords-data"
+
+posters="${POSTERS_DIR:-../../../data/out/posters}"
+if [[ -d "$posters" ]]; then
+  rclone copy "$posters" r2:moviewords-data/posters/ --checksum --progress \
+    --transfers 64 --checkers 64 \
+    --filter '- *.part.avif' --filter '+ *.jpg' --filter '+ *.avif' --filter '- *' \
+    --header-upload "Cache-Control: public, max-age=31536000, immutable"
+  echo "Uploaded posters from $posters"
+fi
 
 if [[ -n "${MOVIEWORDS_CF_TOKEN:-}" ]]; then
   # the upload already succeeded, so purge problems only warn - never fail

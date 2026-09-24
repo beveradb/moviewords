@@ -24,7 +24,7 @@ session records under `docs/sessions/`.
  │            word_year · word_meta                             │
  │   json:    movie/<id> · leaderboard · wordlists ·            │
  │            signature/{decades,genres} · movies-index         │
- │   posters/<id>.jpg (self-hosted, TMDB-sourced)               │
+ │   posters/<id>.{avif,jpg} (self-hosted, TMDB-sourced)        │
  └───────────────┬──────────────────────────────────────────────┘
                  ▼  plain fetch (hot paths) + DuckDB-WASM (SQL over
                     HTTP range requests — no backend anywhere)
@@ -57,7 +57,7 @@ Everything the frontend consumes, published to the R2 bucket root from
 | `json/wordlists.json` | stopword + profanity lists | stopword toggle, swear counts |
 | `json/movies-index.json` | slim all-movies list (search index) | client-side search |
 | `json/featured-series.json` | year totals + per-year counts for the featured words | homepage chart (no WASM needed) |
-| `posters/<id>.jpg` | TMDB w342 posters, self-hosted | `<img>` with fallback |
+| `posters/<id>.{avif,jpg}` | TMDB w342 posters, self-hosted; AVIF (q60) + JPEG, cached 1y immutable | `<picture>` (AVIF, JPEG fallback) with text placeholder |
 | `all/*` | mirror of every artifact above for the all-films corpus (translated subtitles included) | same access patterns, `all/` prefix |
 | `all/word_year_lang.parquet` | (word, year, lang, count, movie_count), corpus-total ≥ 20 per (word, lang) | per-language trends, all-films corpus only |
 

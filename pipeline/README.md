@@ -86,8 +86,11 @@ uv run python scripts/build_movies_index.py --corpus en
 uv run python scripts/build_movies_index.py --corpus all
 
 # Fetch movie posters from TMDB into data/out/posters/ (self-hosted per site
-# policy). Resumable; ~40 min for ~19k films at 8 workers.
+# policy), then encode each to a sibling .avif (needs `avifenc` from libavif).
+# Resumable; ~40 min for ~19k films at 8 workers. Encoding alone (e.g. after
+# restoring JPEGs from R2) is a few minutes for 51k posters on 14 cores:
 uv run python scripts/fetch_posters.py --workers 8
+uv run python scripts/encode_posters.py
 
 # Fetch thorough per-film TMDB metadata (one call per film via
 # append_to_response=credits,keywords). Writes three tiers:
@@ -100,6 +103,7 @@ uv run python scripts/fetch_posters.py --workers 8
 TMDB_API_KEY=... uv run python scripts/fetch_tmdb_meta.py --workers 8
 
 # Upload to R2 (requires env vars CLOUDFLARE_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY)
+# Also copies data/out/posters/*.{jpg,avif} (1y immutable Cache-Control).
 # The blurb sidecars ride the long-TTL cache group; tmdb_meta.parquet is
 # archived under data/out/ and not auto-published (no app consumer yet).
 ./scripts/upload_r2.sh
@@ -198,7 +202,8 @@ Artifacts land in `data/out/`:
   shipping its own copies
 - `json/movies-index.json` — slim all-movies search index (built by the
   post-derive snippet in the Full Run section)
-- `posters/<imdb_id>.jpg` — TMDB w342 posters (via `scripts/fetch_posters.py`)
+- `posters/<imdb_id>.jpg` + `.avif` — TMDB w342 posters (via `scripts/fetch_posters.py`,
+  AVIF twin via `scripts/encode_posters.py`); served to the app through `<picture>`
 - `json/blurb/<imdb_id>.json` — `{overview, tagline, runtime}` sidecar the movie
   page fetches lazily (via `scripts/fetch_tmdb_meta.py`; written under
   `webdata/out/all/json/blurb/` for publish). Missing files degrade gracefully -
