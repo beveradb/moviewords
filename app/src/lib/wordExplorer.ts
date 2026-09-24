@@ -40,6 +40,26 @@ export function filterRows(rows: WordEntry[], q: string): WordEntry[] {
   return query ? rows.filter(([w]) => w.includes(query)) : rows
 }
 
+/** Full-list rows for a query: substring matches plus any stretched
+ * spellings not already included, so "shit" also lists "shiiiit". */
+export function listFor(rows: WordEntry[], q: string): WordEntry[] {
+  const matches = filterRows(rows, q)
+  const extra = stretchedVariants(rows, q).filter((row) => !matches.includes(row))
+  return [...matches, ...extra]
+}
+
+/** Readable per-1k-words rate: never renders a said-once word as "0". */
+export function formatPer1k(
+  count: number,
+  totalWords: number,
+  n: (v: number, o?: Intl.NumberFormatOptions) => string,
+): string {
+  const rate = (count / Math.max(totalWords, 1)) * 1000
+  if (rate === 0) return n(0)
+  if (rate < 0.1) return `<${n(0.1, { minimumFractionDigits: 1 })}`
+  return n(rate, { maximumFractionDigits: 1 })
+}
+
 export const PAGE_SIZE = 50
 
 export function pageOf<T>(rows: T[], page: number): { rows: T[]; page: number; pages: number } {

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { WordEntry } from './data'
 import {
-  PAGE_SIZE, collapse, filterRows, findWord, movieWordsHash, onlyInFilm, pageOf, sortRows, stretchedVariants,
+  PAGE_SIZE, collapse, filterRows, findWord, formatPer1k, listFor, movieWordsHash, onlyInFilm, pageOf, sortRows,
+  stretchedVariants,
 } from './wordExplorer'
 
 const rows: WordEntry[] = [
@@ -58,6 +59,33 @@ describe('filterRows', () => {
   it('filters by substring; empty query keeps all', () => {
     expect(filterRows(rows, 'shi').map((r) => r[0])).toEqual(['shiiiit', 'shiiiitttt'])
     expect(filterRows(rows, '  ')).toHaveLength(rows.length)
+  })
+})
+
+describe('listFor', () => {
+  it('includes stretched variants alongside substring matches, no duplicates', () => {
+    const words = listFor(rows, 'shit').map((r) => r[0])
+    expect(words.filter((w) => w === 'shiiiit')).toHaveLength(1)
+    expect(words.filter((w) => w === 'shiiiitttt')).toHaveLength(1)
+  })
+  it('is just the substring match when there are no stretched variants', () => {
+    expect(listFor(rows, 'sho').map((r) => r[0])).toEqual(['shoot'])
+  })
+  it('returns all rows for an empty query', () => {
+    expect(listFor(rows, '')).toEqual(rows)
+  })
+})
+
+describe('formatPer1k', () => {
+  const n = (v: number, o?: Intl.NumberFormatOptions) => new Intl.NumberFormat('en', o).format(v)
+  it('shows "<0.1" for tiny non-zero rates instead of rounding to 0', () => {
+    expect(formatPer1k(1, 22000, n)).toBe('<0.1')
+  })
+  it('formats ordinary rates to one decimal', () => {
+    expect(formatPer1k(147, 22600, n)).toBe('6.5')
+  })
+  it('shows plain 0 for a zero count', () => {
+    expect(formatPer1k(0, 1000, n)).toBe('0')
   })
 })
 

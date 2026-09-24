@@ -35,6 +35,7 @@ describe('WordExplorer', () => {
     expect(screen.getByText(/isn't said in this film/)).toBeTruthy()
     expect(screen.getByText(/Also written as/)).toBeTruthy()
     expect(screen.getAllByText('shiiiit').length).toBeGreaterThan(0)
+    expect(screen.queryByText(/No words match/)).toBeNull()
   })
 
   it('shows the exact-match result line', async () => {

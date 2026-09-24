@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { getMovieWords, type MovieWords } from '../lib/data'
 import { navigate } from '../lib/route'
 import {
-  filterRows, findWord, movieWordsHash, onlyInFilm, pageOf, sortRows, stretchedVariants, type SortKey,
+  findWord, formatPer1k, listFor, movieWordsHash, onlyInFilm, pageOf, sortRows, stretchedVariants, type SortKey,
 } from '../lib/wordExplorer'
 import { Spinner } from './ui'
 import { useI18n } from '../i18n'
@@ -50,10 +50,10 @@ export function WordExplorer({ id, totalWords, initialQuery }: { id: string; tot
   const rows = useMemo(() => data?.w ?? [], [data])
   const exact = useMemo(() => findWord(rows, q), [rows, q])
   const variants = useMemo(() => stretchedVariants(rows, q), [rows, q])
-  const listed = useMemo(() => sortRows(filterRows(rows, q), sort), [rows, q, sort])
+  const listed = useMemo(() => sortRows(listFor(rows, q), sort), [rows, q, sort])
   const paged = pageOf(listed, page)
   const unique = useMemo(() => onlyInFilm(rows), [rows])
-  const per1k = (c: number) => n((c / Math.max(totalWords, 1)) * 1000, { maximumFractionDigits: 1 })
+  const per1k = (c: number) => formatPer1k(c, totalWords, n)
   const query = q.trim().toLowerCase()
 
   const onQuery = (value: string) => {
@@ -136,10 +136,10 @@ export function WordExplorer({ id, totalWords, initialQuery }: { id: string; tot
             <table className="mt-3 w-full font-script text-sm">
               <thead>
                 <tr className="border-b-2 border-ink text-start text-xs uppercase tracking-wide text-ink-2">
-                  <th className="py-1 text-start">{t('movie.colWord')}</th>
-                  <th className="py-1 text-end">{t('movie.colCount')}</th>
-                  <th className="py-1 text-end">{t('movie.colPer1k')}</th>
-                  <th className="py-1 text-end">{t('movie.colFilms')}</th>
+                  <th scope="col" className="py-1 text-start">{t('movie.colWord')}</th>
+                  <th scope="col" className="py-1 text-end">{t('movie.colCount')}</th>
+                  <th scope="col" className="py-1 text-end">{t('movie.colPer1k')}</th>
+                  <th scope="col" className="py-1 text-end">{t('movie.colFilms')}</th>
                 </tr>
               </thead>
               <tbody>
