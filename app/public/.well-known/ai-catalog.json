@@ -1,0 +1,53 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "Movie Words",
+    "identifier": "did:web:moviewords.org",
+    "documentationUrl": "https://github.com/beveradb/moviewords/blob/main/docs/ARCHITECTURE.md",
+    "logoUrl": "https://moviewords.org/apple-touch-icon.png"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:moviewords.org:data:films-index",
+      "displayName": "Movie Words - films index",
+      "type": "application/json",
+      "url": "https://data.moviewords.org/all/json/movies-index.json",
+      "description": "Index of 51,624 films with title, year, genres, runtime, rating and total word count, derived from English subtitles.",
+      "tags": ["movies", "film", "subtitles", "word-frequency", "dataset", "linguistics"],
+      "capabilities": ["FilmMetadataLookup", "WordFrequencyDataset"],
+      "representativeQueries": [
+        "what words does a given movie say most",
+        "dataset of films with dialogue word counts",
+        "movie subtitle vocabulary data"
+      ]
+    },
+    {
+      "identifier": "urn:air:moviewords.org:data:word-year",
+      "displayName": "Movie Words - word frequencies by year",
+      "type": "application/vnd.apache.parquet",
+      "url": "https://data.moviewords.org/all/word_year.parquet",
+      "description": "Per-word counts per year across the whole corpus, for analysing how movie dialogue changes over time.",
+      "tags": ["word-frequency", "time-series", "decades", "linguistics", "parquet"],
+      "capabilities": ["WordTrendAnalysis"],
+      "representativeQueries": [
+        "how movie dialogue changed over the decades",
+        "when did yeah overtake yes in films",
+        "word usage frequency by year in movies"
+      ]
+    },
+    {
+      "identifier": "urn:air:moviewords.org:site:movie-words",
+      "displayName": "Movie Words",
+      "type": "text/html",
+      "url": "https://moviewords.org",
+      "description": "Interactive site to explore the words spoken in ~51,000 films: signature vocabulary by film, decade and genre, trends over time, and head-to-head comparisons.",
+      "tags": ["movies", "word-frequency", "data-visualization", "film"],
+      "capabilities": ["ExploreMovieVocabulary", "CompareFilms"],
+      "representativeQueries": [
+        "explore the words spoken in movies",
+        "signature words of a film or genre",
+        "compare the vocabulary of two movies"
+      ]
+    }
+  ]
+}
