@@ -382,7 +382,7 @@
     "allRatings": "Toate ratingurile",
     "ratingLabel": "Rating",
     "ratingNeedsAllFilms": "Filtrul de rating funcționează cu Toate filmele",
-    "ratingNote": "Bazat pe {count} filme cu ratingul {rating} (ratingul actual US MPAA, via TMDB).",
+    "ratingNote": "Bazat pe {count} filme cu ratingul {rating} (ratingul US MPAA la lansarea în cinematografe, via TMDB).",
     "ratingSince1968": "Ratingurile MPAA au început în noiembrie 1968 - filmele anterioare au primit rating doar la relansările ulterioare, așa că graficul începe în 1968."
   },
   "languageFilter": {

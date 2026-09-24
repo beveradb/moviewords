@@ -382,7 +382,7 @@
     "allRatings": "Totes les qualificacions",
     "ratingLabel": "Qualificació",
     "ratingNeedsAllFilms": "El filtre de qualificació funciona amb Totes les pel·lícules",
-    "ratingNote": "Basat en {count} pel·lícules amb qualificació {rating} (qualificació actual de la MPAA dels EUA, via TMDB).",
+    "ratingNote": "Basat en {count} pel·lícules amb qualificació {rating} (qualificació de la MPAA dels EUA en l'estrena en cinemes, via TMDB).",
     "ratingSince1968": "Les qualificacions de la MPAA van començar el novembre de 1968 - les pel·lícules anteriors només tenen qualificació per reestrenes posteriors, així que el gràfic comença el 1968."
   },
   "languageFilter": {

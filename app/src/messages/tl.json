@@ -382,7 +382,7 @@
     "allRatings": "Lahat ng rating",
     "ratingLabel": "Rating",
     "ratingNeedsAllFilms": "Gumagana ang rating filter sa Lahat ng pelikula",
-    "ratingNote": "Batay sa {count} na pelikulang may rating na {rating} (kasalukuyang US MPAA rating, mula sa TMDB).",
+    "ratingNote": "Batay sa {count} na pelikulang may rating na {rating} (US MPAA rating noong ipinalabas sa sinehan, mula sa TMDB).",
     "ratingSince1968": "Nagsimula ang mga MPAA rating noong Nobyembre 1968 - ang mga mas lumang pelikula ay na-rate lang mula sa mga sumunod na re-release, kaya nagsisimula ang chart sa 1968."
   },
   "languageFilter": {

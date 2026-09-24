@@ -382,7 +382,7 @@
     "allRatings": "所有分级",
     "ratingLabel": "分级",
     "ratingNeedsAllFilms": "分级筛选适用于所有电影",
-    "ratingNote": "基于 {count} 部 {rating} 级电影（当前美国 MPAA 分级，数据来自 TMDB）。",
+    "ratingNote": "基于 {count} 部评级为 {rating} 的电影（美国 MPAA 院线上映评级，数据来自 TMDB）。",
     "ratingSince1968": "MPAA 分级始于 1968 年 11 月 - 早期电影的分级仅来自后来的重新发行，因此图表从 1968 年开始。"
   },
   "languageFilter": {

@@ -382,7 +382,7 @@
     "allRatings": "Sve dobne oznake",
     "ratingLabel": "Dobna oznaka",
     "ratingNeedsAllFilms": "Filter dobne oznake radi sa svim filmovima",
-    "ratingNote": "Temeljeno na {count} filmova s oznakom {rating} (trenutna američka MPAA dobna oznaka, putem TMDB-a).",
+    "ratingNote": "Na temelju {count} filmova s ocjenom {rating} (američka MPAA ocjena pri kino distribuciji, putem TMDB-a).",
     "ratingSince1968": "MPAA dobne oznake počele su se koristiti u studenom 1968. - raniji filmovi dobili su oznake tek pri kasnijim ponovnim izdanjima, pa grafikon počinje od 1968."
   },
   "languageFilter": {

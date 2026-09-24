@@ -10,7 +10,8 @@ spicier?). We promised a rating filter "later today".
   `All ratings | G | PG | PG-13 | R | NC-17/X`, URL param `rating=g|pg|pg13|r|nc17`.
   Composes with multiple words, `per=film` and the per-word summary.
 - **Source:** TMDB `/movie/{id}/release_dates`, US entry. It is the film's
-  *current* US certification (re-releases re-rate old films).
+  *original theatrical* US certification (re-releases can carry a different,
+  later certification, which is ignored).
 - **Build now** from today's published corpus; re-run fetch (incremental) +
   bake after PR #38 republishes the corpus.
 - **Starts at 1968:** with a rating selected, years < 1968 are dropped (MPAA
@@ -26,9 +27,12 @@ spicier?). We promised a rating filter "later today".
    `all/json/movies-index.json`; per film `/find/{imdb}` -> tmdb id, then
    `/movie/{id}/release_dates`. Raw US entries cached per film
    (`<cache>/<imdb_id>.json`, `null` for no TMDB match) - resumable and
-   incremental. Certification pick: US release dates with a non-empty
-   `certification`, preferring release type 3 (theatrical), then 2 (limited),
-   1 (premiere), then any; earliest date within the chosen type. Buckets:
+   incremental. Certification pick: only US release dates whose certification
+   maps to an MPAA bucket (a non-MPAA mark like NR/TV-MA never wins over a
+   real MPAA mark on the same film); among those, preferring release type 3
+   (theatrical), then 2 (limited), 1 (premiere), then any; earliest date
+   within the chosen type - i.e. the film's original theatrical rating, not
+   a later re-release's. Buckets:
    `G->g, PG->pg, PG-13->pg13, R->r, NC-17->nc17, X->nc17`; anything else
    (NR, Unrated, missing) -> no rating. Output `webdata/in/all/ratings.parquet`
    `(imdb_id VARCHAR, rating VARCHAR)` for rated films only.
@@ -57,8 +61,8 @@ spicier?). We promised a rating filter "later today".
   the normal error.
 - `Trends.tsx`: a `<select>` (explicit `value` per option) "Rating" beside the
   per-film toggle; changing it navigates via `trendsHref`; data effects re-run
-  on rating change. Note: "Based on {count} {rating}-rated films (current US
-  MPAA rating, via TMDB)." plus "MPAA ratings began in Nov 1968 - earlier films
+  on rating change. Note: "Based on {count} {rating}-rated films (US MPAA
+  rating on theatrical release, via TMDB)." plus "MPAA ratings began in Nov 1968 - earlier films
   are only rated from later re-releases, so the chart starts in 1968."
   Count = sum of the slice's `year-films.json` for years >= 1968.
 

@@ -382,7 +382,7 @@
     "allRatings": "Všetky hodnotenia",
     "ratingLabel": "Hodnotenie",
     "ratingNeedsAllFilms": "Filter hodnotenia funguje pri Všetkých filmoch",
-    "ratingNote": "Založené na {count} filmoch s hodnotením {rating} (aktuálne hodnotenie US MPAA, cez TMDB).",
+    "ratingNote": "Na základe {count} filmov s hodnotením {rating} (hodnotenie US MPAA pri uvedení do kín, cez TMDB).",
     "ratingSince1968": "Hodnotenia MPAA začali v novembri 1968 - staršie filmy sú hodnotené len z neskorších znovuuvedení, takže graf začína rokom 1968."
   },
   "languageFilter": {

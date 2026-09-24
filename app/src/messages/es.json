@@ -382,7 +382,7 @@
     "allRatings": "Todas las clasificaciones",
     "ratingLabel": "Clasificación",
     "ratingNeedsAllFilms": "El filtro de clasificación funciona con Todas las películas",
-    "ratingNote": "Basado en {count} películas con clasificación {rating} (clasificación actual de la MPAA de EE. UU., vía TMDB).",
+    "ratingNote": "Basado en {count} películas con clasificación {rating} (clasificación MPAA de EE. UU. en su estreno en cines, vía TMDB).",
     "ratingSince1968": "Las clasificaciones de la MPAA comenzaron en noviembre de 1968 - las películas anteriores solo tienen clasificación por reestrenos posteriores, así que el gráfico comienza en 1968."
   },
   "languageFilter": {

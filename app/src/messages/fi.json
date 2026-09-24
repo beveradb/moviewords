@@ -382,7 +382,7 @@
     "allRatings": "Kaikki ikärajat",
     "ratingLabel": "Ikäraja",
     "ratingNeedsAllFilms": "Ikärajasuodatin toimii Kaikki elokuvat -valinnalla",
-    "ratingNote": "Perustuu {count} elokuvaan, joiden ikäraja on {rating} (nykyinen Yhdysvaltain MPAA-ikäraja TMDB:n kautta).",
+    "ratingNote": "Perustuu {count} {rating}-luokiteltuun elokuvaan (Yhdysvaltain MPAA-luokitus teatterijulkaisun yhteydessä, TMDB:n kautta).",
     "ratingSince1968": "MPAA-ikärajat otettiin käyttöön marraskuussa 1968 - aiemmat elokuvat on luokiteltu vasta myöhempien uusintajulkaisujen yhteydessä, joten kaavio alkaa vuodesta 1968."
   },
   "languageFilter": {

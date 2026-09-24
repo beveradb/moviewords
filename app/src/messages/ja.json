@@ -382,7 +382,7 @@
     "allRatings": "すべてのレイティング",
     "ratingLabel": "レイティング",
     "ratingNeedsAllFilms": "レイティングフィルターは「すべての映画」で機能します",
-    "ratingNote": "{count}本の{rating}指定映画に基づいています（TMDBによる現在の米国MPAAレイティング）。",
+    "ratingNote": "{count}本の{rating}指定作品に基づいています（TMDBによる劇場公開時の米国MPAAレイティング）。",
     "ratingSince1968": "MPAAレイティングは1968年11月に始まりました - それ以前の映画は後の再上映時にのみレイティングされているため、チャートは1968年から始まります。"
   },
   "languageFilter": {

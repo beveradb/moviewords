@@ -382,7 +382,7 @@
     "allRatings": "Wszystkie kategorie wiekowe",
     "ratingLabel": "Kategoria wiekowa",
     "ratingNeedsAllFilms": "Filtr kategorii wiekowej działa z opcją Wszystkie filmy",
-    "ratingNote": "Na podstawie {count} filmów z kategorią {rating} (aktualna kategoria wiekowa MPAA w USA, przez TMDB).",
+    "ratingNote": "Na podstawie {count} filmów z kategorią {rating} (amerykańska kategoria MPAA przy premierze kinowej, wg TMDB).",
     "ratingSince1968": "Kategorie wiekowe MPAA wprowadzono w listopadzie 1968 roku - wcześniejsze filmy otrzymały je dopiero przy późniejszych wznowieniach, dlatego wykres zaczyna się w 1968 roku."
   },
   "languageFilter": {

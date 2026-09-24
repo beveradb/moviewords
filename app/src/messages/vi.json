@@ -382,7 +382,7 @@
     "allRatings": "Tất cả phân loại",
     "ratingLabel": "Phân loại",
     "ratingNeedsAllFilms": "Bộ lọc phân loại hoạt động với Tất cả phim",
-    "ratingNote": "Dựa trên {count} phim được phân loại {rating} (phân loại MPAA hiện tại của Mỹ, thông qua TMDB).",
+    "ratingNote": "Dựa trên {count} phim được xếp hạng {rating} (xếp hạng của MPAA Hoa Kỳ khi phát hành tại rạp, thông qua TMDB).",
     "ratingSince1968": "Hệ thống phân loại MPAA bắt đầu vào tháng 11 năm 1968 - các phim trước đó chỉ được phân loại từ những lần phát hành lại sau này, vì vậy biểu đồ bắt đầu từ năm 1968."
   },
   "languageFilter": {

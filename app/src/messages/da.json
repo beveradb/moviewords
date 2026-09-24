@@ -382,7 +382,7 @@
     "allRatings": "Alle aldersgrænser",
     "ratingLabel": "Aldersgrænse",
     "ratingNeedsAllFilms": "Aldersgrænse-filteret virker med Alle film",
-    "ratingNote": "Baseret på {count} film med aldersgrænsen {rating} (nuværende amerikansk MPAA-aldersgrænse, via TMDB).",
+    "ratingNote": "Baseret på {count} film med aldersgrænsen {rating} (amerikansk MPAA-aldersgrænse ved biografpremieren, via TMDB).",
     "ratingSince1968": "MPAA-aldersgrænser begyndte i november 1968 - tidligere film har kun fået en aldersgrænse ved senere genudgivelser, så grafen starter i 1968."
   },
   "languageFilter": {
