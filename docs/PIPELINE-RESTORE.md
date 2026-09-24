@@ -27,12 +27,12 @@ IMDb TSVs, ~1GB, via `cli download` minus the zip) and `enrich`.
 ## What is archived, and where
 
 **Private R2 bucket `moviewords-pipeline-cache`** (same Cloudflare account
-as the public data bucket; ~554MB ≈ $0.01/month):
+as the public data bucket; ~790MB ≈ $0.01/month):
 
 | Object | Contents |
 |---|---|
-| `moviewords-work-cache-2026-09-15.tar.zst` | the whole `data/work/` tree: per-movie count caches (`work/counts/en/`, 51,671 films - keyed by (imdb_id, zip entry), the expensive thing), TMDB caches (`work/tmdb/`, 51,686), plus regenerable parquets (curated, corpus_index, word_counts, movie_stats) |
-| `...tar.zst.sha256` | integrity checksum (82e8da30a8c4...368ff) |
+| `moviewords-work-cache-2026-09-24.tar.zst` | the whole `data/work/` tree: per-movie count caches (`work/counts/en/`, 64,644 films - keyed by (imdb_id, zip entry), the expensive thing), TMDB caches (`work/tmdb/`, 64,644), plus regenerable parquets (curated, corpus_index, word_counts, movie_stats) |
+| `...tar.zst.sha256` | integrity checksum (9ec47e7b636c...37eab); the 2026-09-15 archive (51.7k films) is kept alongside |
 
 **Not archived (re-downloadable):**
 - OPUS corpus zip (34GB): `https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2024/raw/en.zip`
@@ -68,10 +68,10 @@ git clone https://github.com/beveradb/moviewords /opt/moviewords
 cd /opt/moviewords/pipeline && /root/.local/bin/uv sync
 
 # 3. Restore the caches (creds: see above; export RCLONE_CONFIG_R2_* vars)
-rclone copy r2:moviewords-pipeline-cache/moviewords-work-cache-2026-09-15.tar.zst /tmp/
-(cd /tmp && rclone cat r2:moviewords-pipeline-cache/moviewords-work-cache-2026-09-15.tar.zst.sha256 | sha256sum -c -)
+rclone copy r2:moviewords-pipeline-cache/moviewords-work-cache-2026-09-24.tar.zst /tmp/
+(cd /tmp && rclone cat r2:moviewords-pipeline-cache/moviewords-work-cache-2026-09-24.tar.zst.sha256 | sha256sum -c -)
 mkdir -p /opt/moviewords/data && cd /opt/moviewords/data
-tar -I zstd -xf /tmp/moviewords-work-cache-2026-09-15.tar.zst   # creates work/
+tar -I zstd -xf /tmp/moviewords-work-cache-2026-09-24.tar.zst   # creates work/
 
 # 4. Re-download raw inputs (~20 min; OPUS zip + fresh IMDb TSVs)
 cd /opt/moviewords/pipeline
