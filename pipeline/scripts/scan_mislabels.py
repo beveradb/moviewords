@@ -121,8 +121,8 @@ def main():
     pairs = find_suspect_pairs(con, args.min_shared)
     print(f"stage 1: {len(pairs)} candidate pairs (>= {args.min_shared} shared rare words)")
     ids = sorted({i for a, b, _ in pairs for i in (a, b)})
-    # the file actually counted: the count stage may have swapped the index's
-    # pick for an alternate (cache record `zip_name` vs `indexed_as`)
+    # the file actually counted: the count stage chooses among the index's
+    # candidates by content consensus, so the cache record is authoritative
     for imdb_id in ids:
         cache = w / "counts" / config.LANG / f"{imdb_id}.json"
         if cache.exists():

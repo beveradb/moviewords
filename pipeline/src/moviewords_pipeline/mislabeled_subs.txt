@@ -51,3 +51,17 @@ tt0070246 OpenSubtitles/raw/en/1973/70246/282690.xml other series entry sub file
 tt0070246 OpenSubtitles/raw/en/1973/70246/1957228076.xml other series entry sub filed under Battles Without Honor and Humanity
 # tt0969711 -> 1959309432.xml
 tt0969711 OpenSubtitles/raw/en/2007/969711/1956640397.xml Oh My Ghosts! sub filed under Haunting Me
+# 2026-09-24 consensus selection: with the Neevevaro copies blocked, 11 identical
+# copies of another unidentified film (rahul/siya/kabir/karan) outnumber the 5 genuine
+# Vinaya Vidheya Rama files - the one majority-wrong folder found.
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956237821.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956238695.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956258898.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956274398.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956296931.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956315623.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956443462.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956325138.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956347816.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956403171.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956425251.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
