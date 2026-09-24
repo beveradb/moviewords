@@ -14,6 +14,12 @@ import duckdb  # noqa: E402
 
 RATING_CODES = ("g", "pg", "pg13", "r", "nc17")
 
+# MPAA ratings began Nov 1968; earlier films only carry later re-release
+# ratings, so rated slices exclude them at source (a biased "re-released
+# classics" sample otherwise leaks into movies/words_by_movie/word_year and
+# the baked trend top/byYear/year-totals/year-films).
+RATING_MIN_YEAR = 1968
+
 
 def build_rating_slice(all_in: Path, out_in: Path, ratings: Path, code: str) -> int:
     if code not in RATING_CODES:
@@ -24,7 +30,7 @@ def build_rating_slice(all_in: Path, out_in: Path, ratings: Path, code: str) -> 
         CREATE TABLE movies AS
             SELECT m.* FROM '{all_in}/movies.parquet' m
             JOIN '{ratings}' r USING (imdb_id)
-            WHERE r.rating = '{code}';
+            WHERE r.rating = '{code}' AND m.year >= {RATING_MIN_YEAR};
         CREATE TABLE wc AS
             SELECT w.* FROM '{all_in}/words_by_movie.parquet' w
             WHERE w.imdb_id IN (SELECT imdb_id FROM movies);
