@@ -58,3 +58,18 @@ def test_encode_one_handles_webp_named_jpg(tmp_path):
     assert mod.is_webp(src)
     assert mod.encode_one(src) == "encoded"
     assert sorted(p.name for p in tmp_path.iterdir()) == ["tt1.avif", "tt1.jpg"]
+
+
+def test_encode_all_raises_without_avifenc(tmp_path, monkeypatch):
+    (tmp_path / "tt1.jpg").write_bytes(b"x")
+    monkeypatch.setattr(mod.shutil, "which", lambda _: None)
+    with pytest.raises(RuntimeError, match="avifenc not found"):
+        mod.encode_all(tmp_path)
+
+
+def test_encode_all_raises_on_failed_posters(tmp_path, monkeypatch):
+    (tmp_path / "tt1.jpg").write_bytes(b"x")
+    monkeypatch.setattr(mod.shutil, "which", lambda _: "/usr/bin/avifenc")
+    monkeypatch.setattr(mod, "encode_one", lambda p, q: "failed")
+    with pytest.raises(RuntimeError, match="1 poster"):
+        mod.encode_all(tmp_path, workers=1)

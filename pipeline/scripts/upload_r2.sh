@@ -17,7 +17,10 @@
 # Posters (.jpg + .avif, keyed by imdb id, never rewritten) are cached for a
 # year as immutable. They live in data/out/posters/ (fetch_posters.py /
 # encode_posters.py), not webdata/out, so they get their own copy step;
-# override the source with POSTERS_DIR. Skipped if the directory is absent.
+# override the source with POSTERS_DIR (absolute, or relative to webdata/out).
+# Skipped with a warning if the directory is absent. --checksum skips objects
+# already in the bucket, so the header only lands on NEW uploads - rewrite
+# existing objects' metadata server-side if the policy ever changes.
 #
 # rclone --filter patterns containing a non-trailing `/` (e.g. `all/json/trend/**`)
 # are anchored to the root, so per-language paths need their own explicit
@@ -66,6 +69,8 @@ if [[ -d "$posters" ]]; then
     --filter '- *.part.avif' --filter '+ *.jpg' --filter '+ *.avif' --filter '- *' \
     --header-upload "Cache-Control: public, max-age=31536000, immutable"
   echo "Uploaded posters from $posters"
+else
+  echo "WARNING: no posters dir at $posters - skipped poster upload" >&2
 fi
 
 if [[ -n "${MOVIEWORDS_CF_TOKEN:-}" ]]; then

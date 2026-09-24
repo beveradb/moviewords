@@ -14,6 +14,7 @@ Run: cd pipeline && uv run python scripts/encode_posters.py [--quality 60] [--wo
 """
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -70,13 +71,20 @@ def encode_one(src, quality=DEFAULT_QUALITY):
 
 
 def encode_all(poster_dir, quality=DEFAULT_QUALITY, workers=None):
+    """Encode every pending poster; returns an outcome tally. Raises if any
+    poster failed, so a pipeline run can't go on to publish a JPEG whose
+    AVIF is missing."""
     todo = pending(poster_dir)
+    if todo and shutil.which("avifenc") is None:
+        raise RuntimeError("avifenc not found - install libavif")
     tally = {}
     with ThreadPoolExecutor(max_workers=workers or os.cpu_count()) as pool:
         for i, outcome in enumerate(pool.map(lambda p: encode_one(p, quality), todo)):
             tally[outcome] = tally.get(outcome, 0) + 1
             if (i + 1) % 1000 == 0:
                 print(f"{i + 1}/{len(todo)} {tally}", flush=True)
+    if tally.get("failed"):
+        raise RuntimeError(f"{tally['failed']} poster(s) failed to encode: {tally}")
     return tally
 
 
