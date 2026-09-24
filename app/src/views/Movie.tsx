@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { MovieBlurb, MovieDetail, MovieIndexEntry } from '../lib/data'
 import { getMovie, getMovieBlurb, getMovieIndex } from '../lib/data'
-import { navigate } from '../lib/route'
+import { navigate, useRoute } from '../lib/route'
 import { ErrorBox, HighlightWord, LangBadge, Poster, Slug, Spinner } from '../components/ui'
 import { WordFilterBar, defaultFilter, passesFilter, type WordRow } from '../components/WordFilter'
+import { WordExplorer } from '../components/WordExplorer'
 import { useI18n } from '../i18n'
 
 function Stat({ label, value, href }: { label: string; value: string; href?: string }) {
@@ -25,6 +26,7 @@ function Stat({ label, value, href }: { label: string; value: string; href?: str
 
 export function MovieView({ id }: { id: string }) {
   const { t, n, tn } = useI18n()
+  const { params } = useRoute()
   const [movie, setMovie] = useState<MovieDetail | null>(null)
   const [meta, setMeta] = useState<MovieIndexEntry | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -173,6 +175,8 @@ export function MovieView({ id }: { id: string }) {
           </ol>
         </section>
       </div>
+
+      <WordExplorer key={id} id={id} totalWords={movie.stats.total_words} initialQuery={params.get('q') ?? ''} />
 
       <div className="mt-10 flex gap-3">
         <button
