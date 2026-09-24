@@ -377,7 +377,8 @@
     "perFilmToggle": "Mỗi phim",
     "perMillionToggle": "Mỗi triệu từ",
     "usesPerFilmCaption": "số lần sử dụng trung bình mỗi phim phát hành trong năm đó",
-    "yAxisLabelPerFilm": "số lần sử dụng mỗi phim"
+    "yAxisLabelPerFilm": "số lần sử dụng mỗi phim",
+    "introPerFilm": "Tần suất một từ được nói trong tất cả các phim thuộc kho dữ liệu, tính bằng số lần sử dụng trung bình mỗi phim, theo năm phát hành."
   },
   "languageFilter": {
     "allFilms": "Tất cả phim",

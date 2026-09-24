@@ -377,7 +377,8 @@
     "perFilmToggle": "Par film",
     "perMillionToggle": "Par million de mots",
     "usesPerFilmCaption": "moyenne des occurrences par film sorti cette année-là",
-    "yAxisLabelPerFilm": "occurrences par film"
+    "yAxisLabelPerFilm": "occurrences par film",
+    "introPerFilm": "La fréquence à laquelle un mot est prononcé dans l'ensemble des films du corpus, exprimée en moyenne par film, selon l'année de sortie."
   },
   "languageFilter": {
     "allFilms": "Tous les films",

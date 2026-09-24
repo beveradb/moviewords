@@ -377,7 +377,8 @@
     "perFilmToggle": "لكل فيلم",
     "perMillionToggle": "لكل مليون كلمة",
     "usesPerFilmCaption": "متوسط الاستخدام لكل فيلم صدر في ذلك العام",
-    "yAxisLabelPerFilm": "الاستخدام لكل فيلم"
+    "yAxisLabelPerFilm": "الاستخدام لكل فيلم",
+    "introPerFilm": "مدى تكرار نطق الكلمة في جميع أفلام المجموعة، كمتوسط عدد مرات الاستخدام لكل فيلم، حسب سنة الإصدار."
   },
   "languageFilter": {
     "allFilms": "جميع الأفلام",

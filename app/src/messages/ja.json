@@ -377,7 +377,8 @@
     "perFilmToggle": "1作品あたり",
     "perMillionToggle": "100万語あたり",
     "usesPerFilmCaption": "その年に公開された映画1作品あたりの平均使用回数",
-    "yAxisLabelPerFilm": "1作品あたりの使用回数"
+    "yAxisLabelPerFilm": "1作品あたりの使用回数",
+    "introPerFilm": "収録されているすべての映画の中で、その単語がどれくらい使われているかを、公開年別に「1作品あたりの平均使用回数」として示しています。"
   },
   "languageFilter": {
     "allFilms": "すべての映画",

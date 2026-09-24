@@ -286,7 +286,7 @@ export function TrendsView() {
 
   return (
     <div>
-      <p className="mt-1 text-sm text-ink-2">{t('trends.intro')}</p>
+      <p className="mt-1 text-sm text-ink-2">{perFilm ? t('trends.introPerFilm') : t('trends.intro')}</p>
       {langs.length > 0 && filmCount !== null && (
         <p className="mt-1 text-sm text-ink-2">
           {t('trends.languageNote', { count: n(filmCount), langs: langLabel })} <ExplainerLink />

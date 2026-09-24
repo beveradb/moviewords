@@ -377,7 +377,8 @@
     "perFilmToggle": "Pro Film",
     "perMillionToggle": "Pro Million Wörter",
     "usesPerFilmCaption": "durchschnittliche Verwendungen pro Film aus diesem Jahr",
-    "yAxisLabelPerFilm": "Verwendungen pro Film"
+    "yAxisLabelPerFilm": "Verwendungen pro Film",
+    "introPerFilm": "Wie oft ein Wort in allen Filmen des Korpus gesprochen wird, als durchschnittliche Häufigkeit pro Film, nach Erscheinungsjahr."
   },
   "languageFilter": {
     "allFilms": "Alle Filme",

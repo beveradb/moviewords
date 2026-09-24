@@ -377,7 +377,8 @@
     "perFilmToggle": "Setiap filem",
     "perMillionToggle": "Setiap juta perkataan",
     "usesPerFilmCaption": "purata penggunaan setiap filem yang ditayangkan pada tahun tersebut",
-    "yAxisLabelPerFilm": "penggunaan setiap filem"
+    "yAxisLabelPerFilm": "penggunaan setiap filem",
+    "introPerFilm": "Berapa kerap sesuatu perkataan dituturkan merentas semua filem dalam korpus, sebagai purata penggunaan setiap filem, mengikut tahun tayangan."
   },
   "languageFilter": {
     "allFilms": "Semua filem",

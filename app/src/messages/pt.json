@@ -377,7 +377,8 @@
     "perFilmToggle": "Por filme",
     "perMillionToggle": "Por milhão de palavras",
     "usesPerFilmCaption": "média de usos por filme lançado naquele ano",
-    "yAxisLabelPerFilm": "usos por filme"
+    "yAxisLabelPerFilm": "usos por filme",
+    "introPerFilm": "Com que frequência uma palavra é dita em todos os filmes do corpus, como média de usos por filme, por ano de lançamento."
   },
   "languageFilter": {
     "allFilms": "Todos os filmes",

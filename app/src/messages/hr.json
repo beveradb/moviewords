@@ -377,7 +377,8 @@
     "perFilmToggle": "Po filmu",
     "perMillionToggle": "Na milijun riječi",
     "usesPerFilmCaption": "prosječan broj upotreba po filmu objavljenom te godine",
-    "yAxisLabelPerFilm": "broj upotreba po filmu"
+    "yAxisLabelPerFilm": "broj upotreba po filmu",
+    "introPerFilm": "Koliko se često riječ izgovara u svim filmovima u korpusu, kao prosječan broj upotreba po filmu, prema godini izlaska."
   },
   "languageFilter": {
     "allFilms": "Svi filmovi",

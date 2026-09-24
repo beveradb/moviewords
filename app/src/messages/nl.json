@@ -377,7 +377,8 @@
     "perFilmToggle": "Per film",
     "perMillionToggle": "Per miljoen woorden",
     "usesPerFilmCaption": "gemiddeld aantal keer gebruikt per film uitgebracht in dat jaar",
-    "yAxisLabelPerFilm": "keer gebruikt per film"
+    "yAxisLabelPerFilm": "keer gebruikt per film",
+    "introPerFilm": "Hoe vaak een woord wordt uitgesproken in alle films in het corpus, als gemiddeld aantal keer per film, per releasejaar."
   },
   "languageFilter": {
     "allFilms": "Alle films",

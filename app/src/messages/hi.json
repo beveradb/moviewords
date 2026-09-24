@@ -377,7 +377,8 @@
     "perFilmToggle": "प्रति फिल्म",
     "perMillionToggle": "प्रति मिलियन शब्द",
     "usesPerFilmCaption": "उस वर्ष रिलीज़ हुई प्रति फिल्म औसत उपयोग",
-    "yAxisLabelPerFilm": "प्रति फिल्म उपयोग"
+    "yAxisLabelPerFilm": "प्रति फिल्म उपयोग",
+    "introPerFilm": "कॉर्पस की सभी फिल्मों में कोई शब्द कितनी बार बोला जाता है, रिलीज़ वर्ष के अनुसार प्रति फिल्म औसत उपयोग के रूप में।"
   },
   "languageFilter": {
     "allFilms": "सभी फ़िल्में",

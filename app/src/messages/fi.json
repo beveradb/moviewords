@@ -377,7 +377,8 @@
     "perFilmToggle": "Elokuvaa kohden",
     "perMillionToggle": "Miljoonaa sanaa kohden",
     "usesPerFilmCaption": "keskimääräiset käyttökerrat kyseisenä vuonna julkaistua elokuvaa kohden",
-    "yAxisLabelPerFilm": "käyttökertaa elokuvaa kohden"
+    "yAxisLabelPerFilm": "käyttökertaa elokuvaa kohden",
+    "introPerFilm": "Kuinka usein sana lausutaan kaikissa aineiston elokuvissa, esitettynä keskimääräisinä käyttökertoina elokuvaa kohden julkaisuvuoden mukaan."
   },
   "languageFilter": {
     "allFilms": "Kaikki elokuvat",

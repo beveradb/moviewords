@@ -377,7 +377,8 @@
     "perFilmToggle": "לסרט",
     "perMillionToggle": "למיליון מילים",
     "usesPerFilmCaption": "ממוצע שימושים לסרט שיצא באותה שנה",
-    "yAxisLabelPerFilm": "שימושים לסרט"
+    "yAxisLabelPerFilm": "שימושים לסרט",
+    "introPerFilm": "באיזו תדירות מילה נאמרת בכל הסרטים במאגר, כממוצע שימושים לסרט, לפי שנת יציאה."
   },
   "languageFilter": {
     "allFilms": "כל הסרטים",

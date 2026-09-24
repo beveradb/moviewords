@@ -377,7 +377,8 @@
     "perFilmToggle": "Filmenként",
     "perMillionToggle": "Egymillió szavanként",
     "usesPerFilmCaption": "átlagos előfordulás az adott évben bemutatott filmenként",
-    "yAxisLabelPerFilm": "előfordulás filmenként"
+    "yAxisLabelPerFilm": "előfordulás filmenként",
+    "introPerFilm": "Milyen gyakran hangzik el egy szó a korpusz összes filmjében, filmenkénti átlagos előfordulásként, a bemutató éve szerint."
   },
   "languageFilter": {
     "allFilms": "Összes film",

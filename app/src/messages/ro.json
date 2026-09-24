@@ -377,7 +377,8 @@
     "perFilmToggle": "Per film",
     "perMillionToggle": "Per milion de cuvinte",
     "usesPerFilmCaption": "media de utilizări per film lansat în acel an",
-    "yAxisLabelPerFilm": "utilizări per film"
+    "yAxisLabelPerFilm": "utilizări per film",
+    "introPerFilm": "Cât de des este rostit un cuvânt în toate filmele din corpus, ca medie de utilizări per film, în funcție de anul lansării."
   },
   "languageFilter": {
     "allFilms": "Toate filmele",

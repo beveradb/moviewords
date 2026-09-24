@@ -377,7 +377,8 @@
     "perFilmToggle": "영화 편당",
     "perMillionToggle": "백만 단어당",
     "usesPerFilmCaption": "해당 연도 개봉 영화 편당 평균 사용 횟수",
-    "yAxisLabelPerFilm": "편당 사용 횟수"
+    "yAxisLabelPerFilm": "편당 사용 횟수",
+    "introPerFilm": "전체 영화에서 특정 단어가 얼마나 자주 사용되는지, 개봉 연도별 영화당 평균 사용 횟수로 보여줍니다."
   },
   "languageFilter": {
     "allFilms": "모든 영화",

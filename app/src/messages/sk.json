@@ -377,7 +377,8 @@
     "perFilmToggle": "Na film",
     "perMillionToggle": "Na milión slov",
     "usesPerFilmCaption": "priemerný počet použití na film vydaný v danom roku",
-    "yAxisLabelPerFilm": "použití na film"
+    "yAxisLabelPerFilm": "použití na film",
+    "introPerFilm": "Ako často sa slovo vyskytuje vo všetkých filmoch v korpuse, ako priemerný počet použití na film, podľa roku uvedenia."
   },
   "languageFilter": {
     "allFilms": "Všetky filmy",

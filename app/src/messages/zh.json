@@ -377,7 +377,8 @@
     "perFilmToggle": "每部电影",
     "perMillionToggle": "每百万词",
     "usesPerFilmCaption": "当年上映电影的平均每部使用次数",
-    "yAxisLabelPerFilm": "每部电影使用次数"
+    "yAxisLabelPerFilm": "每部电影使用次数",
+    "introPerFilm": "某个词在语料库所有电影中被说出的频率，按上映年份统计，以每部电影的平均使用次数表示。"
   },
   "languageFilter": {
     "allFilms": "所有电影",

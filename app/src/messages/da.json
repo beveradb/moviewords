@@ -377,7 +377,8 @@
     "perFilmToggle": "Pr. film",
     "perMillionToggle": "Pr. million ord",
     "usesPerFilmCaption": "gennemsnitlige forekomster pr. film udgivet det år",
-    "yAxisLabelPerFilm": "forekomster pr. film"
+    "yAxisLabelPerFilm": "forekomster pr. film",
+    "introPerFilm": "Hvor ofte et ord bliver sagt på tværs af alle film i korpusset, som gennemsnitligt antal gange per film, fordelt på udgivelsesår."
   },
   "languageFilter": {
     "allFilms": "Alle film",

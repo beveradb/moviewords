@@ -377,7 +377,8 @@
     "perFilmToggle": "На фільм",
     "perMillionToggle": "На мільйон слів",
     "usesPerFilmCaption": "середня кількість вживань на фільм, випущений того року",
-    "yAxisLabelPerFilm": "вживань на фільм"
+    "yAxisLabelPerFilm": "вживань на фільм",
+    "introPerFilm": "Як часто слово звучить у всіх фільмах корпусу, у вигляді середньої кількості вживань на фільм за роком випуску."
   },
   "languageFilter": {
     "allFilms": "Усі фільми",

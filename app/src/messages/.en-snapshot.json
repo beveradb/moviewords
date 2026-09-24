@@ -205,6 +205,7 @@
   },
   "trends": {
     "intro": "How often a word is spoken across all films in the corpus, per million words of dialogue, by release year.",
+    "introPerFilm": "How often a word is spoken across all films in the corpus, as average uses per film, by release year.",
     "firstWordPlaceholder": "Type a word, e.g. love",
     "addAnotherWordPlaceholder": "Add another word…",
     "wordInputAriaLabel": "Word to chart",
