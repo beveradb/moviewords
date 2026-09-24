@@ -126,3 +126,16 @@ Palette = site series colors, validated with the dataviz skill's
   swearing chart)
 - Comment watcher: `~/.local/hn-watch/` (HN + Reddit RSS + Bluesky -> Pushbullet;
   see the `hn-watcher` memory)
+
+## 4. Pre-1968 MPAA ratings (from the rating-filter build, 2026-09-24)
+
+The Trends rating filter (`rating=`) starts charts at 1968 because MPAA ratings
+began Nov 1968. TMDB still gives many older films a US certification - a first
+look (22k of 64.6k films fetched) found 255 pre-1968 rated films: G 112, PG 103,
+**PG-13 25** (a rating created in 1984), R 15. The top ones are classics re-rated
+for re-releases (Psycho R, The Good the Bad and the Ugly R, Casablanca PG, The
+Wizard of Oz G), so most are genuine *later* ratings, not errors. Worth a proper
+pass: full counts once the fetch completes, how many look wrong (vs re-release),
+and whether the movie page should show "rated X on re-release". Raw TMDB US
+release dates are cached per film in `data/work/tmdb_release/` (main checkout);
+`pipeline/scripts/fetch_ratings.py --stage parquet` rebuilds `ratings.parquet`.
