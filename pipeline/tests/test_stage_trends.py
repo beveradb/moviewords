@@ -60,3 +60,24 @@ def test_stage_trends_bakes_line_top_byyear(tmp_path, monkeypatch):
 
     # words below the word_year threshold are NOT baked
     assert not (tmp_path / "json" / "trend" / "subthreshold.json").exists()
+
+    films = json.loads((tmp_path / "json" / "year-films.json").read_text())
+    assert films == {"1952": 1, "1999": 1, "2001": 1}
+
+
+def test_write_year_films_counts_films_per_year(tmp_path, monkeypatch):
+    import rebuild_web_data as rwd
+    monkeypatch.setattr(rwd, "OUT", tmp_path)
+    con = duckdb.connect()
+    con.sql("""
+        CREATE TABLE movies (imdb_id VARCHAR, year INT);
+        INSERT INTO movies VALUES ('a', 2001), ('b', 2001), ('c', 1952), ('d', NULL);
+    """)
+    rwd.write_year_films(con)
+    films = json.loads((tmp_path / "json" / "year-films.json").read_text())
+    assert films == {"1952": 1, "2001": 2}
+
+
+def test_yearfilms_is_a_registered_stage():
+    import rebuild_web_data as rwd
+    assert rwd.STAGES["yearfilms"] is rwd.stage_yearfilms

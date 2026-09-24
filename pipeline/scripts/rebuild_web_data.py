@@ -9,6 +9,7 @@ raw subtitles. Regenerates:
   featured    json/featured-series.json (homepage chart without the SQL engine)
   trends      json/trend/<key>.json per word + json/year-totals.json (Trends
               page bake, no client SQL engine)
+  yearfilms   json/year-films.json only (films per year; also written by trends)
 
 Usage:
   scripts/fetch_published.sh [en|all]   # once, mirrors inputs to webdata/in[/all]
@@ -191,6 +192,23 @@ def stage_featured(con):
         {"totals": {str(y): t for y, t in totals}, "words": words}))
 
 
+def write_year_films(con):
+    """json/year-films.json: films released per year in this corpus/slice -
+    the Trends page's per-film denominator (a word's yearly count / films)."""
+    rows = con.sql(
+        "SELECT year, count(*)::BIGINT FROM movies WHERE year IS NOT NULL "
+        "GROUP BY year ORDER BY year").fetchall()
+    (OUT / "json").mkdir(parents=True, exist_ok=True)
+    (OUT / "json" / "year-films.json").write_text(
+        json.dumps({str(y): n for y, n in rows}))
+
+
+def stage_yearfilms(con):
+    """Standalone so the 35 small files can be (re)baked + uploaded without
+    regenerating ~485k per-word trend JSONs."""
+    write_year_films(con)
+
+
 def _word_key(w: str) -> str:
     # The object key/filename is the RAW word: the Cloudflare/R2 edge
     # percent-decodes the request path exactly once before key lookup
@@ -214,6 +232,7 @@ def stage_trends(con):
         "SELECT year, SUM(count)::BIGINT FROM word_year GROUP BY year").fetchall()
     (OUT / "json" / "year-totals.json").write_text(
         json.dumps({str(y): t for y, t in totals}))
+    write_year_films(con)
 
     line = {}
     for w, y, c in con.execute(
@@ -259,7 +278,8 @@ def stage_trends(con):
 
 STAGES = {"meta": stage_meta, "movies": stage_movies,
           "boards": stage_boards, "signatures": stage_signatures,
-          "featured": stage_featured, "trends": stage_trends}
+          "featured": stage_featured, "trends": stage_trends,
+          "yearfilms": stage_yearfilms}
 
 
 def main():
