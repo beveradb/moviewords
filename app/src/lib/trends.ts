@@ -187,10 +187,45 @@ export function perFilmSummary(
   }
 }
 
-/** Trends URL for a word list; `per=film` only when the per-film view is on,
- * so default links stay unchanged. */
-export const trendsHref = (words: string[], perFilm: boolean): string =>
-  `/trends?w=${encodeURIComponent(words.join(','))}${perFilm ? '&per=film' : ''}`
+/** MPAA rating filter (Trends only). Codes are the URL values + slice dir
+ * names; labels are MPAA marks (not translated). NC-17/X gets only ~5
+ * films/year in the corpus - never enough to chart on its own - so it folds
+ * into the 'r' slice as a combined "R & NC-17/X" option. */
+export const RATINGS = [
+  { code: 'g', label: 'G' },
+  { code: 'pg', label: 'PG' },
+  { code: 'pg13', label: 'PG-13' },
+  { code: 'r', label: 'R & NC-17/X' },
+] as const
+
+export type RatingCode = (typeof RATINGS)[number]['code']
+
+/** MPAA ratings began Nov 1968; earlier films only carry later re-release
+ * ratings (a biased "re-released classics" sample), so rated charts start here. */
+export const RATING_MIN_YEAR = 1968
+
+export function ratingFromParams(params: URLSearchParams): RatingCode | null {
+  const r = params.get('rating')
+  return RATINGS.some((x) => x.code === r) ? (r as RatingCode) : null
+}
+
+export const ratingLabel = (code: RatingCode): string =>
+  RATINGS.find((r) => r.code === code)?.label ?? code
+
+/** Films released in or after `minYear` (the rated-films count in the note). */
+export const filmsSince = (films: Map<number, number>, minYear: number): number =>
+  [...films].reduce((sum, [y, n]) => (y >= minYear ? sum + n : sum), 0)
+
+export interface TrendsLinkOpts {
+  perFilm?: boolean
+  rating?: RatingCode | null
+}
+
+/** Trends URL for a word list; `per=film` / `rating=` only when set, so
+ * default links stay unchanged. */
+export const trendsHref = (words: string[], opts: TrendsLinkOpts = {}): string =>
+  `/trends?w=${encodeURIComponent(words.join(','))}` +
+  `${opts.perFilm ? '&per=film' : ''}${opts.rating ? `&rating=${opts.rating}` : ''}`
 
 export const isPerFilm = (params: URLSearchParams): boolean => params.get('per') === 'film'
 

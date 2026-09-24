@@ -36,14 +36,20 @@ ROOT = Path(__file__).resolve().parent.parent / "webdata"
 IN, OUT = ROOT / "in", ROOT / "out"
 
 
-def set_corpus(corpus, lang=None):
+def set_corpus(corpus, lang=None, rating=None):
     """Point IN/OUT at the corpus subtree. 'en' keeps the historical flat
-    layout; 'all' nests under all/; a lang nests under all/lang/<code>/
-    mirroring the bucket prefix."""
+    layout; 'all' nests under all/; a lang nests under all/lang/<code>/ and an
+    MPAA rating under all/rating/<code>/, mirroring the bucket prefix.
+    lang and rating slice on independent axes (no rating x language slices
+    exist - see the design doc) so combining them is rejected."""
     global IN, OUT
+    if lang and rating:
+        raise ValueError("set_corpus: lang and rating cannot both be given")
     sub = () if corpus == "en" else ("all",)
     if lang:
         sub = ("all", "lang", lang)
+    if rating:
+        sub = ("all", "rating", rating)
     IN = ROOT.joinpath("in", *sub)
     OUT = ROOT.joinpath("out", *sub)
 
@@ -287,8 +293,12 @@ def main():
     ap.add_argument("--stage", default="all", choices=["all", *STAGES])
     ap.add_argument("--corpus", default="en", choices=["en", "all"])
     ap.add_argument("--lang", default=None)
+    ap.add_argument("--rating", default=None)
     args = ap.parse_args()
-    set_corpus(args.corpus, lang=args.lang)
+    if args.rating and args.stage not in ("trends", "yearfilms"):
+        ap.error("--rating is only supported with --stage trends or yearfilms "
+                  "(no rated meta/movies/boards/signatures/featured bake exists)")
+    set_corpus(args.corpus, lang=args.lang, rating=args.rating)
     OUT.mkdir(parents=True, exist_ok=True)
     for name in STAGES if args.stage == "all" else [args.stage]:
         t0 = time.time()

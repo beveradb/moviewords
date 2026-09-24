@@ -55,12 +55,14 @@ rclone copy . r2:moviewords-data/ --checksum --stats 60s --stats-one-line \
   --filter '+ json/trend/**' --filter '+ all/json/trend/**' --filter '+ all/lang/*/json/trend/**' \
   --filter '+ json/year-totals.json' --filter '+ all/json/year-totals.json' --filter '+ all/lang/*/json/year-totals.json' \
   --filter '+ json/year-films.json' --filter '+ all/json/year-films.json' --filter '+ all/lang/*/json/year-films.json' \
+  --filter '+ all/rating/*/json/trend/**' --filter '+ all/rating/*/json/year-totals.json' --filter '+ all/rating/*/json/year-films.json' \
   --filter '+ json/blurb/**' --filter '+ all/json/blurb/**' \
   --filter '- *' --header-upload "Cache-Control: public, max-age=3600"
 rclone copy . r2:moviewords-data/ --checksum --stats 60s --stats-one-line \
   --filter '- json/trend/**' --filter '- all/json/trend/**' --filter '- all/lang/*/json/trend/**' \
   --filter '- json/year-totals.json' --filter '- all/json/year-totals.json' --filter '- all/lang/*/json/year-totals.json' \
   --filter '- json/year-films.json' --filter '- all/json/year-films.json' --filter '- all/lang/*/json/year-films.json' \
+  --filter '- all/rating/*/json/trend/**' --filter '- all/rating/*/json/year-totals.json' --filter '- all/rating/*/json/year-films.json' \
   --filter '- json/blurb/**' --filter '- all/json/blurb/**' \
   --filter '+ *.json' --filter '- *' \
   --header-upload "Cache-Control: public, max-age=300"

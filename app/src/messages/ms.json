@@ -378,7 +378,12 @@
     "perMillionToggle": "Setiap juta perkataan",
     "usesPerFilmCaption": "purata penggunaan setiap filem yang ditayangkan pada tahun tersebut",
     "yAxisLabelPerFilm": "penggunaan setiap filem",
-    "introPerFilm": "Berapa kerap sesuatu perkataan dituturkan merentas semua filem dalam korpus, sebagai purata penggunaan setiap filem, mengikut tahun tayangan."
+    "introPerFilm": "Berapa kerap sesuatu perkataan dituturkan merentas semua filem dalam korpus, sebagai purata penggunaan setiap filem, mengikut tahun tayangan.",
+    "allRatings": "Semua penarafan",
+    "ratingLabel": "Penarafan",
+    "ratingNeedsAllFilms": "Penapis penarafan berfungsi dengan Semua filem",
+    "ratingNote": "Berdasarkan {count} filem dengan penarafan {rating} (penarafan MPAA AS semasa tayangan pawagam, melalui TMDB).",
+    "ratingSince1968": "Penarafan MPAA bermula pada November 1968 - filem yang lebih awal hanya dinilai daripada tayangan semula yang terkemudian, jadi carta bermula pada tahun 1968."
   },
   "languageFilter": {
     "allFilms": "Semua filem",

@@ -378,7 +378,12 @@
     "perMillionToggle": "Por millón de palabras",
     "usesPerFilmCaption": "promedio de usos por película estrenada ese año",
     "yAxisLabelPerFilm": "usos por película",
-    "introPerFilm": "Con qué frecuencia se dice una palabra en todas las películas del corpus, como promedio de usos por película, según el año de estreno."
+    "introPerFilm": "Con qué frecuencia se dice una palabra en todas las películas del corpus, como promedio de usos por película, según el año de estreno.",
+    "allRatings": "Todas las clasificaciones",
+    "ratingLabel": "Clasificación",
+    "ratingNeedsAllFilms": "El filtro de clasificación funciona con Todas las películas",
+    "ratingNote": "Basado en {count} películas con clasificación {rating} (clasificación MPAA de EE. UU. en su estreno en cines, vía TMDB).",
+    "ratingSince1968": "Las clasificaciones de la MPAA comenzaron en noviembre de 1968 - las películas anteriores solo tienen clasificación por reestrenos posteriores, así que el gráfico comienza en 1968."
   },
   "languageFilter": {
     "allFilms": "Todas las películas",

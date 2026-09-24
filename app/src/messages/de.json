@@ -378,7 +378,12 @@
     "perMillionToggle": "Pro Million Wörter",
     "usesPerFilmCaption": "durchschnittliche Verwendungen pro Film aus diesem Jahr",
     "yAxisLabelPerFilm": "Verwendungen pro Film",
-    "introPerFilm": "Wie oft ein Wort in allen Filmen des Korpus gesprochen wird, als durchschnittliche Häufigkeit pro Film, nach Erscheinungsjahr."
+    "introPerFilm": "Wie oft ein Wort in allen Filmen des Korpus gesprochen wird, als durchschnittliche Häufigkeit pro Film, nach Erscheinungsjahr.",
+    "allRatings": "Alle Freigaben",
+    "ratingLabel": "Freigabe",
+    "ratingNeedsAllFilms": "Der Freigabe-Filter funktioniert mit 'Alle Filme'",
+    "ratingNote": "Basierend auf {count} Filmen mit {rating}-Freigabe (US-MPAA-Altersfreigabe beim Kinostart, via TMDB).",
+    "ratingSince1968": "Die MPAA-Altersfreigaben wurden im November 1968 eingeführt - ältere Filme erhielten ihre Freigabe erst bei späteren Wiederveröffentlichungen, daher beginnt das Diagramm 1968."
   },
   "languageFilter": {
     "allFilms": "Alle Filme",

@@ -378,7 +378,12 @@
     "perMillionToggle": "백만 단어당",
     "usesPerFilmCaption": "해당 연도 개봉 영화 편당 평균 사용 횟수",
     "yAxisLabelPerFilm": "편당 사용 횟수",
-    "introPerFilm": "전체 영화에서 특정 단어가 얼마나 자주 사용되는지, 개봉 연도별 영화당 평균 사용 횟수로 보여줍니다."
+    "introPerFilm": "전체 영화에서 특정 단어가 얼마나 자주 사용되는지, 개봉 연도별 영화당 평균 사용 횟수로 보여줍니다.",
+    "allRatings": "모든 등급",
+    "ratingLabel": "등급",
+    "ratingNeedsAllFilms": "등급 필터는 모든 영화에서 작동합니다",
+    "ratingNote": "{count}편의 {rating} 등급 영화를 기준으로 합니다 (극장 개봉 시 미국 MPAA 등급 기준, TMDB 제공).",
+    "ratingSince1968": "MPAA 등급 제도는 1968년 11월에 도입되었습니다 - 그 이전 영화들은 추후 재개봉 시에만 등급이 부여되었기 때문에, 이 차트는 1968년부터 시작됩니다."
   },
   "languageFilter": {
     "allFilms": "모든 영화",

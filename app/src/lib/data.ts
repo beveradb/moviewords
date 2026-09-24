@@ -11,6 +11,9 @@ export const DATA_BASE =
 export const globalUrl = (path: string) => `${DATA_BASE}/all/${path}`
 export const langUrl = (code: string, path: string) => `${DATA_BASE}/all/lang/${code}/${path}`
 
+/** A per-MPAA-rating slice (Trends only): all/rating/<code>/... */
+export const ratingUrl = (code: string, path: string) => `${DATA_BASE}/all/rating/${code}/${path}`
+
 // Back-compat shim for callers still importing dataUrl (movie/index/wordlists,
 // duck.ts parquet reads): the global all/ tree.
 export const dataUrl = (path: string) => globalUrl(path)

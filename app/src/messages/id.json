@@ -378,7 +378,12 @@
     "perMillionToggle": "Per juta kata",
     "usesPerFilmCaption": "rata-rata penggunaan per film yang dirilis pada tahun tersebut",
     "yAxisLabelPerFilm": "penggunaan per film",
-    "introPerFilm": "Seberapa sering sebuah kata diucapkan di seluruh film dalam korpus, sebagai rata-rata penggunaan per film, berdasarkan tahun rilis."
+    "introPerFilm": "Seberapa sering sebuah kata diucapkan di seluruh film dalam korpus, sebagai rata-rata penggunaan per film, berdasarkan tahun rilis.",
+    "allRatings": "Semua rating",
+    "ratingLabel": "Rating",
+    "ratingNeedsAllFilms": "Filter rating berfungsi untuk Semua film",
+    "ratingNote": "Berdasarkan {count} film dengan rating {rating} (rating MPAA AS saat rilis di bioskop, melalui TMDB).",
+    "ratingSince1968": "Rating MPAA dimulai pada November 1968 - film-film sebelumnya hanya mendapat rating dari rilis ulang berikutnya, jadi grafik ini dimulai pada tahun 1968."
   },
   "languageFilter": {
     "allFilms": "Semua film",

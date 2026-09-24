@@ -378,7 +378,12 @@
     "perMillionToggle": "Per milione di parole",
     "usesPerFilmCaption": "media di utilizzi per film uscito in quell'anno",
     "yAxisLabelPerFilm": "utilizzi per film",
-    "introPerFilm": "La frequenza con cui una parola viene pronunciata in tutti i film del corpus, espressa come media di occorrenze per film, per anno di uscita."
+    "introPerFilm": "La frequenza con cui una parola viene pronunciata in tutti i film del corpus, espressa come media di occorrenze per film, per anno di uscita.",
+    "allRatings": "Tutti i rating",
+    "ratingLabel": "Rating",
+    "ratingNeedsAllFilms": "Il filtro per rating funziona con Tutti i film",
+    "ratingNote": "Basato su {count} film classificati {rating} (classificazione MPAA statunitense all'uscita nelle sale, tramite TMDB).",
+    "ratingSince1968": "I rating MPAA sono iniziati nel novembre 1968 - i film precedenti hanno ottenuto un rating solo in occasione di riedizioni successive, quindi il grafico parte dal 1968."
   },
   "languageFilter": {
     "allFilms": "Tutti i film",

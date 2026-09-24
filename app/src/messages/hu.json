@@ -378,7 +378,12 @@
     "perMillionToggle": "Egymillió szavanként",
     "usesPerFilmCaption": "átlagos előfordulás az adott évben bemutatott filmenként",
     "yAxisLabelPerFilm": "előfordulás filmenként",
-    "introPerFilm": "Milyen gyakran hangzik el egy szó a korpusz összes filmjében, filmenkénti átlagos előfordulásként, a bemutató éve szerint."
+    "introPerFilm": "Milyen gyakran hangzik el egy szó a korpusz összes filmjében, filmenkénti átlagos előfordulásként, a bemutató éve szerint.",
+    "allRatings": "Összes korhatár",
+    "ratingLabel": "Korhatár",
+    "ratingNeedsAllFilms": "A korhatárszűrő az Összes film beállítással működik",
+    "ratingNote": "{count} {rating} besorolású film alapján (amerikai MPAA besorolás a mozis bemutatókor, a TMDB adatai alapján).",
+    "ratingSince1968": "Az MPAA korhatár-besorolások 1968 novemberében kezdődtek - a korábbi filmek csak a későbbi újrakiadásokból kaptak besorolást, így a grafikon 1968-tól indul."
   },
   "languageFilter": {
     "allFilms": "Összes film",

@@ -378,7 +378,12 @@
     "perMillionToggle": "Bawat milyong salita",
     "usesPerFilmCaption": "average na paggamit bawat pelikulang ipinalabas sa taong iyon",
     "yAxisLabelPerFilm": "paggamit bawat pelikula",
-    "introPerFilm": "Kung gaano kadalas binibigkas ang isang salita sa lahat ng pelikula sa corpus, bilang average na paggamit bawat pelikula, ayon sa taon ng pagpapalabas."
+    "introPerFilm": "Kung gaano kadalas binibigkas ang isang salita sa lahat ng pelikula sa corpus, bilang average na paggamit bawat pelikula, ayon sa taon ng pagpapalabas.",
+    "allRatings": "Lahat ng rating",
+    "ratingLabel": "Rating",
+    "ratingNeedsAllFilms": "Gumagana ang rating filter sa Lahat ng pelikula",
+    "ratingNote": "Batay sa {count} na pelikulang may rating na {rating} (US MPAA rating noong ipinalabas sa sinehan, mula sa TMDB).",
+    "ratingSince1968": "Nagsimula ang mga MPAA rating noong Nobyembre 1968 - ang mga mas lumang pelikula ay na-rate lang mula sa mga sumunod na re-release, kaya nagsisimula ang chart sa 1968."
   },
   "languageFilter": {
     "allFilms": "Lahat ng pelikula",
