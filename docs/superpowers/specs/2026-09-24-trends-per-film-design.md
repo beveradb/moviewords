@@ -39,10 +39,15 @@ is unchanged in both modes, so the same years are plotted either way.
 
 **Loading.** `bakedYearFilms()` mirrors `bakedYearTotals()`: session-cached,
 0 languages -> global file, 1+ -> fetch each selected language's file and sum
-per year with the existing `mergeYearTotals`. Only fetched when the per-film
-mode is active (no extra request for the default view). If it fails, the
-toggle's per-film mode shows the existing error UI - no engine fallback needed
-(the engine path can't produce it cheaply either).
+per year with the existing `mergeYearTotals`. Fetched alongside the chart data
+whenever words are charted or per-film mode is on (it's ~1 KB and feeds the
+summary line in both modes). If it fails: per-film mode shows the existing
+error UI and the summary line is omitted - no engine fallback needed (the
+engine path can't produce it cheaply either).
+
+**Small values.** Per-film values are often < 1 (e.g. "swell" ~0.05/film), but
+`LineChart` floors `yMax` at 1 and rounds ticks/tooltips to 1 decimal. Fix:
+floor only at > 0, and format chart values with 2 significant decimals below 1.
 Featured charts (no `?w=`) support the toggle too - same `toSeries` call.
 
 **Toggle.** Segmented control above the chart: "Per million words | Per film".
@@ -55,8 +60,9 @@ mode *and* default mode - it's the direct answer to "how many per film"):
 `"{word}": {latest} uses per film in {decade}s films (all years: {overall})`
 - `latest` = sum(count) / sum(films) over plotted years in the decade of the
   latest plotted year; `overall` = the same over all plotted years.
-- Numbers via `n()` with 1 decimal (0.1 minimum display; show "<0.1" when
-  non-zero and below). Words with no data are already listed as missing.
+- Numbers via `n()`: 1 decimal at >= 1, 2 decimals below 1, "<0.01" when
+  non-zero and smaller, "0" for zero. Words with no data are already listed as
+  missing. Shown for user-charted words (not the featured chart).
 
 **i18n.** New `trends.*` keys in `en.json` (toggle labels, per-film axis label
 + caption, summary line); translated by the pre-commit hook / `npm run translate`.
