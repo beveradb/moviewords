@@ -1,6 +1,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { togglePin } from '../lib/trends'
 import { useI18n } from '../i18n'
+import { formatChartValue } from '../lib/chartFormat'
 
 export interface Series {
   name: string
@@ -61,7 +62,7 @@ export function LineChart({
   const { xs, xMin, xMax, yMax } = useMemo(() => {
     const xs = [...new Set(series.flatMap((s) => s.points.map((p) => p.x)))].sort((a, b) => a - b)
     const ys = series.flatMap((s) => s.points.map((p) => p.y))
-    return { xs, xMin: Math.min(...xs), xMax: Math.max(...xs), yMax: Math.max(...ys, 1) }
+    return { xs, xMin: Math.min(...xs), xMax: Math.max(...xs), yMax: Math.max(...ys) > 0 ? Math.max(...ys) : 1 }
   }, [series])
 
   if (series.length === 0 || xs.length === 0) return null
@@ -158,7 +159,7 @@ export function LineChart({
           <g key={tick}>
             <line x1={M.left} x2={width - M.right} y1={sy(tick)} y2={sy(tick)} stroke="var(--color-grid)" />
             <text x={M.left - 6} y={sy(tick) + 4} textAnchor="end" fontSize="11" fill="var(--color-ink-2)">
-              {tick >= 1000 ? `${tick / 1000}k` : Math.round(tick * 10) / 10}
+              {tick >= 1000 ? `${tick / 1000}k` : formatChartValue(tick)}
             </text>
           </g>
         ))}
@@ -208,7 +209,7 @@ export function LineChart({
                 <div className="flex items-center gap-1.5">
                   <span className="inline-block size-2.5 rounded-full" style={{ background: s.color }} />
                   <span>{s.name}</span>
-                  <span className="ms-2 tabular-nums text-ink-2">{Math.round(p.y * 10) / 10}</span>
+                  <span className="ms-2 tabular-nums text-ink-2">{formatChartValue(p.y)}</span>
                 </div>
                 {p.note &&
                   (p.noteHref ? (
