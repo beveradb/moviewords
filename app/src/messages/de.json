@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Wort zum Zeichnen",
     "yAxisLabel": "Verwendungen pro Million Wörter",
     "languageNote": "Basierend auf {count} {langs}-sprachigen Filmen, gemessen an ihren englischen Untertiteln.",
-    "notEnoughFilms": "Nicht genug Filme in {langs} für diesen Trend - füge Sprachen hinzu oder wechsle zu Alle Filme."
+    "notEnoughFilms": "Nicht genug Filme in {langs} für diesen Trend - füge Sprachen hinzu oder wechsle zu Alle Filme.",
+    "measureAriaLabel": "Metrik",
+    "perFilmSummary": "„{word}“: {latest} Verwendungen pro Film in Filmen der {decade}er (alle Jahre: {overall})",
+    "perFilmToggle": "Pro Film",
+    "perMillionToggle": "Pro Million Wörter",
+    "usesPerFilmCaption": "durchschnittliche Verwendungen pro Film aus diesem Jahr",
+    "yAxisLabelPerFilm": "Verwendungen pro Film"
   },
   "languageFilter": {
     "allFilms": "Alle Filme",

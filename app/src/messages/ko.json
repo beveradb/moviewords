@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "차트에 그릴 단어",
     "yAxisLabel": "백만 단어당 사용 횟수",
     "languageNote": "{count}편의 {langs} 영화를 바탕으로 영어 자막에서 측정되었습니다.",
-    "notEnoughFilms": "이 트렌드를 위한 {langs} 영화가 충분하지 않습니다 - 언어를 추가하거나 모든 영화로 전환하세요."
+    "notEnoughFilms": "이 트렌드를 위한 {langs} 영화가 충분하지 않습니다 - 언어를 추가하거나 모든 영화로 전환하세요.",
+    "measureAriaLabel": "측정 기준",
+    "perFilmSummary": "“{word}”: {decade}년대 영화에서 편당 {latest}회 사용 (전체 연도: {overall}회)",
+    "perFilmToggle": "영화 편당",
+    "perMillionToggle": "백만 단어당",
+    "usesPerFilmCaption": "해당 연도 개봉 영화 편당 평균 사용 횟수",
+    "yAxisLabelPerFilm": "편당 사용 횟수"
   },
   "languageFilter": {
     "allFilms": "모든 영화",

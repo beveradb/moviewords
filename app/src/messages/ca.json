@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Paraula a traçar",
     "yAxisLabel": "usos per milió de paraules",
     "languageNote": "Basat en {count} pel·lícules en {langs}, mesurat a partir dels seus subtítols en anglès.",
-    "notEnoughFilms": "No hi ha prou pel·lícules en {langs} per a aquesta tendència - afegeix idiomes o canvia a Totes les pel·lícules."
+    "notEnoughFilms": "No hi ha prou pel·lícules en {langs} per a aquesta tendència - afegeix idiomes o canvia a Totes les pel·lícules.",
+    "measureAriaLabel": "Mesura",
+    "perFilmSummary": "“{word}”: {latest} usos per pel·lícula en pel·lícules dels anys {decade} (tots els anys: {overall})",
+    "perFilmToggle": "Per pel·lícula",
+    "perMillionToggle": "Per milió de paraules",
+    "usesPerFilmCaption": "mitjana d'usos per pel·lícula estrenada aquell any",
+    "yAxisLabelPerFilm": "usos per pel·lícula"
   },
   "languageFilter": {
     "allFilms": "Totes les pel·lícules",

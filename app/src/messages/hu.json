@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Ábrázolandó szó",
     "yAxisLabel": "használat egymillió szóra vetítve",
     "languageNote": "{count} {langs} nyelvű film alapján, az angol felirataikból mérve.",
-    "notEnoughFilms": "Nincs elég film {langs} nyelven ehhez a trendhez - adj hozzá nyelveket, vagy válts az Összes filmre."
+    "notEnoughFilms": "Nincs elég film {langs} nyelven ehhez a trendhez - adj hozzá nyelveket, vagy válts az Összes filmre.",
+    "measureAriaLabel": "Mérőszám",
+    "perFilmSummary": "„{word}”: {latest} előfordulás filmenként a(z) {decade}-as évek filmjeiben (összes év: {overall})",
+    "perFilmToggle": "Filmenként",
+    "perMillionToggle": "Egymillió szavanként",
+    "usesPerFilmCaption": "átlagos előfordulás az adott évben bemutatott filmenként",
+    "yAxisLabelPerFilm": "előfordulás filmenként"
   },
   "languageFilter": {
     "allFilms": "Összes film",

@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "الكلمة المراد رسمها",
     "yAxisLabel": "استخدام لكل مليون كلمة",
     "languageNote": "بناءً على {count} أفلام باللغة {langs}، تم قياسها من ترجمتها الإنجليزية.",
-    "notEnoughFilms": "لا يوجد عدد كافٍ من الأفلام باللغة {langs} لهذا الاتجاه - أضف لغات أو بدّل إلى كل الأفلام."
+    "notEnoughFilms": "لا يوجد عدد كافٍ من الأفلام باللغة {langs} لهذا الاتجاه - أضف لغات أو بدّل إلى كل الأفلام.",
+    "measureAriaLabel": "القياس",
+    "perFilmSummary": "“{word}”: {latest} استخدام لكل فيلم في أفلام فترة {decade} (جميع السنوات: {overall})",
+    "perFilmToggle": "لكل فيلم",
+    "perMillionToggle": "لكل مليون كلمة",
+    "usesPerFilmCaption": "متوسط الاستخدام لكل فيلم صدر في ذلك العام",
+    "yAxisLabelPerFilm": "الاستخدام لكل فيلم"
   },
   "languageFilter": {
     "allFilms": "جميع الأفلام",

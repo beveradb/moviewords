@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Kata untuk dibuat grafik",
     "yAxisLabel": "penggunaan per juta kata",
     "languageNote": "Berdasarkan {count} film berbahasa {langs}, diukur dari subtitle bahasa Inggrisnya.",
-    "notEnoughFilms": "Tidak cukup film dalam {langs} untuk tren ini - tambahkan bahasa atau beralih ke Semua film."
+    "notEnoughFilms": "Tidak cukup film dalam {langs} untuk tren ini - tambahkan bahasa atau beralih ke Semua film.",
+    "measureAriaLabel": "Ukuran",
+    "perFilmSummary": "“{word}”: {latest} penggunaan per film di film-film era {decade}-an (semua tahun: {overall})",
+    "perFilmToggle": "Per film",
+    "perMillionToggle": "Per juta kata",
+    "usesPerFilmCaption": "rata-rata penggunaan per film yang dirilis pada tahun tersebut",
+    "yAxisLabelPerFilm": "penggunaan per film"
   },
   "languageFilter": {
     "allFilms": "Semua film",

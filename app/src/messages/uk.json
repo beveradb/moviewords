@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Слово для графіка",
     "yAxisLabel": "використань на мільйон слів",
     "languageNote": "На основі {count} фільмів мовою {langs}, підраховано за їхніми англійськими субтитрами.",
-    "notEnoughFilms": "Недостатньо фільмів мовою {langs} для цього тренду - додай мови або переключись на Всі фільми."
+    "notEnoughFilms": "Недостатньо фільмів мовою {langs} для цього тренду - додай мови або переключись на Всі фільми.",
+    "measureAriaLabel": "Вимір",
+    "perFilmSummary": "«{word}»: {latest} вживань на фільм у фільмах {decade}-х років (за всі роки: {overall})",
+    "perFilmToggle": "На фільм",
+    "perMillionToggle": "На мільйон слів",
+    "usesPerFilmCaption": "середня кількість вживань на фільм, випущений того року",
+    "yAxisLabelPerFilm": "вживань на фільм"
   },
   "languageFilter": {
     "allFilms": "Усі фільми",

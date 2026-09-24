@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "चार्ट करने के लिए शब्द",
     "yAxisLabel": "प्रति मिलियन शब्दों पर इस्तेमाल",
     "languageNote": "{count} {langs}-भाषा की फ़िल्मों पर आधारित, जिन्हें उनके अंग्रेज़ी सबटाइटल्स से मापा गया है。",
-    "notEnoughFilms": "इस ट्रेंड के लिए {langs} में पर्याप्त फ़िल्में नहीं हैं - भाषाएँ जोड़ो या All films पर स्विच करो।"
+    "notEnoughFilms": "इस ट्रेंड के लिए {langs} में पर्याप्त फ़िल्में नहीं हैं - भाषाएँ जोड़ो या All films पर स्विच करो।",
+    "measureAriaLabel": "माप",
+    "perFilmSummary": "“{word}”: {decade} के दशक की फिल्मों में प्रति फिल्म {latest} उपयोग (सभी वर्ष: {overall})",
+    "perFilmToggle": "प्रति फिल्म",
+    "perMillionToggle": "प्रति मिलियन शब्द",
+    "usesPerFilmCaption": "उस वर्ष रिलीज़ हुई प्रति फिल्म औसत उपयोग",
+    "yAxisLabelPerFilm": "प्रति फिल्म उपयोग"
   },
   "languageFilter": {
     "allFilms": "सभी फ़िल्में",

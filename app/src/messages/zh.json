@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "要绘制图表的词",
     "yAxisLabel": "每百万词使用次数",
     "languageNote": "基于 {count} 部 {langs} 电影，从它们的英文字幕中统计得出。",
-    "notEnoughFilms": "在 {langs} 中没有足够的电影来显示此趋势 - 请添加语言或切换到所有电影。"
+    "notEnoughFilms": "在 {langs} 中没有足够的电影来显示此趋势 - 请添加语言或切换到所有电影。",
+    "measureAriaLabel": "指标",
+    "perFilmSummary": "“{word}”：在{decade}年代的电影中平均每部使用 {latest} 次（所有年份：{overall}）",
+    "perFilmToggle": "每部电影",
+    "perMillionToggle": "每百万词",
+    "usesPerFilmCaption": "当年上映电影的平均每部使用次数",
+    "yAxisLabelPerFilm": "每部电影使用次数"
   },
   "languageFilter": {
     "allFilms": "所有电影",

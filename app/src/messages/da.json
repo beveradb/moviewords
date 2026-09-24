@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Ord til graf",
     "yAxisLabel": "brug per million ord",
     "languageNote": "Baseret på {count} film på {langs}, målt ud fra deres engelske undertekster.",
-    "notEnoughFilms": "Ikke nok film på {langs} til denne tendens - tilføj sprog eller skift til Alle film."
+    "notEnoughFilms": "Ikke nok film på {langs} til denne tendens - tilføj sprog eller skift til Alle film.",
+    "measureAriaLabel": "Måleenhed",
+    "perFilmSummary": "“{word}”: {latest} forekomster pr. film i {decade}ernes film (alle år: {overall})",
+    "perFilmToggle": "Pr. film",
+    "perMillionToggle": "Pr. million ord",
+    "usesPerFilmCaption": "gennemsnitlige forekomster pr. film udgivet det år",
+    "yAxisLabelPerFilm": "forekomster pr. film"
   },
   "languageFilter": {
     "allFilms": "Alle film",

@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Palavra para o gráfico",
     "yAxisLabel": "usos por milhão de palavras",
     "languageNote": "Baseado em {count} filmes em {langs}, medido a partir de suas legendas em inglês.",
-    "notEnoughFilms": "Não há filmes suficientes em {langs} para esta tendência - adicione idiomas ou mude para Todos os filmes."
+    "notEnoughFilms": "Não há filmes suficientes em {langs} para esta tendência - adicione idiomas ou mude para Todos os filmes.",
+    "measureAriaLabel": "Medida",
+    "perFilmSummary": "“{word}”: {latest} usos por filme em filmes dos anos {decade} (todos os anos: {overall})",
+    "perFilmToggle": "Por filme",
+    "perMillionToggle": "Por milhão de palavras",
+    "usesPerFilmCaption": "média de usos por filme lançado naquele ano",
+    "yAxisLabelPerFilm": "usos por filme"
   },
   "languageFilter": {
     "allFilms": "Todos os filmes",

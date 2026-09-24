@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Slovo na vykreslenie",
     "yAxisLabel": "použití na milión slov",
     "languageNote": "Založené na {count} filmoch v jazyku {langs}, merané z ich anglických titulkov.",
-    "notEnoughFilms": "Pre tento trend nie je dostatok filmov v jazyku {langs} - pridaj jazyky alebo prepni na Všetky filmy."
+    "notEnoughFilms": "Pre tento trend nie je dostatok filmov v jazyku {langs} - pridaj jazyky alebo prepni na Všetky filmy.",
+    "measureAriaLabel": "Miera",
+    "perFilmSummary": "„{word}“: {latest} použití na film vo filmoch z {decade}. rokov (všetky roky: {overall})",
+    "perFilmToggle": "Na film",
+    "perMillionToggle": "Na milión slov",
+    "usesPerFilmCaption": "priemerný počet použití na film vydaný v danom roku",
+    "yAxisLabelPerFilm": "použití na film"
   },
   "languageFilter": {
     "allFilms": "Všetky filmy",

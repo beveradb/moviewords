@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "チャート化する単語",
     "yAxisLabel": "100万語あたりの使用回数",
     "languageNote": "{count}本の{langs}映画の英語字幕に基づいて測定されています。",
-    "notEnoughFilms": "このトレンドを表示するには{langs}の映画が足りません - 言語を追加するか、「すべての映画」に切り替えてください。"
+    "notEnoughFilms": "このトレンドを表示するには{langs}の映画が足りません - 言語を追加するか、「すべての映画」に切り替えてください。",
+    "measureAriaLabel": "指標",
+    "perFilmSummary": "「{word}」: {decade}年代の映画では1作品あたり{latest}回使用（全年代: {overall}）",
+    "perFilmToggle": "1作品あたり",
+    "perMillionToggle": "100万語あたり",
+    "usesPerFilmCaption": "その年に公開された映画1作品あたりの平均使用回数",
+    "yAxisLabelPerFilm": "1作品あたりの使用回数"
   },
   "languageFilter": {
     "allFilms": "すべての映画",

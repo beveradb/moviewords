@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Ord att kartlägga",
     "yAxisLabel": "användningar per miljon ord",
     "languageNote": "Baserat på {count} {langs}-språkiga filmer, mätt från deras engelska undertexter.",
-    "notEnoughFilms": "Inte tillräckligt med filmer på {langs} för denna trend - lägg till språk eller byt till Alla filmer."
+    "notEnoughFilms": "Inte tillräckligt med filmer på {langs} för denna trend - lägg till språk eller byt till Alla filmer.",
+    "measureAriaLabel": "Mått",
+    "perFilmSummary": "”{word}”: {latest} förekomster per film i {decade}-talsfilmer (alla år: {overall})",
+    "perFilmToggle": "Per film",
+    "perMillionToggle": "Per miljon ord",
+    "usesPerFilmCaption": "genomsnittligt antal förekomster per film utgiven det året",
+    "yAxisLabelPerFilm": "förekomster per film"
   },
   "languageFilter": {
     "allFilms": "Alla filmer",

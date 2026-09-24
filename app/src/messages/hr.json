@@ -371,7 +371,13 @@
     "wordInputAriaLabel": "Riječ za grafikon",
     "yAxisLabel": "korištenja na milijun riječi",
     "languageNote": "Temeljeno na {count} filmova na jeziku: {langs}, izmjereno iz njihovih engleskih titlova.",
-    "notEnoughFilms": "Nema dovoljno filmova na {langs} za ovaj trend - dodaj jezike ili prebaci na Sve filmove."
+    "notEnoughFilms": "Nema dovoljno filmova na {langs} za ovaj trend - dodaj jezike ili prebaci na Sve filmove.",
+    "measureAriaLabel": "Mjera",
+    "perFilmSummary": "“{word}”: {latest} puta po filmu u filmovima iz {decade}-ih (sve godine: {overall})",
+    "perFilmToggle": "Po filmu",
+    "perMillionToggle": "Na milijun riječi",
+    "usesPerFilmCaption": "prosječan broj upotreba po filmu objavljenom te godine",
+    "yAxisLabelPerFilm": "broj upotreba po filmu"
   },
   "languageFilter": {
     "allFilms": "Svi filmovi",
