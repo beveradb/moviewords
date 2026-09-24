@@ -17,6 +17,7 @@ Run after the count stage:
 Known limitation: only catches duplicates where BOTH ids are in the corpus.
 """
 import argparse
+import json
 import math
 import sys
 from collections import defaultdict
@@ -120,6 +121,12 @@ def main():
     pairs = find_suspect_pairs(con, args.min_shared)
     print(f"stage 1: {len(pairs)} candidate pairs (>= {args.min_shared} shared rare words)")
     ids = sorted({i for a, b, _ in pairs for i in (a, b)})
+    # the file actually counted: the count stage may have swapped the index's
+    # pick for an alternate (cache record `zip_name` vs `indexed_as`)
+    for imdb_id in ids:
+        cache = w / "counts" / config.LANG / f"{imdb_id}.json"
+        if cache.exists():
+            chosen[imdb_id] = json.loads(cache.read_text()).get("zip_name", chosen[imdb_id])
     vecs = _vectors(con, ids) if ids else {}
 
     duplicates, review = [], []

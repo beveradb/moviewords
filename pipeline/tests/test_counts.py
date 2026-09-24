@@ -229,3 +229,70 @@ def test_fast_talker_without_half_size_twin_keeps_pick(tmp_path):
     build(zip_path, [("tt0032599", TOP, [ALT1])], cache,
           tmp_path / "wc.parquet", tmp_path / "ms.parquet", {"tt0032599": 92})
     assert json.loads((cache / "tt0032599.json").read_text())["zip_name"] == TOP
+
+
+def test_fetch_failure_on_top_pick_never_caches_an_alternate(tmp_path, monkeypatch):
+    """A network blip is not evidence against the file: fail the film
+    (retried next run) instead of permanently caching a fallback."""
+    import zipfile
+    from moviewords_pipeline import counts
+    zip_path = tmp_path / "z.zip"
+    with zipfile.ZipFile(zip_path, "w") as z:
+        z.writestr(ALT1, _doc(["hello there"] * 50))
+
+    class TopTimesOut:
+        def __init__(self):
+            self.z = zipfile.ZipFile(zip_path)
+        def read(self, name):
+            if name == TOP:
+                raise OSError("read timed out")
+            return self.z.read(name)
+        def __enter__(self):
+            return self
+        def __exit__(self, *exc):
+            pass
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: TopTimesOut())
+    cache = tmp_path / "cache"
+    report = build(zip_path, [("tt0383574", TOP, [ALT1])], cache,
+                   tmp_path / "wc.parquet", tmp_path / "ms.parquet", {})
+    assert report == {"processed": 0, "skipped": 0, "failed": 1}
+    assert not (cache / "tt0383574.json").exists()
+
+
+def test_transient_fetch_error_is_retried(tmp_path, monkeypatch):
+    import zipfile
+    from moviewords_pipeline import counts
+    zip_path = build_zip(tmp_path / "mini.zip")
+    calls = []
+
+    class FlakyOnce:
+        def __init__(self):
+            self.z = zipfile.ZipFile(zip_path)
+        def read(self, name):
+            calls.append(name)
+            if len(calls) == 1:
+                raise zlib_error("incomplete stream")
+            return self.z.read(name)
+        def __enter__(self):
+            return self
+        def __exit__(self, *exc):
+            pass
+    import zlib
+    zlib_error = zlib.error
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: FlakyOnce())
+    report = build(zip_path, [INDEX[0]], tmp_path / "cache",
+                   tmp_path / "wc.parquet", tmp_path / "ms.parquet", RUNTIMES)
+    assert report == {"processed": 1, "skipped": 0, "failed": 0}
+
+
+def test_cached_alternate_is_dropped_once_blocklisted(tmp_path):
+    """A record counted from alternate B (indexed_as=A) must not survive B
+    leaving the alternates (e.g. B was blocklisted)."""
+    zip_path = _sparse_zip(tmp_path, ["Will!"] * 10 + [GARBLED] * 200)
+    cache = tmp_path / "cache"
+    args = (cache, tmp_path / "wc.parquet", tmp_path / "ms.parquet")
+    build(zip_path, [("tt0383574", TOP, [ALT1, ALT2])], *args, {})
+    assert json.loads((cache / "tt0383574.json").read_text())["zip_name"] == ALT1
+    report = build(zip_path, [("tt0383574", TOP, [ALT2])], *args, {})
+    assert report == {"processed": 1, "skipped": 0, "failed": 0}
+    assert json.loads((cache / "tt0383574.json").read_text())["zip_name"] == ALT2

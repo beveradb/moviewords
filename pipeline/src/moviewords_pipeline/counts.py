@@ -1,6 +1,7 @@
 import json
 import os
 import zipfile
+import zlib
 from concurrent.futures import ThreadPoolExecutor
 
 import duckdb
@@ -18,11 +19,13 @@ STATS_SCHEMA = pa.schema([("imdb_id", pa.string()), ("total_words", pa.int64()),
                           ("unique_words", pa.int32()),
                           ("words_per_minute", pa.float64())])
 
+FETCH_ATTEMPTS = 3
+
 _CACHE_RECORD_FIELDS = ("imdb_id", "zip_name", "counts", "total_words",
                         "unique_words", "words_per_minute")
 
 
-def _cached(cache_dir, imdb_id, zip_name):
+def _cached(cache_dir, imdb_id, zip_name, alternates=()):
     dest = cache_dir / f"{imdb_id}.json"
     if not dest.exists():
         return None
@@ -34,8 +37,11 @@ def _cached(cache_dir, imdb_id, zip_name):
         return None
     if any(field not in record for field in _CACHE_RECORD_FIELDS):
         return None
-    # `indexed_as`: the top pick was verified but an alternate won
-    if zip_name in (record.get("zip_name"), record.get("indexed_as")):
+    if record.get("zip_name") == zip_name:
+        return record
+    # `indexed_as`: the top pick was verified but an alternate won - still
+    # valid only while that alternate is a current (non-blocklisted) one
+    if record.get("indexed_as") == zip_name and record.get("zip_name") in alternates:
         return record
     return None
 
@@ -56,7 +62,7 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     cache_dir.mkdir(parents=True, exist_ok=True)
     records, todo = {}, []
     for imdb_id, zip_name, *rest in index_rows:
-        record = _cached(cache_dir, imdb_id, zip_name)
+        record = _cached(cache_dir, imdb_id, zip_name, rest[0] if rest else ())
         if record:
             records[imdb_id] = record
         else:
@@ -64,26 +70,41 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     skipped, processed, failed = len(records), 0, 0
     if todo:
         with opus_zip.open_source(zip_path) as z:
-            def parse(zip_name):
-                """(counts, raw byte size) or None on a fetch/parse failure."""
-                try:
-                    raw = z.read(zip_name)
-                except (OSError, requests.RequestException, zipfile.BadZipFile) as exc:
-                    print(f"count {zip_name}: {exc}")
-                    return None
+            def fetch(zip_name):
+                """Raw bytes, retrying transient errors; None if unreadable."""
+                for attempt in range(FETCH_ATTEMPTS):
+                    try:
+                        return z.read(zip_name)
+                    except (OSError, requests.RequestException, zipfile.BadZipFile,
+                            zlib.error, KeyError, NotImplementedError) as exc:
+                        if attempt == FETCH_ATTEMPTS - 1:
+                            print(f"count {zip_name}: {exc!r}")
+                return None
+
+            def parse(raw):
+                """(counts, raw byte size), or None if no words parse out."""
                 counts = count_words(extract_text(raw))
                 return (counts, len(raw)) if counts else None
+
+            def parse_alt(zip_name):
+                raw = fetch(zip_name)
+                return parse(raw) if raw is not None else None
 
             def count_one(row):
                 imdb_id, zip_name, alternates = row
                 runtime = runtimes.get(imdb_id)
-                best, chosen = parse(zip_name), zip_name
+                raw = fetch(zip_name)
+                if raw is None:
+                    # a fetch failure is not evidence against the file: fail
+                    # (uncached, retried next run) rather than cache a fallback
+                    return None
+                best, chosen = parse(raw), zip_name
                 if (best is None
                         or best[1] / sum(best[0].values()) > config.MAX_BYTES_PER_WORD):
                     # unreadable or suspiciously sparse: keep whichever
                     # candidate says the most
                     for alt in alternates:
-                        parsed = parse(alt)
+                        parsed = parse_alt(alt)
                         if parsed and (best is None or sum(parsed[0].values())
                                        > sum(best[0].values())):
                             best, chosen = parsed, alt
@@ -92,7 +113,7 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                     # words, the pick is a doubled file - take the half
                     top_total = sum(best[0].values())
                     for alt in alternates:
-                        parsed = parse(alt)
+                        parsed = parse_alt(alt)
                         if parsed and 0.4 <= sum(parsed[0].values()) / top_total <= 0.6:
                             best, chosen = parsed, alt
                             break
