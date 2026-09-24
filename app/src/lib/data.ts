@@ -172,6 +172,31 @@ export function getMovieBlurb(id: string): Promise<MovieBlurb | null> {
   return blurbCache.get(url) as Promise<MovieBlurb | null>
 }
 
+/** [word, count in this film, films in the corpus that say it] */
+export type WordEntry = [word: string, count: number, films: number]
+
+/** Every word a film says - json/words/<id>.json, the film page explorer. */
+export interface MovieWords {
+  w: WordEntry[]
+}
+
+const wordsCache = new Map<string, Promise<MovieWords | null>>()
+
+/** A film's full word list, or null when it isn't baked (404) or the fetch
+ * fails - the explorer section then says so; the rest of the page is fine. */
+export function getMovieWords(id: string): Promise<MovieWords | null> {
+  const url = globalUrl(`json/words/${id}.json`)
+  if (!wordsCache.has(url)) {
+    wordsCache.set(
+      url,
+      fetch(url)
+        .then((res) => (res.ok ? (res.json() as Promise<MovieWords>) : null))
+        .catch(() => null),
+    )
+  }
+  return wordsCache.get(url) as Promise<MovieWords | null>
+}
+
 /** The movie index filtered to the active language selection (empty = all). */
 export async function getFilteredMovieIndex(): Promise<MovieIndexEntry[]> {
   const [idx, langs] = [await getMovieIndex(), activeLanguages()]

@@ -35,12 +35,13 @@ def main():
         n = slice_mod.build_slice(all_in, all_in / "lang" / code, src_codes)
         rwd.set_corpus("all", lang=code)
         rwd.OUT.mkdir(parents=True, exist_ok=True)
-        # "movies" (json/movie/<id>.json) is deliberately skipped here: a film
-        # has one original_language, so per-movie JSON stays global under
-        # all/ and is never baked per language (see Global Constraints in
+        # "movies" (json/movie/<id>.json) and "words" (json/words/<id>.json) are
+        # deliberately skipped here: films have one original_language and one
+        # canonical word list, so per-film JSON stays global under all/ and is
+        # never baked per language (see Global Constraints in
         # docs/superpowers/plans/2026-09-15-corpus-language-filter-pipeline.md).
         for name in rwd.STAGES:
-            if name == "movies":
+            if name in ("movies", "words"):
                 continue
             rwd.STAGES[name](rwd.connect())
         print(f"  {code}: {n} films, baked in {time.time() - t0:.0f}s", flush=True)

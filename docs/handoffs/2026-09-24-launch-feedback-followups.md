@@ -153,3 +153,11 @@ pass: full counts once the fetch completes, how many look wrong (vs re-release),
 and whether the movie page should show "rated X on re-release". Raw TMDB US
 release dates are cached per film in `data/work/tmdb_release/` (main checkout);
 `pipeline/scripts/fetch_ratings.py --stage parquet` rebuilds `ratings.parquet`.
+
+## 5. Small follow-ups from the MPAA filter + word explorer builds (2026-09-24)
+
+Non-blocking items from the final reviews (#39 rating filter, film word explorer):
+- **Plan-mandated duplication** (user to decide): `fetch_ratings.py` `_write_json`/`load_ids` vs `fetch_tmdb_meta.py`; `build_rating_slice.py`/`bake_all_ratings.py` vs the language-slice equivalents; `stage_words`' streaming loop vs `stage_movies` (a `_stream_films(con)` generator); `getMovieWords` vs `getMovieBlurb` (a shared cached-optional loader - also evict transient network errors instead of caching `null` for the session).
+- **Word explorer:** every word links to `/trends?w=`, but Trends only has words with 20+ corpus uses, so rare words land on "Not enough data" - link only when `films` is large enough, or show why. A11y polish: `aria-live` on the result block, focus on page change, table `<caption>`, "×" read aloud as "multiplication sign". A same-film `?q=` hash edit doesn't resync the query.
+- **Docs:** `pipeline/README.md` doesn't describe `json/words/` or the rating slices; `rebuild_web_data.py` usage line omits `words`; run `words` with `--corpus all` only (the legacy `en` corpus would bake ~25k extra flat files).
+- **Rating filter:** tests for `fetch_ratings` network/429 paths; stale `out/all/rating/*/json/trend/` files are never pruned on re-bake (same as language slices).

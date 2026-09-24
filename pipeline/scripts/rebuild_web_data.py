@@ -4,6 +4,7 @@ raw subtitles. Regenerates:
 
   meta        word_meta.parquet (adds pos, dist) + json/leaderboard-default.json
   movies      json/movie/*.json (word rows gain pos)
+  words       json/words/<id>.json per film (every word + corpus film count)
   boards      json/leaderboards/{shifts,films,wonders,everywhere}.json
   signatures  json/signature/{decades,genres}.json (adds stats + top500)
   featured    json/featured-series.json (homepage chart without the SQL engine)
@@ -138,6 +139,37 @@ def stage_movies(con):
         flush(current, rows)
         n += 1
     print(f"  wrote {n} movie JSONs")
+
+
+def stage_words(con):
+    """json/words/<imdb_id>.json per film: EVERY word the film says as
+    [word, count, films] (films = corpus document frequency), count desc then
+    word - the film page's "Every word" explorer. Streams the (imdb_id,
+    count DESC)-sorted words_by_movie like stage_movies (no per-film queries)."""
+    films = dict(con.sql(
+        "SELECT word, COUNT(*)::BIGINT FROM words_by_movie GROUP BY word").fetchall())
+    out = OUT / "json" / "words"
+    out.mkdir(parents=True, exist_ok=True)
+
+    def flush(imdb_id, rows):
+        rows.sort(key=lambda r: (-r[1], r[0]))
+        payload = {"w": [[w, c, films[w]] for w, c in rows]}
+        (out / f"{imdb_id}.json").write_text(json.dumps(payload, separators=(",", ":")))
+
+    cur = con.execute(f"SELECT imdb_id, word, count FROM '{IN / 'words_by_movie.parquet'}'")
+    current, rows, n = None, [], 0
+    while batch := cur.fetchmany(1_000_000):
+        for imdb_id, word, count in batch:
+            if imdb_id != current:
+                if current is not None:
+                    flush(current, rows)
+                    n += 1
+                current, rows = imdb_id, []
+            rows.append((word, int(count)))
+    if current is not None:
+        flush(current, rows)
+        n += 1
+    print(f"  wrote {n} word-list JSONs")
 
 
 def stage_boards(con):
@@ -282,7 +314,7 @@ def stage_trends(con):
     print(f"  wrote {n} trend JSONs")
 
 
-STAGES = {"meta": stage_meta, "movies": stage_movies,
+STAGES = {"meta": stage_meta, "movies": stage_movies, "words": stage_words,
           "boards": stage_boards, "signatures": stage_signatures,
           "featured": stage_featured, "trends": stage_trends,
           "yearfilms": stage_yearfilms}
