@@ -135,33 +135,42 @@ export interface TrendsData {
   baked: boolean
 }
 
-let yearTotalsBakeCache: Map<number, number> | null = null
+// keyed by file + selected languages so a filter change never serves a stale map
+const yearMapCache = new Map<string, Promise<Map<number, number>>>()
 
 const toYearMap = (obj: Record<string, number>) =>
   new Map(Object.entries(obj).map(([y, t]) => [Number(y), t]))
 
-/** Whole-corpus year totals from the pre-baked JSON (a couple of KB), cached
- * for the session. This is the rate denominator shared by every word. 0
- * languages -> the global file as today; 1+ -> fetch+sum the selected
- * languages' files. */
-async function bakedYearTotals(): Promise<Map<number, number>> {
-  if (yearTotalsBakeCache) return yearTotalsBakeCache
+/** A pre-baked per-year number map (a couple of KB), cached for the session.
+ * 0 languages -> the global file; 1+ -> fetch + sum the selected languages'
+ * files. year-totals.json = words per year (rate denominator); year-films.json
+ * = films per year (per-film denominator). */
+function bakedYearMap(file: 'year-totals.json' | 'year-films.json'): Promise<Map<number, number>> {
   const langs = activeLanguages()
-  if (!langs.length) {
-    const obj = await fetchJSON<Record<string, number>>('json/year-totals.json')
-    yearTotalsBakeCache = toYearMap(obj)
-    return yearTotalsBakeCache
-  }
-  const maps = await Promise.all(
-    langs.map(async (code) => {
-      const res = await fetch(langUrl(code, 'json/year-totals.json'))
-      if (!res.ok) throw new Error(`${res.status} fetching year-totals [${code}]`)
-      return toYearMap(await res.json())
-    }),
-  )
-  yearTotalsBakeCache = mergeYearTotals(maps)
-  return yearTotalsBakeCache
+  const key = `${file}|${langs.join(',')}`
+  const hit = yearMapCache.get(key)
+  if (hit) return hit
+  const p = (async () => {
+    if (!langs.length) return toYearMap(await fetchJSON<Record<string, number>>(`json/${file}`))
+    const maps = await Promise.all(
+      langs.map(async (code) => {
+        const res = await fetch(langUrl(code, `json/${file}`))
+        if (!res.ok) throw new Error(`${res.status} fetching ${file} [${code}]`)
+        return toYearMap(await res.json())
+      }),
+    )
+    return mergeYearTotals(maps)
+  })()
+  // a failed fetch must not be cached forever
+  p.catch(() => yearMapCache.delete(key))
+  yearMapCache.set(key, p)
+  return p
 }
+
+const bakedYearTotals = () => bakedYearMap('year-totals.json')
+
+/** Films released per year (language-aware) - the Trends per-film denominator. */
+export const bakedYearFilms = () => bakedYearMap('year-films.json')
 
 /** Merge per-language TrendFiles: line summed exactly, top/byYear unioned and
  * re-ranked. */
