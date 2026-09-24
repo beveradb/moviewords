@@ -102,6 +102,10 @@ export interface WordSeries {
   plottedYears: number[]
   trimmedYears: string | null
   missing: string[]
+  /** The kept (non-trimmed) raw rows + the denominator used, so a view can
+   * re-divide (e.g. per film) without refetching. */
+  rows: YearRow[]
+  totals: Map<number, number>
 }
 
 /** Shape raw word_year rows into chart series (uses per million words of
@@ -140,5 +144,61 @@ export function toSeries(
       points: byWord.get(w)!.map((r) => ({ x: r.year, y: (r.count / (totals.get(r.year) ?? 1)) * 1_000_000 })),
     }))
 
-  return { series, plottedYears, trimmedYears, missing }
+  return { series, plottedYears, trimmedYears, missing, rows: kept, totals }
+}
+
+/** Re-divide a word series' yearly counts by films released that year
+ * (average uses per film). Years without a film count are dropped. */
+export function perFilmSeries(ws: WordSeries, films: Map<number, number>): Series[] {
+  const counts = new Map(ws.rows.map((r) => [`${r.word}|${r.year}`, r.count]))
+  return ws.series.map((s) => ({
+    ...s,
+    points: s.points.flatMap((p) => {
+      const f = films.get(p.x)
+      const c = counts.get(`${s.name}|${p.x}`)
+      return f && c !== undefined ? [{ ...p, y: c / f }] : []
+    }),
+  }))
+}
+
+/** "N uses per film in the <decade>s (all years: M)": pooled averages over the
+ * plotted years (a plotted year the word is absent from counts as 0 uses). */
+export function perFilmSummary(
+  ws: WordSeries,
+  films: Map<number, number>,
+  word: string,
+): { decade: number; latest: number; overall: number } | null {
+  const counts = new Map(ws.rows.filter((r) => r.word === word).map((r) => [r.year, r.count]))
+  if (!counts.size || !ws.plottedYears.length) return null
+  const decade = Math.floor(ws.plottedYears[ws.plottedYears.length - 1] / 10) * 10
+  const avg = (years: number[]) => {
+    let c = 0
+    let f = 0
+    for (const y of years) {
+      c += counts.get(y) ?? 0
+      f += films.get(y) ?? 0
+    }
+    return f ? c / f : 0
+  }
+  return {
+    decade,
+    latest: avg(ws.plottedYears.filter((y) => y >= decade)),
+    overall: avg(ws.plottedYears),
+  }
+}
+
+/** Trends URL for a word list; `per=film` only when the per-film view is on,
+ * so default links stay unchanged. */
+export const trendsHref = (words: string[], perFilm: boolean): string =>
+  `/trends?w=${encodeURIComponent(words.join(','))}${perFilm ? '&per=film' : ''}`
+
+export const isPerFilm = (params: URLSearchParams): boolean => params.get('per') === 'film'
+
+/** Per-film averages are often < 1: 1 decimal from 1 up, 2 below, "<0.01"
+ * for tiny non-zero values. `n` is the i18n number formatter. */
+export function formatPerFilm(v: number, n: (v: number, o?: Intl.NumberFormatOptions) => string): string {
+  if (v === 0) return n(0)
+  if (v < 0.01) return `<${n(0.01, { minimumFractionDigits: 2 })}`
+  const d = v >= 1 ? 1 : 2
+  return n(v, { minimumFractionDigits: d, maximumFractionDigits: d })
 }
