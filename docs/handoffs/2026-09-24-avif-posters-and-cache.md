@@ -1,5 +1,7 @@
 # Handoff: AVIF-encode posters + long cache TTL
 
+> **DONE 2026-09-24** (PR #36) - see `docs/sessions/2026-Q3/2026-09-24-avif-posters-and-cache.md`.
+
 **Created:** 2026-09-24 (launch day)   **For:** a fresh Claude session   **Priority:** medium (perf, not a launch blocker)
 
 ## Goal
