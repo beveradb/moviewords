@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Cuvânt de trasat",
     "yAxisLabel": "utilizări la un milion de cuvinte",
     "languageNote": "Bazat pe {count} filme în limba {langs}, măsurate din subtitrările lor în engleză.",
-    "notEnoughFilms": "Nu sunt destule filme în {langs} pentru această tendință - adaugă limbi sau schimbă la Toate filmele."
+    "notEnoughFilms": "Nu sunt destule filme în {langs} pentru această tendință - adaugă limbi sau schimbă la Toate filmele.",
+    "measureAriaLabel": "Măsură",
+    "perFilmSummary": "„{word}”: {latest} utilizări per film în filmele din anii {decade} (toți anii: {overall})",
+    "perFilmToggle": "Per film",
+    "perMillionToggle": "Per milion de cuvinte",
+    "usesPerFilmCaption": "media de utilizări per film lansat în acel an",
+    "yAxisLabelPerFilm": "utilizări per film",
+    "introPerFilm": "Cât de des este rostit un cuvânt în toate filmele din corpus, ca medie de utilizări per film, în funcție de anul lansării."
   },
   "languageFilter": {
     "allFilms": "Toate filmele",

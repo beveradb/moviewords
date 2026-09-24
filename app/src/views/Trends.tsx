@@ -2,9 +2,19 @@ import { useEffect, useMemo, useState } from 'react'
 import { getFilteredMovieIndex, getShifts, type Shifts } from '../lib/data'
 import { activeLanguages, languageName } from '../lib/languages'
 import { navigate, useRoute } from '../lib/route'
-import { type TopFilm, type YearTopMovie, topMovieRows } from '../lib/trends'
+import {
+  formatPerFilm,
+  isPerFilm,
+  perFilmSeries,
+  perFilmSummary,
+  trendsHref,
+  type TopFilm,
+  type WordSeries,
+  type YearTopMovie,
+  topMovieRows,
+} from '../lib/trends'
 import { FEATURED, dayIndex, stepFeatured } from '../lib/featured'
-import { loadFeaturedSeries, loadTrends } from '../lib/series'
+import { bakedYearFilms, loadFeaturedSeries, loadTrends } from '../lib/series'
 import { LineChart, type Series } from '../components/LineChart'
 import { ErrorBox, FeaturedNav, SeriesLegend, Spinner } from '../components/ui'
 import { ExplainerLink } from '../components/FilterExplainer'
@@ -173,6 +183,15 @@ export function TrendsView() {
   )
   const langs = activeLanguages()
   const langLabel = useMemo(() => langs.map((c) => languageName(c, locale)).join(', '), [langs, locale])
+  const perFilm = isPerFilm(params)
+  const [wordSeries, setWordSeries] = useState<WordSeries | null>(null)
+  const [films, setFilms] = useState<Map<number, number> | null>(null)
+  const [filmsError, setFilmsError] = useState<string | null>(null)
+
+  useEffect(() => {
+    bakedYearFilms().then(setFilms).catch((e) => setFilmsError(String(e)))
+  }, [])
+
   const [input, setInput] = useState('')
   const [filmCount, setFilmCount] = useState<number | null>(null)
   const [series, setSeries] = useState<Series[] | null>(null)
@@ -210,12 +229,13 @@ export function TrendsView() {
     // (a stale/missing bake degrades to the live engine inside loadTrends)
     if (featured) {
       loadFeaturedSeries(chartWords, COLORS)
-        .then(({ series, plottedYears, trimmedYears, missing }) => {
+        .then((ws) => {
           if (cancelled) return
-          setSeries(series)
-          setPlottedYears(plottedYears)
-          setTrimmedYears(trimmedYears)
-          setMissing(missing)
+          setWordSeries(ws)
+          setSeries(ws.series)
+          setPlottedYears(ws.plottedYears)
+          setTrimmedYears(ws.trimmedYears)
+          setMissing(ws.missing)
         })
         .catch((e) => !cancelled && setError(String(e)))
         .finally(() => !cancelled && setLoading(false))
@@ -223,6 +243,7 @@ export function TrendsView() {
       loadTrends(chartWords, COLORS)
         .then(({ wordSeries, topMovies, topFilms }) => {
           if (cancelled) return
+          setWordSeries(wordSeries)
           setSeries(wordSeries.series)
           setPlottedYears(wordSeries.plottedYears)
           setTrimmedYears(wordSeries.trimmedYears)
@@ -238,28 +259,34 @@ export function TrendsView() {
     }
   }, [wordsKey])
 
+  // per-film mode re-divides the same counts by films per year (no refetch)
+  const shownSeries = useMemo(() => {
+    if (!series) return series
+    return perFilm && wordSeries && films ? perFilmSeries({ ...wordSeries, series }, films) : series
+  }, [series, wordSeries, films, perFilm])
+
   // graft top-movie notes onto the chart series once (if) they arrive
   const notedSeries = useMemo(() => {
-    if (!series || !topMovies) return series
-    return series.map((s) => ({
+    if (!shownSeries || !topMovies) return shownSeries
+    return shownSeries.map((s) => ({
       ...s,
       points: s.points.map((p) => {
         const top = topMovies.get(s.name)?.get(p.x)
         return top ? { ...p, note: top.title, noteHref: `#/movie/${top.imdb_id}` } : p
       }),
     }))
-  }, [series, topMovies])
+  }, [shownSeries, topMovies])
 
   const addWord = () => {
     const w = input.trim().toLowerCase()
     if (!w) return
     setInput('')
-    navigate(`/trends?w=${encodeURIComponent([...new Set([...words, w])].slice(0, MAX_WORDS).join(','))}`)
+    navigate(trendsHref([...new Set([...words, w])].slice(0, MAX_WORDS), perFilm))
   }
 
   return (
     <div>
-      <p className="mt-1 text-sm text-ink-2">{t('trends.intro')}</p>
+      <p className="mt-1 text-sm text-ink-2">{perFilm ? t('trends.introPerFilm') : t('trends.intro')}</p>
       {langs.length > 0 && filmCount !== null && (
         <p className="mt-1 text-sm text-ink-2">
           {t('trends.languageNote', { count: n(filmCount), langs: langLabel })} <ExplainerLink />
@@ -290,7 +317,7 @@ export function TrendsView() {
           {words.map((w, i) => (
             <button
               key={w}
-              onClick={() => navigate(`/trends?w=${encodeURIComponent(words.filter((x) => x !== w).join(','))}`)}
+              onClick={() => navigate(trendsHref(words.filter((x) => x !== w), perFilm))}
               className="flex items-center gap-1.5 border-2 border-ink bg-card px-2.5 py-1 font-script text-sm hover:bg-paper-2"
               title={t('trends.removeWordTitle', { word: w })}
             >
@@ -312,8 +339,9 @@ export function TrendsView() {
         </p>
       )}
       {error && <ErrorBox message={error} />}
+      {perFilm && filmsError && <ErrorBox message={filmsError} />}
       {loading && <Spinner label={t('trends.queryingCorpus')} />}
-      {notedSeries && notedSeries.length > 0 && !loading && (
+      {notedSeries && notedSeries.length > 0 && !loading && (!perFilm || films) && (
         <div className="mt-6 border-2 border-ink bg-card p-4">
           {featured && (
             <FeaturedNav
@@ -326,15 +354,47 @@ export function TrendsView() {
               onStep={(dir) => setFeaturedIdx((i) => stepFeatured(i, dir, FEATURED.length))}
             />
           )}
+          <div className="mb-3 flex gap-1" role="group" aria-label={t('trends.measureAriaLabel')}>
+            {([false, true] as const).map((on) => (
+              <button
+                key={String(on)}
+                type="button"
+                aria-pressed={perFilm === on}
+                onClick={() => navigate(trendsHref(words, on))}
+                className={`border-2 border-ink px-2.5 py-1 font-script text-xs ${perFilm === on ? 'bg-ink text-paper' : 'bg-card hover:bg-paper-2'}`}
+              >
+                {on ? t('trends.perFilmToggle') : t('trends.perMillionToggle')}
+              </button>
+            ))}
+          </div>
           {/* legend built from the drawn series so colors always match,
               even if a featured word is missing from the dataset */}
           {featured && <SeriesLegend series={notedSeries} />}
-          <LineChart series={notedSeries} yLabel={t('trends.yAxisLabel')} />
-          <p className="mt-2 text-end text-xs text-ink-2">{t('trends.usesPerMillionWords')}</p>
+          <LineChart series={notedSeries} yLabel={perFilm ? t('trends.yAxisLabelPerFilm') : t('trends.yAxisLabel')} />
+          <p className="mt-2 text-end text-xs text-ink-2">
+            {perFilm ? t('trends.usesPerFilmCaption') : t('trends.usesPerMillionWords')}
+          </p>
           {trimmedYears !== null && (
             <p className="mt-1 text-end font-script text-xs text-ink-3">
               {t('trends.trimmedYearsNote', { years: trimmedYears })}
             </p>
+          )}
+          {!featured && wordSeries && films && (
+            <div className="mt-3 space-y-0.5 border-t-2 border-ink pt-2 font-script text-sm">
+              {words.map((w) => {
+                const s = perFilmSummary(wordSeries, films, w)
+                return s ? (
+                  <p key={w}>
+                    {t('trends.perFilmSummary', {
+                      word: w,
+                      latest: formatPerFilm(s.latest, n),
+                      decade: s.decade,
+                      overall: formatPerFilm(s.overall, n),
+                    })}
+                  </p>
+                ) : null
+              })}
+            </div>
           )}
         </div>
       )}
@@ -356,7 +416,7 @@ export function TrendsView() {
             {['love', 'war', 'money', 'god', 'phone'].map((w) => (
               <button
                 key={w}
-                onClick={() => navigate(`/trends?w=${w}`)}
+                onClick={() => navigate(trendsHref([w], perFilm))}
                 className="border-2 border-ink bg-card px-3 py-1 hover:bg-mark"
               >
                 {w}

@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Mot à tracer",
     "yAxisLabel": "utilisations par million de mots",
     "languageNote": "Basé sur {count} films en langue {langs}, mesuré à partir de leurs sous-titres anglais.",
-    "notEnoughFilms": "Pas assez de films en {langs} pour cette tendance - ajoute des langues ou passe à Tous les films."
+    "notEnoughFilms": "Pas assez de films en {langs} pour cette tendance - ajoute des langues ou passe à Tous les films.",
+    "measureAriaLabel": "Mesure",
+    "perFilmSummary": "« {word} » : {latest} occurrences par film dans les films des années {decade} (toutes années : {overall})",
+    "perFilmToggle": "Par film",
+    "perMillionToggle": "Par million de mots",
+    "usesPerFilmCaption": "moyenne des occurrences par film sorti cette année-là",
+    "yAxisLabelPerFilm": "occurrences par film",
+    "introPerFilm": "La fréquence à laquelle un mot est prononcé dans l'ensemble des films du corpus, exprimée en moyenne par film, selon l'année de sortie."
   },
   "languageFilter": {
     "allFilms": "Tous les films",

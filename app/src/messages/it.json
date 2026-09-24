@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Parola da tracciare",
     "yAxisLabel": "usi per milione di parole",
     "languageNote": "Basato su {count} film in lingua {langs}, calcolati a partire dai loro sottotitoli in inglese.",
-    "notEnoughFilms": "Non ci sono abbastanza film in {langs} per questo trend - aggiungi lingue o passa a Tutti i film."
+    "notEnoughFilms": "Non ci sono abbastanza film in {langs} per questo trend - aggiungi lingue o passa a Tutti i film.",
+    "measureAriaLabel": "Misura",
+    "perFilmSummary": "“{word}”: {latest} utilizzi per film nei film degli anni {decade} (tutti gli anni: {overall})",
+    "perFilmToggle": "Per film",
+    "perMillionToggle": "Per milione di parole",
+    "usesPerFilmCaption": "media di utilizzi per film uscito in quell'anno",
+    "yAxisLabelPerFilm": "utilizzi per film",
+    "introPerFilm": "La frequenza con cui una parola viene pronunciata in tutti i film del corpus, espressa come media di occorrenze per film, per anno di uscita."
   },
   "languageFilter": {
     "allFilms": "Tutti i film",

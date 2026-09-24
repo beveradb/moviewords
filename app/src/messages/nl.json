@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Woord voor grafiek",
     "yAxisLabel": "gebruik per miljoen woorden",
     "languageNote": "Gebaseerd op {count} {langs}-talige films, gemeten in hun Engelse ondertitels.",
-    "notEnoughFilms": "Niet genoeg films in {langs} voor deze trend - voeg talen toe of schakel over naar Alle films."
+    "notEnoughFilms": "Niet genoeg films in {langs} voor deze trend - voeg talen toe of schakel over naar Alle films.",
+    "measureAriaLabel": "Meeteenheid",
+    "perFilmSummary": "“{word}”: {latest} keer gebruikt per film in films uit de jaren {decade} (alle jaren: {overall})",
+    "perFilmToggle": "Per film",
+    "perMillionToggle": "Per miljoen woorden",
+    "usesPerFilmCaption": "gemiddeld aantal keer gebruikt per film uitgebracht in dat jaar",
+    "yAxisLabelPerFilm": "keer gebruikt per film",
+    "introPerFilm": "Hoe vaak een woord wordt uitgesproken in alle films in het corpus, als gemiddeld aantal keer per film, per releasejaar."
   },
   "languageFilter": {
     "allFilms": "Alle films",

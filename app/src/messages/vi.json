@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Từ để vẽ biểu đồ",
     "yAxisLabel": "số lần sử dụng trên một triệu từ",
     "languageNote": "Dựa trên {count} phim tiếng {langs}, được đo lường từ phụ đề tiếng Anh của chúng.",
-    "notEnoughFilms": "Không có đủ phim tiếng {langs} cho xu hướng này - hãy thêm ngôn ngữ hoặc chuyển sang Tất cả các phim."
+    "notEnoughFilms": "Không có đủ phim tiếng {langs} cho xu hướng này - hãy thêm ngôn ngữ hoặc chuyển sang Tất cả các phim.",
+    "measureAriaLabel": "Thước đo",
+    "perFilmSummary": "“{word}”: {latest} lần sử dụng mỗi phim trong các phim thập niên {decade} (tất cả các năm: {overall})",
+    "perFilmToggle": "Mỗi phim",
+    "perMillionToggle": "Mỗi triệu từ",
+    "usesPerFilmCaption": "số lần sử dụng trung bình mỗi phim phát hành trong năm đó",
+    "yAxisLabelPerFilm": "số lần sử dụng mỗi phim",
+    "introPerFilm": "Tần suất một từ được nói trong tất cả các phim thuộc kho dữ liệu, tính bằng số lần sử dụng trung bình mỗi phim, theo năm phát hành."
   },
   "languageFilter": {
     "allFilms": "Tất cả phim",

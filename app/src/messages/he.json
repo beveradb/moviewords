@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "מילה לשרטוט",
     "yAxisLabel": "שימושים לכל מיליון מילים",
     "languageNote": "מבוסס על {count} סרטים ב-{langs}, נמדד מהכתוביות שלהם באנגלית.",
-    "notEnoughFilms": "אין מספיק סרטים ב-{langs} עבור מגמה זו - הוסיפו שפות או עברו לכל הסרטים."
+    "notEnoughFilms": "אין מספיק סרטים ב-{langs} עבור מגמה זו - הוסיפו שפות או עברו לכל הסרטים.",
+    "measureAriaLabel": "מדד",
+    "perFilmSummary": "“{word}”: {latest} שימושים לסרט בסרטי שנות ה-{decade} (כל השנים: {overall})",
+    "perFilmToggle": "לסרט",
+    "perMillionToggle": "למיליון מילים",
+    "usesPerFilmCaption": "ממוצע שימושים לסרט שיצא באותה שנה",
+    "yAxisLabelPerFilm": "שימושים לסרט",
+    "introPerFilm": "באיזו תדירות מילה נאמרת בכל הסרטים במאגר, כממוצע שימושים לסרט, לפי שנת יציאה."
   },
   "languageFilter": {
     "allFilms": "כל הסרטים",

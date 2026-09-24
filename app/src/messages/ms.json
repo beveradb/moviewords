@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Perkataan untuk dicartakan",
     "yAxisLabel": "penggunaan per juta perkataan",
     "languageNote": "Berdasarkan {count} filem berbahasa {langs}, diukur daripada sari kata bahasa Inggerisnya.",
-    "notEnoughFilms": "Tidak cukup filem dalam {langs} untuk trend ini - tambah bahasa atau tukar kepada Semua filem."
+    "notEnoughFilms": "Tidak cukup filem dalam {langs} untuk trend ini - tambah bahasa atau tukar kepada Semua filem.",
+    "measureAriaLabel": "Ukuran",
+    "perFilmSummary": "“{word}”: {latest} penggunaan setiap filem dalam filem {decade}-an (semua tahun: {overall})",
+    "perFilmToggle": "Setiap filem",
+    "perMillionToggle": "Setiap juta perkataan",
+    "usesPerFilmCaption": "purata penggunaan setiap filem yang ditayangkan pada tahun tersebut",
+    "yAxisLabelPerFilm": "penggunaan setiap filem",
+    "introPerFilm": "Berapa kerap sesuatu perkataan dituturkan merentas semua filem dalam korpus, sebagai purata penggunaan setiap filem, mengikut tahun tayangan."
   },
   "languageFilter": {
     "allFilms": "Semua filem",

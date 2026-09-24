@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Słowo do wykresu",
     "yAxisLabel": "użycia na milion słów",
     "languageNote": "Na podstawie {count} filmów w {langs}, zliczonych z ich angielskich napisów.",
-    "notEnoughFilms": "Za mało filmów w {langs} dla tego trendu - dodaj języki lub przełącz na Wszystkie filmy."
+    "notEnoughFilms": "Za mało filmów w {langs} dla tego trendu - dodaj języki lub przełącz na Wszystkie filmy.",
+    "measureAriaLabel": "Miara",
+    "perFilmSummary": "„{word}”: {latest} użyć na film w filmach z lat {decade}. (wszystkie lata: {overall})",
+    "perFilmToggle": "Na film",
+    "perMillionToggle": "Na milion słów",
+    "usesPerFilmCaption": "średnia liczba użyć na film wydany w tym roku",
+    "yAxisLabelPerFilm": "użyć na film",
+    "introPerFilm": "Jak często dane słowo pada we wszystkich filmach w korpusie, jako średnia liczba użyć na film, według roku premiery."
   },
   "languageFilter": {
     "allFilms": "Wszystkie filmy",

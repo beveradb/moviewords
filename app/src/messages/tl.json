@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Salitang gagawan ng chart",
     "yAxisLabel": "paggamit bawat milyong salita",
     "languageNote": "Batay sa {count} na pelikulang nasa wikang {langs}, na sinukat mula sa kanilang English subtitles.",
-    "notEnoughFilms": "Hindi sapat ang mga pelikula sa {langs} para sa trend na ito - magdagdag ng mga wika o lumipat sa Lahat ng pelikula."
+    "notEnoughFilms": "Hindi sapat ang mga pelikula sa {langs} para sa trend na ito - magdagdag ng mga wika o lumipat sa Lahat ng pelikula.",
+    "measureAriaLabel": "Panukat",
+    "perFilmSummary": "“{word}”: {latest} na paggamit bawat pelikula sa mga pelikula noong {decade}s (lahat ng taon: {overall})",
+    "perFilmToggle": "Bawat pelikula",
+    "perMillionToggle": "Bawat milyong salita",
+    "usesPerFilmCaption": "average na paggamit bawat pelikulang ipinalabas sa taong iyon",
+    "yAxisLabelPerFilm": "paggamit bawat pelikula",
+    "introPerFilm": "Kung gaano kadalas binibigkas ang isang salita sa lahat ng pelikula sa corpus, bilang average na paggamit bawat pelikula, ayon sa taon ng pagpapalabas."
   },
   "languageFilter": {
     "allFilms": "Lahat ng pelikula",

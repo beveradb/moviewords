@@ -11,6 +11,11 @@ import {
   trendTopFilms,
   trendYearRows,
   wordKey,
+  perFilmSeries,
+  perFilmSummary,
+  trendsHref,
+  isPerFilm,
+  formatPerFilm,
 } from './trends'
 
 describe('formatYearRanges', () => {
@@ -203,5 +208,89 @@ describe('trend file transforms', () => {
     const m = trendByYear(file)
     expect(m.get(2001)).toEqual({ imdb_id: 'tt0120737', title: 'The Fellowship of the Ring', count: 104 })
     expect(m.get(1999)).toBeUndefined()
+  })
+})
+
+describe('toSeries raw data', () => {
+  it('keeps the kept rows and totals for re-dividing', () => {
+    const totals = new Map([[1980, 200_000], [1981, 50_000]])
+    const rows = [
+      { word: 'love', year: 1980, count: 100 },
+      { word: 'love', year: 1981, count: 9 },
+    ]
+    const ws = toSeries(rows, totals, ['love'], ['c1'])
+    expect(ws.rows).toEqual([{ word: 'love', year: 1980, count: 100 }])
+    expect(ws.totals).toBe(totals)
+  })
+})
+
+describe('perFilmSeries', () => {
+  const totals = new Map([[1980, 200_000], [1981, 50_000], [1982, 300_000]])
+  const rows = [
+    { word: 'love', year: 1980, count: 100 },
+    { word: 'love', year: 1981, count: 999 }, // trimmed year stays trimmed
+    { word: 'love', year: 1982, count: 300 },
+    { word: 'war', year: 1980, count: 50 },
+  ]
+  const ws = toSeries(rows, totals, ['love', 'war'], ['c1', 'c2'])
+
+  it('divides counts by films released that year', () => {
+    const films = new Map([[1980, 10], [1981, 1], [1982, 20]])
+    expect(perFilmSeries(ws, films)).toEqual([
+      { name: 'love', color: 'c1', points: [{ x: 1980, y: 10 }, { x: 1982, y: 15 }] },
+      { name: 'war', color: 'c2', points: [{ x: 1980, y: 5 }] },
+    ])
+  })
+
+  it('drops points for years with no film count', () => {
+    const films = new Map([[1980, 10]])
+    expect(perFilmSeries(ws, films)[0].points).toEqual([{ x: 1980, y: 10 }])
+  })
+
+  it('keeps chart notes on points', () => {
+    const noted = { ...ws, series: [{ ...ws.series[0], points: [{ x: 1980, y: 500, note: 'Film', noteHref: '#/movie/tt1' }] }] }
+    expect(perFilmSeries(noted, new Map([[1980, 10]]))[0].points[0]).toEqual(
+      { x: 1980, y: 10, note: 'Film', noteHref: '#/movie/tt1' },
+    )
+  })
+})
+
+describe('perFilmSummary', () => {
+  const totals = new Map([[2009, 200_000], [2010, 200_000], [2011, 200_000]])
+  const rows = [
+    { word: 'dude', year: 2009, count: 30 },
+    { word: 'dude', year: 2011, count: 90 },
+  ]
+  const ws = toSeries(rows, totals, ['dude'], ['c1'])
+  const films = new Map([[2009, 10], [2010, 10], [2011, 20]])
+
+  it('averages the latest plotted decade and all plotted years (absent years count as 0)', () => {
+    // 2010s: (0 + 90) / (10 + 20) = 3; all: (30 + 0 + 90) / 40 = 3
+    expect(perFilmSummary(ws, films, 'dude')).toEqual({ decade: 2010, latest: 3, overall: 3 })
+  })
+
+  it('is null for a word with no data', () => {
+    expect(perFilmSummary(ws, films, 'nope')).toBeNull()
+  })
+})
+
+describe('trendsHref / isPerFilm', () => {
+  it('builds a linkable URL, adding per=film only when on', () => {
+    expect(trendsHref(['fuck', "don't"], false)).toBe(`/trends?w=${encodeURIComponent("fuck,don't")}`)
+    expect(trendsHref(['fuck'], true)).toBe('/trends?w=fuck&per=film')
+  })
+  it('reads the per param', () => {
+    expect(isPerFilm(new URLSearchParams('w=a&per=film'))).toBe(true)
+    expect(isPerFilm(new URLSearchParams('w=a'))).toBe(false)
+  })
+})
+
+describe('formatPerFilm', () => {
+  const n = (v: number, o?: Intl.NumberFormatOptions) => new Intl.NumberFormat('en', o).format(v)
+  it('uses 1 decimal from 1 up, 2 below, "<0.01" for tiny, "0" for zero', () => {
+    expect(formatPerFilm(10.46, n)).toBe('10.5')
+    expect(formatPerFilm(0.054, n)).toBe('0.05')
+    expect(formatPerFilm(0.004, n)).toBe('<0.01')
+    expect(formatPerFilm(0, n)).toBe('0')
   })
 })

@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Grafiğe dökülecek kelime",
     "yAxisLabel": "milyon kelime başına kullanım",
     "languageNote": "{count} adet {langs} dilindeki filme dayanır, İngilizce altyazıları üzerinden ölçülmüştür.",
-    "notEnoughFilms": "Bu trend için {langs} dilinde yeterli film yok - dil ekle veya Tüm filmlere geç."
+    "notEnoughFilms": "Bu trend için {langs} dilinde yeterli film yok - dil ekle veya Tüm filmlere geç.",
+    "measureAriaLabel": "Ölçüm",
+    "perFilmSummary": "“{word}”: {decade}'lerin filmlerinde film başına {latest} kullanım (tüm yıllar: {overall})",
+    "perFilmToggle": "Film başına",
+    "perMillionToggle": "Milyon kelime başına",
+    "usesPerFilmCaption": "o yıl vizyona giren film başına ortalama kullanım",
+    "yAxisLabelPerFilm": "film başına kullanım",
+    "introPerFilm": "Bir kelimenin derlemdeki tüm filmlerde ne sıklıkla söylendiği, vizyon yılına göre film başına ortalama kullanım olarak."
   },
   "languageFilter": {
     "allFilms": "Tüm filmler",

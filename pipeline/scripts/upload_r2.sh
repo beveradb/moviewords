@@ -8,8 +8,8 @@
 #
 # Cache-Control: json gets a 5-minute TTL (rebuilt often; a stale edge copy
 # of featured-series.json once silently pushed the homepage onto the full SQL
-# engine), except the Trends bake (json/trend/** + year-totals.json, including
-# the per-language all/lang/<code>/json/trend/** + year-totals.json), which
+# engine), except the Trends bake (json/trend/** + year-totals.json + year-films.json, including
+# the per-language all/lang/<code>/json/trend/** + year-totals.json + year-films.json), which
 # is one file per word and safe to cache for 1h. Parquets keep 24h - the
 # post-upload purge swaps versions, and parquet range reads revalidate via
 # If-Range/ETag.
@@ -49,11 +49,13 @@ export RCLONE_CONFIG_R2_ENDPOINT="https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflare
 rclone copy . r2:moviewords-data/ --checksum --progress \
   --filter '+ json/trend/**' --filter '+ all/json/trend/**' --filter '+ all/lang/*/json/trend/**' \
   --filter '+ json/year-totals.json' --filter '+ all/json/year-totals.json' --filter '+ all/lang/*/json/year-totals.json' \
+  --filter '+ json/year-films.json' --filter '+ all/json/year-films.json' --filter '+ all/lang/*/json/year-films.json' \
   --filter '+ json/blurb/**' --filter '+ all/json/blurb/**' \
   --filter '- *' --header-upload "Cache-Control: public, max-age=3600"
 rclone copy . r2:moviewords-data/ --checksum --progress \
   --filter '- json/trend/**' --filter '- all/json/trend/**' --filter '- all/lang/*/json/trend/**' \
   --filter '- json/year-totals.json' --filter '- all/json/year-totals.json' --filter '- all/lang/*/json/year-totals.json' \
+  --filter '- json/year-films.json' --filter '- all/json/year-films.json' --filter '- all/lang/*/json/year-films.json' \
   --filter '- json/blurb/**' --filter '- all/json/blurb/**' \
   --filter '+ *.json' --filter '- *' \
   --header-upload "Cache-Control: public, max-age=300"

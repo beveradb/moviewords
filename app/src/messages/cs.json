@@ -371,7 +371,14 @@
     "wordInputAriaLabel": "Slovo do grafu",
     "yAxisLabel": "použití na milion slov",
     "languageNote": "Založeno na {count} filmech v jazycích: {langs}, měřeno z jejich anglických titulků.",
-    "notEnoughFilms": "Pro tento trend není dostatek filmů v jazycích: {langs} - přidej jazyky nebo přepni na Všechny filmy."
+    "notEnoughFilms": "Pro tento trend není dostatek filmů v jazycích: {langs} - přidej jazyky nebo přepni na Všechny filmy.",
+    "measureAriaLabel": "Měřítko",
+    "perFilmSummary": "„{word}“: {latest} použití na film ve filmech z {decade}. let (všechny roky: {overall})",
+    "perFilmToggle": "Na film",
+    "perMillionToggle": "Na milion slov",
+    "usesPerFilmCaption": "průměrný počet použití na film vydaný v daném roce",
+    "yAxisLabelPerFilm": "použití na film",
+    "introPerFilm": "Jak často slovo zazní ve všech filmech v korpusu, jako průměrný počet použití na film, podle roku uvedení."
   },
   "languageFilter": {
     "allFilms": "Všechny filmy",
