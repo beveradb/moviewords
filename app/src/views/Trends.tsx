@@ -190,8 +190,10 @@ export function TrendsView() {
   const langs = activeLanguages()
   const langLabel = useMemo(() => langs.map((c) => languageName(c, locale)).join(', '), [langs, locale])
   const perFilm = isPerFilm(params)
-  // rating filter (Trends only); ignored while a language filter is active
-  const rating: RatingCode | null = langs.length ? null : ratingFromParams(params)
+  // rating filter (Trends only): ignored while a language filter is active and
+  // on the featured chart (no charted words - featured data isn't rating-scoped)
+  const rating: RatingCode | null =
+    langs.length || words.length === 0 ? null : ratingFromParams(params)
   const [wordSeries, setWordSeries] = useState<WordSeries | null>(null)
   const [films, setFilms] = useState<Map<number, number> | null>(null)
   const [filmsError, setFilmsError] = useState<string | null>(null)
@@ -361,7 +363,7 @@ export function TrendsView() {
         </p>
       )}
       {error && <ErrorBox message={error} />}
-      {perFilm && filmsError && <ErrorBox message={filmsError} />}
+      {(perFilm || rating) && filmsError && <ErrorBox message={filmsError} />}
       {loading && <Spinner label={t('trends.queryingCorpus')} />}
       {notedSeries && notedSeries.length > 0 && !loading && (!perFilm || films) && (
         <div className="mt-6 border-2 border-ink bg-card p-4">
