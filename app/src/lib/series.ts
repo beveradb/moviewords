@@ -1,4 +1,4 @@
-import { fetchJSON, globalUrl, langUrl } from './data'
+import { fetchJSON, globalUrl, langUrl, ratingUrl } from './data'
 import { langFilterSql, lit, pq, q } from './duck'
 import { activeLanguages } from './languages'
 import { mergeTopFilms, mergeTrendLines, mergeYearTotals } from './merge'
@@ -9,6 +9,8 @@ import {
   trendTopFilms,
   trendYearRows,
   wordKey,
+  RATING_MIN_YEAR,
+  type RatingCode,
   type TopFilm,
   type TrendFile,
   type WordSeries,
@@ -142,15 +144,24 @@ const toYearMap = (obj: Record<string, number>) =>
   new Map(Object.entries(obj).map(([y, t]) => [Number(y), t]))
 
 /** A pre-baked per-year number map (a couple of KB), cached for the session.
- * 0 languages -> the global file; 1+ -> fetch + sum the selected languages'
- * files. year-totals.json = words per year (rate denominator); year-films.json
- * = films per year (per-film denominator). */
-function bakedYearMap(file: 'year-totals.json' | 'year-films.json'): Promise<Map<number, number>> {
-  const langs = activeLanguages()
-  const key = `${file}|${langs.join(',')}`
+ * A rating -> that MPAA slice's file (language filter not combined - the UI
+ * prevents it); else 0 languages -> the global file, 1+ -> fetch + sum the
+ * selected languages' files. year-totals.json = words per year (rate
+ * denominator); year-films.json = films per year (per-film denominator). */
+function bakedYearMap(
+  file: 'year-totals.json' | 'year-films.json',
+  rating: RatingCode | null = null,
+): Promise<Map<number, number>> {
+  const langs = rating ? [] : activeLanguages()
+  const key = `${file}|${rating ? `rating:${rating}` : langs.join(',')}`
   const hit = yearMapCache.get(key)
   if (hit) return hit
   const p = (async () => {
+    if (rating) {
+      const res = await fetch(ratingUrl(rating, `json/${file}`))
+      if (!res.ok) throw new Error(`${res.status} fetching ${file} [rating ${rating}]`)
+      return toYearMap(await res.json())
+    }
     if (!langs.length) return toYearMap(await fetchJSON<Record<string, number>>(`json/${file}`))
     const maps = await Promise.all(
       langs.map(async (code) => {
@@ -167,10 +178,10 @@ function bakedYearMap(file: 'year-totals.json' | 'year-films.json'): Promise<Map
   return p
 }
 
-const bakedYearTotals = () => bakedYearMap('year-totals.json')
+const bakedYearTotals = (rating: RatingCode | null = null) => bakedYearMap('year-totals.json', rating)
 
-/** Films released per year (language-aware) - the Trends per-film denominator. */
-export const bakedYearFilms = () => bakedYearMap('year-films.json')
+/** Films released per year (language- or rating-scoped) - the per-film denominator. */
+export const bakedYearFilms = (rating: RatingCode | null = null) => bakedYearMap('year-films.json', rating)
 
 /** Merge per-language TrendFiles: line summed exactly, top/byYear unioned and
  * re-ranked. */
@@ -197,8 +208,14 @@ export function mergeTrendFiles(parts: TrendFile[]): TrendFile {
  * contributes nothing, and only if ALL of them 404 do we return null -
  * otherwise the non-404 parts are merged. Any other failure throws so
  * `loadTrends` can fall back to the live engine. */
-async function fetchTrendFile(word: string): Promise<TrendFile | null> {
+async function fetchTrendFile(word: string, rating: RatingCode | null = null): Promise<TrendFile | null> {
   const key = wordKey(word)
+  if (rating) {
+    const res = await fetch(ratingUrl(rating, `json/trend/${key}.json`))
+    if (res.status === 404) return null
+    if (!res.ok) throw new Error(`${res.status} fetching trend/${word} [rating ${rating}]`)
+    return res.json() as Promise<TrendFile>
+  }
   const langs = activeLanguages()
   if (!langs.length) {
     const res = await fetch(globalUrl(`json/trend/${key}.json`))
@@ -223,15 +240,24 @@ async function fetchTrendFile(word: string): Promise<TrendFile | null> {
  * never pays the ~35 MB DuckDB-WASM cold-boot. A word with no data for any
  * selected language is treated as "not enough data" (it drops through
  * `toSeries`'s missing list); any other failure degrades to the live engine,
- * same contract as loadFeaturedSeries. */
-export async function loadTrends(words: string[], colors: string[]): Promise<TrendsData> {
+ * same contract as loadFeaturedSeries - except for a rating-scoped view,
+ * which the engine can't filter by, so a bake failure there surfaces as an
+ * error instead of silently charting the whole corpus. */
+export async function loadTrends(
+  words: string[],
+  colors: string[],
+  rating: RatingCode | null = null,
+): Promise<TrendsData> {
   try {
     const [totals, files] = await Promise.all([
-      bakedYearTotals(),
-      Promise.all(words.map(fetchTrendFile)),
+      bakedYearTotals(rating),
+      Promise.all(words.map((w) => fetchTrendFile(w, rating))),
     ])
     const rows = words.flatMap((w, i) => (files[i] ? trendYearRows(w, files[i] as TrendFile) : []))
-    const wordSeries = toSeries(rows, totals, words, colors)
+    // rated charts start at 1968 (MPAA ratings began then; earlier films only
+    // carry later re-release ratings)
+    const kept = rating ? rows.filter((r) => r.year >= RATING_MIN_YEAR) : rows
+    const wordSeries = toSeries(kept, totals, words, colors)
     // every requested word gets a topFilms entry (empty for 404/no-data words)
     // so `topFilms.get(word)` never returns undefined - a null there means the
     // whole batch is still loading and would spin the table forever
@@ -244,6 +270,9 @@ export async function loadTrends(words: string[], colors: string[]): Promise<Tre
     })
     return { wordSeries, topFilms, topMovies, baked: true }
   } catch (e) {
+    // the engine can't filter by rating - surface the error instead of
+    // silently charting the whole corpus
+    if (rating) throw e
     console.warn(`trend bake unavailable [${words.join(', ')}] - falling back to the SQL engine`, e)
     return loadTrendsEngine(words, colors)
   }

@@ -16,6 +16,11 @@ import {
   trendsHref,
   isPerFilm,
   formatPerFilm,
+  RATINGS,
+  RATING_MIN_YEAR,
+  ratingFromParams,
+  ratingLabel,
+  filmsSince,
 } from './trends'
 
 describe('formatYearRanges', () => {
@@ -275,13 +280,34 @@ describe('perFilmSummary', () => {
 })
 
 describe('trendsHref / isPerFilm', () => {
-  it('builds a linkable URL, adding per=film only when on', () => {
-    expect(trendsHref(['fuck', "don't"], false)).toBe(`/trends?w=${encodeURIComponent("fuck,don't")}`)
-    expect(trendsHref(['fuck'], true)).toBe('/trends?w=fuck&per=film')
+  it('builds a linkable URL, adding per=film and rating only when set', () => {
+    expect(trendsHref(['fuck', "don't"])).toBe(`/trends?w=${encodeURIComponent("fuck,don't")}`)
+    expect(trendsHref(['fuck'], { perFilm: true })).toBe('/trends?w=fuck&per=film')
+    expect(trendsHref(['fuck'], { rating: 'pg13' })).toBe('/trends?w=fuck&rating=pg13')
+    expect(trendsHref(['fuck'], { perFilm: true, rating: 'r' })).toBe('/trends?w=fuck&per=film&rating=r')
+    expect(trendsHref(['fuck'], { perFilm: false, rating: null })).toBe('/trends?w=fuck')
   })
   it('reads the per param', () => {
     expect(isPerFilm(new URLSearchParams('w=a&per=film'))).toBe(true)
     expect(isPerFilm(new URLSearchParams('w=a'))).toBe(false)
+  })
+})
+
+describe('ratings', () => {
+  it('lists the five MPAA buckets in order with display labels', () => {
+    expect(RATINGS.map((r) => r.code)).toEqual(['g', 'pg', 'pg13', 'r', 'nc17'])
+    expect(ratingLabel('pg13')).toBe('PG-13')
+    expect(ratingLabel('nc17')).toBe('NC-17/X')
+    expect(RATING_MIN_YEAR).toBe(1968)
+  })
+  it('accepts only known rating codes from the URL', () => {
+    expect(ratingFromParams(new URLSearchParams('rating=pg'))).toBe('pg')
+    expect(ratingFromParams(new URLSearchParams('rating=PG'))).toBeNull()
+    expect(ratingFromParams(new URLSearchParams('rating=xxx'))).toBeNull()
+    expect(ratingFromParams(new URLSearchParams(''))).toBeNull()
+  })
+  it('counts films released from a year onwards', () => {
+    expect(filmsSince(new Map([[1960, 5], [1968, 2], [1990, 3]]), 1968)).toBe(5)
   })
 })
 

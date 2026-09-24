@@ -281,7 +281,7 @@ export function TrendsView() {
     const w = input.trim().toLowerCase()
     if (!w) return
     setInput('')
-    navigate(trendsHref([...new Set([...words, w])].slice(0, MAX_WORDS), perFilm))
+    navigate(trendsHref([...new Set([...words, w])].slice(0, MAX_WORDS), { perFilm }))
   }
 
   return (
@@ -317,7 +317,7 @@ export function TrendsView() {
           {words.map((w, i) => (
             <button
               key={w}
-              onClick={() => navigate(trendsHref(words.filter((x) => x !== w), perFilm))}
+              onClick={() => navigate(trendsHref(words.filter((x) => x !== w), { perFilm }))}
               className="flex items-center gap-1.5 border-2 border-ink bg-card px-2.5 py-1 font-script text-sm hover:bg-paper-2"
               title={t('trends.removeWordTitle', { word: w })}
             >
@@ -360,7 +360,7 @@ export function TrendsView() {
                 key={String(on)}
                 type="button"
                 aria-pressed={perFilm === on}
-                onClick={() => navigate(trendsHref(words, on))}
+                onClick={() => navigate(trendsHref(words, { perFilm: on }))}
                 className={`border-2 border-ink px-2.5 py-1 font-script text-xs ${perFilm === on ? 'bg-ink text-paper' : 'bg-card hover:bg-paper-2'}`}
               >
                 {on ? t('trends.perFilmToggle') : t('trends.perMillionToggle')}
@@ -416,7 +416,7 @@ export function TrendsView() {
             {['love', 'war', 'money', 'god', 'phone'].map((w) => (
               <button
                 key={w}
-                onClick={() => navigate(trendsHref([w], perFilm))}
+                onClick={() => navigate(trendsHref([w], { perFilm }))}
                 className="border-2 border-ink bg-card px-3 py-1 hover:bg-mark"
               >
                 {w}
