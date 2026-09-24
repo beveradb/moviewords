@@ -50,6 +50,9 @@ LANG = "en"
 # and takes the most typical file of the largest agreeing cluster.
 CONSENSUS_MAX_CANDIDATES = 12
 CONSENSUS_AGREE_COSINE = 0.85
+# Files at least this similar are the same text (re-uploads, re-syncs) and
+# get one consensus vote between them.
+CONSENSUS_DUPLICATE_COSINE = 0.98
 FINGERPRINT_WORDS = 300
 # Gates, calibrated 2026-09-24 (docs/superpowers/plans/2026-09-24-content-
 # consensus-selection.md): normal files have 43%+ English stopwords (p1),
@@ -59,6 +62,9 @@ MIN_STOPWORD_SHARE = 0.25
 COMMENTARY_MIN_RATE = 8.0
 COMMENTARY_MAX_BYTES_PER_WORD = 18.0
 MIN_CANDIDATE_TOKENS = 200
-# Bump whenever parsing, tokenizing or selection changes: invalidates every
-# cached count record and fingerprint.
-SELECTION_VERSION = 1
+# Bump FINGERPRINT_VERSION whenever parsing or tokenizing changes: every
+# cached fingerprint and count is refetched. Bump SELECTION_VERSION when only
+# consensus.choose changes: choices are re-made from cached fingerprints
+# (only a newly chosen file whose full counts weren't kept is read).
+FINGERPRINT_VERSION = 1
+SELECTION_VERSION = 2   # 2: distinct-text voting (Baahubali 2)

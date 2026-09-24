@@ -28,8 +28,7 @@ _CACHE_RECORD_FIELDS = ("imdb_id", "zip_name", "counts", "total_words",
 
 def _load(cache_dir, imdb_id):
     """The film's cache record if it is well-formed and from the current
-    SELECTION_VERSION (parser/tokenizer/selection changes invalidate), else
-    None."""
+    FINGERPRINT_VERSION (parser/tokenizer changes invalidate), else None."""
     dest = cache_dir / f"{imdb_id}.json"
     if not dest.exists():
         return None
@@ -41,7 +40,7 @@ def _load(cache_dir, imdb_id):
         return None
     if any(field not in record for field in _CACHE_RECORD_FIELDS):
         return None
-    if record["version"] != config.SELECTION_VERSION:
+    if record["version"] != config.FINGERPRINT_VERSION:
         return None
     return record
 
@@ -74,8 +73,9 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
 
     Each film's sampled candidates are fingerprinted (cached per file) and
     consensus.choose picks one; only the chosen file's full counts are kept.
-    A record whose candidate list is unchanged is reused without opening the
-    zip; a changed list only fetches the new files. `workers` parallelises
+    A record whose candidate list and selection rule are unchanged is reused
+    without opening the zip; otherwise only files not yet fingerprinted are
+    fetched (plus a newly chosen file whose full counts weren't kept). `workers` parallelises
     films (worth it against the remote zip, where each read is a network
     round trip). `out_selection`, if given, gets one row per film saying
     what was chosen and why (for review). With `shard` (k, n) only that
@@ -89,7 +89,8 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     for row in index_rows:
         imdb_id, names = row[0], _candidate_names(row)
         record = _load(cache_dir, imdb_id)
-        if record and record["selection"].get("candidates") == names:
+        if (record and record["selection"].get("candidates") == names
+                and record.get("selection_version") == config.SELECTION_VERSION):
             records[imdb_id] = record
         else:
             todo.append((imdb_id, names, record))
@@ -140,7 +141,8 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                 record = {"imdb_id": imdb_id, "zip_name": chosen, "counts": counts,
                           "total_words": total, "unique_words": len(counts),
                           "words_per_minute": total / runtime if runtime else None,
-                          "version": config.SELECTION_VERSION,
+                          "version": config.FINGERPRINT_VERSION,
+                          "selection_version": config.SELECTION_VERSION,
                           "fingerprints": fps,
                           "selection": info | {"rank_top": names[0], "candidates": names}}
                 _write_cache(cache_dir, imdb_id, record)

@@ -83,15 +83,31 @@ def choose(candidates, runtime_minutes):
     if len(usable) == 1:
         return usable[0][0], info | {"reason": "single", "cluster": 1}
 
-    agree = {n: {m for m, other in usable if m != n
-                 and cosine(fp["vec"], other["vec"]) >= config.CONSENSUS_AGREE_COSINE}
-             for n, fp in usable}
-    head = max(usable, key=lambda c: len(agree[c[0]]))[0]   # max() keeps rank order on ties
-    if not agree[head]:
-        # nothing agrees with anything (independent translations): no
-        # majority to follow, so the size ranking decides
+    # Group near-identical files (re-uploads, re-syncs) into one TEXT: a
+    # wrong file uploaded three times must not outvote genuine translations
+    # that merely agree with each other (Baahubali 2).
+    texts = []   # [representative fingerprint, [(name, fp), ...]], rank order
+    for n, fp in usable:
+        for rep, members in texts:
+            if cosine(fp["vec"], rep["vec"]) >= config.CONSENSUS_DUPLICATE_COSINE:
+                members.append((n, fp))
+                break
+        else:
+            texts.append([fp, [(n, fp)]])
+    agree = [[j for j, (other, _) in enumerate(texts) if j != i
+              and cosine(rep["vec"], other["vec"]) >= config.CONSENSUS_AGREE_COSINE]
+             for i, (rep, _) in enumerate(texts)]
+
+    def votes(i):   # (agreeing distinct texts, files they cover); max() keeps rank order on ties
+        group = [i, *agree[i]]
+        return len(group), sum(len(texts[j][1]) for j in group)
+    head = max(range(len(texts)), key=votes)
+    if votes(head) == (1, 1):
+        # every text stands alone (independent translations): no majority
+        # to follow, so the size ranking decides
         return usable[0][0], info | {"reason": "rank", "cluster": 1}
-    cluster = [(n, fp) for n, fp in usable if n == head or n in agree[head]]
+    cluster = [m for j in [head, *agree[head]] for m in texts[j][1]]
+    cluster.sort(key=lambda c: [n for n, _ in usable].index(c[0]))   # back to rank order
     median = statistics.median(fp["tokens"] for _, fp in cluster)
     # nearest the median length rejects doubled and partial rips of the
     # same text; rank order breaks ties

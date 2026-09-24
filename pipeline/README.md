@@ -74,17 +74,21 @@ uv run python -m moviewords_pipeline.cli index
 # with the corrected tokenizer — otherwise stale per-movie caches will keep
 # serving counts derived from the old, junk-token-producing regex.
 #   rm -rf ../data/work/counts/
-# (Since 2026-09-24 bumping config.SELECTION_VERSION does this for you.)
+# (Since 2026-09-24 bumping config.FINGERPRINT_VERSION does this for you;
+# SELECTION_VERSION re-makes choices from cached fingerprints.)
 #
 # The count stage chooses each film's file by CONTENT CONSENSUS
 # (consensus.py): it fingerprints every candidate, drops commentary tracks,
 # other-language, sparse and tiny files, then takes the most typical file
-# (nearest the median length) of the largest cluster that agrees (content-
-# word cosine >= 0.85). Fingerprints are cached per file, so a re-run only
-# fetches new candidates. work/selection.parquet records every choice and
-# why. A full recount is ~242k reads (~2h against the remote zip at 12
-# workers; more workers make the OPUS server drop connections).
-uv run python -m moviewords_pipeline.cli count [--workers 12]
+# (nearest the median length) of the largest group of agreeing texts
+# (content-word cosine >= 0.85; near-identical re-uploads count as one text,
+# so a wrong file uploaded 3 times can't outvote real translations).
+# Fingerprints are cached per file, so a re-run only fetches new candidates.
+# work/selection.parquet records every choice and why. A full recount is
+# ~242k reads: ~2h against the remote zip from a laptop; on a VM, download
+# the zip and run `count --shard K/N` x N processes (GIL-bound parsing), then
+# one unsharded `count` to write the outputs.
+uv run python -m moviewords_pipeline.cli count [--workers 12] [--shard K/N]
 
 # Fetch production country and original-language metadata from TMDB
 # Duration: ~1.5 hours for ~33k films (throttled ~20 req/s)

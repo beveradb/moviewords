@@ -306,13 +306,39 @@ def test_chosen_file_known_only_by_fingerprint_is_refetched_for_counts(tmp_path,
     assert record["total_words"] == sum(record["counts"].values()) > 0
 
 
-def test_selection_version_bump_invalidates_the_cache(tmp_path, monkeypatch):
-    from moviewords_pipeline import config
-    zip_path = _zip(tmp_path, {TOP: [REAL] * 300})
-    _build(tmp_path, zip_path, [_row("tt0045251", TOP)])
-    assert _build(tmp_path, zip_path, [_row("tt0045251", TOP)])["skipped"] == 1
+def test_fingerprint_version_bump_refetches_everything(tmp_path, monkeypatch):
+    from moviewords_pipeline import config, counts
+    zip_path = _zip(tmp_path, {TOP: [REAL] * 300, ALT1: [REAL] * 300})
+    rows = [_row("tt0045251", TOP, ALT1)]
+    _build(tmp_path, zip_path, rows)
+    assert _build(tmp_path, zip_path, rows)["skipped"] == 1
+    monkeypatch.setattr(config, "FINGERPRINT_VERSION", config.FINGERPRINT_VERSION + 1)
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    assert _build(tmp_path, zip_path, rows)["processed"] == 1
+    assert sorted(reads) == sorted([TOP, ALT1])
+
+
+def test_selection_version_bump_rechooses_from_cached_fingerprints(tmp_path, monkeypatch):
+    """A new selection rule re-runs choose() on the stored fingerprints; only
+    a newly chosen file whose full counts were never kept is read."""
+    from moviewords_pipeline import config, consensus, counts
+    zip_path = _zip(tmp_path, {TOP: [REAL] * 300, ALT1: [REAL] * 310})
+    rows = [_row("tt0045251", TOP, ALT1)]
+    _build(tmp_path, zip_path, rows)
+    first = _record(tmp_path, "tt0045251")["zip_name"]
+    other = ALT1 if first == TOP else TOP
     monkeypatch.setattr(config, "SELECTION_VERSION", config.SELECTION_VERSION + 1)
-    assert _build(tmp_path, zip_path, [_row("tt0045251", TOP)])["processed"] == 1
+    monkeypatch.setattr(consensus, "choose", lambda cands, rt: (other, {"reason": "rank",
+                        "cluster": 1, "usable": 2, "relaxed": False, "rejected": {}}))
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    assert _build(tmp_path, zip_path, rows)["processed"] == 1
+    assert reads == [other]
+    record = _record(tmp_path, "tt0045251")
+    assert record["zip_name"] == other and record["selection_version"] == config.SELECTION_VERSION
+    # and a rerun under the same rule is a pure cache hit
+    assert _build(tmp_path, zip_path, rows)["skipped"] == 1
 
 
 def test_selection_report_says_what_was_chosen_and_why(tmp_path):

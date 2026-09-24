@@ -91,6 +91,34 @@ def test_ties_break_by_rank_order():
     assert _pick(cands)[0] == "first"
 
 
+def _translation(extra, n=8000):
+    """A distinct translation of the same film: FILM plus its own wording
+    (content cosine to other translations ~0.9 - agrees, but not a copy)."""
+    return _fp(FILM + extra.split(), n)
+
+
+def test_identical_copies_of_a_wrong_file_count_as_one_vote():
+    """Baahubali 2: three identical uploads of an unrelated film must not
+    outvote genuine translations that merely agree with each other."""
+    from moviewords_pipeline.consensus import cosine
+    genuine = [_translation("mother"), _translation("mahishmati"),
+               _translation("devasena")]
+    assert all(0.85 <= cosine(a["vec"], b["vec"]) < 0.98
+               for a in genuine for b in genuine if a is not b)
+    wrong = [_fp(OTHER, 8700) for _ in range(3)]
+    cands = [(f"wrong{i}", fp) for i, fp in enumerate(wrong)] + \
+            [(f"real{i}", fp) for i, fp in enumerate(genuine)]
+    name, info = _pick(cands)
+    assert name.startswith("real") and info["cluster"] == 3
+
+
+def test_identical_genuine_reuploads_beat_a_single_wrong_file():
+    """Nothing agrees across texts, but the genuine text has 4 uploads."""
+    cands = [("wrong", _fp(OTHER, 9000))] + [(f"real{i}", _fp(FILM, 8000)) for i in range(4)]
+    name, info = _pick(cands)
+    assert name.startswith("real") and info["reason"] == "consensus"
+
+
 def test_no_agreement_falls_back_to_rank_order():
     """Three independent translations that don't agree: no majority to
     follow, so the size ranking decides."""
