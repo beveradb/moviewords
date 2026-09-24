@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;500;600;800&display=swap');
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  .card {
+    width: 1200px; height: 630px;
+    background: #201d1a; color: #f3efe8;
+    padding: 56px 64px 54px;
+    display: flex; flex-direction: column;
+    font-family: Inter, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Brand lockup: the clapperboard mark (inverted for the dark card so the
+     board body reads light) + the MOVIEWORDS wordmark, matching the header. */
+  .brand { display: inline-flex; align-items: center; gap: 15px; }
+  .brand svg { width: 56px; height: 56px; display: block; }
+  .wordmark { font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 41px; letter-spacing: -0.02em; color: #f3efe8; }
+  .wordmark .w { background: #ffd84d; color: #201d1a; padding: 1px 7px 2px; margin-left: 2px; }
+  .fadein { font-family: 'Courier Prime', monospace; font-weight: 700; letter-spacing: 0.34em; color: #8f887e; font-size: 25px; margin-top: 30px; text-transform: uppercase; }
+  .head { font-family: 'Courier Prime', monospace; font-weight: 700; color: #f3efe8; font-size: 90px; line-height: 1.06; margin-top: 12px; }
+  .head .hl { background: #ffd84d; color: #201d1a; padding: 0 14px; }
+  .sub { font-family: Inter, sans-serif; font-weight: 400; color: #c9c0b2; font-size: 30px; line-height: 1.42; margin-top: 28px; max-width: 1015px; }
+  .spacer { flex: 1; }
+  .rule { height: 2px; background: #f3efe8; opacity: 0.9; margin-bottom: 20px; }
+  .foot { display: flex; justify-content: space-between; align-items: baseline; }
+  .foot .domain { font-family: 'Courier Prime', monospace; font-weight: 700; color: #f3efe8; font-size: 30px; }
+  .foot .tag { font-family: Inter, sans-serif; color: #c9c0b2; font-size: 27px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <g transform="rotate(-4 32 32)">
+          <path d="M6 10 L58 10 L58 24 L6 24 Z" fill="#f3efe8"/>
+          <g fill="#201d1a">
+            <path d="M12 10 L20 10 L14 24 L6 24 Z"/>
+            <path d="M28 10 L36 10 L30 24 L22 24 Z"/>
+            <path d="M44 10 L52 10 L46 24 L38 24 Z"/>
+          </g>
+          <rect x="6" y="26" width="52" height="30" fill="#f3efe8"/>
+          <rect x="12" y="32" width="32" height="8" rx="3" fill="#ffd84d" transform="skewX(-4) translate(1 0)"/>
+          <rect x="12" y="45" width="22" height="4.5" rx="2.25" fill="#201d1a" opacity="0.85"/>
+        </g>
+      </svg>
+      <span class="wordmark">MOVIE<span class="w">WORDS</span></span>
+    </div>
+    <div class="fadein">Fade in:</div>
+    <div class="head">Every film has a<br><span class="hl">vocabulary</span>.</div>
+    <div class="sub">Every word of dialogue in 51,624 films, counted - trends across decades, leaderboards, head-to-head film comparisons.</div>
+    <div class="spacer"></div>
+    <div class="rule"></div>
+    <div class="foot">
+      <span class="domain">moviewords.org</span>
+      <span class="tag">326 million words of movie dialogue</span>
+    </div>
+  </div>
+</body>
+</html>
