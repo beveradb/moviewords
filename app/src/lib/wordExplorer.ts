@@ -1,0 +1,57 @@
+import type { WordEntry } from './data'
+
+/** Pure logic for the film page's "Every word" explorer. */
+
+const norm = (q: string) => q.trim().toLowerCase()
+
+/** Squash every run of one repeated character to a single char. */
+export const collapse = (w: string): string => w.replace(/(.)\1+/gu, '$1')
+
+const hasRun3 = (w: string) => /(.)\1\1/u.test(w)
+
+/** Stretched spellings of `q` said in this film ("shiiiit" for "shit"): a 3+
+ * run of one letter that collapses to the same word. The 3-run rule keeps
+ * ordinary doubles apart ("good" is not "god"). */
+export function stretchedVariants(rows: WordEntry[], q: string): WordEntry[] {
+  const query = norm(q)
+  if (!query) return []
+  const target = collapse(query)
+  return rows.filter(([w]) => w !== query && hasRun3(w) && collapse(w) === target)
+}
+
+export function findWord(rows: WordEntry[], q: string): WordEntry | null {
+  const query = norm(q)
+  return rows.find(([w]) => w === query) ?? null
+}
+
+export type SortKey = 'count' | 'az' | 'rare'
+
+const byWord = (a: WordEntry, b: WordEntry) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)
+
+export function sortRows(rows: WordEntry[], key: SortKey): WordEntry[] {
+  const out = [...rows]
+  if (key === 'az') return out.sort(byWord)
+  if (key === 'rare') return out.sort((a, b) => a[2] - b[2] || b[1] - a[1] || byWord(a, b))
+  return out.sort((a, b) => b[1] - a[1] || byWord(a, b))
+}
+
+export function filterRows(rows: WordEntry[], q: string): WordEntry[] {
+  const query = norm(q)
+  return query ? rows.filter(([w]) => w.includes(query)) : rows
+}
+
+export const PAGE_SIZE = 50
+
+export function pageOf<T>(rows: T[], page: number): { rows: T[]; page: number; pages: number } {
+  const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
+  const p = Math.min(Math.max(1, page), pages)
+  return { rows: rows.slice((p - 1) * PAGE_SIZE, p * PAGE_SIZE), page: p, pages }
+}
+
+/** Words no other film in the corpus says, said 2+ times here, letters only
+ * (drops one-off typos / fragments), most-said first. */
+export const onlyInFilm = (rows: WordEntry[]): WordEntry[] =>
+  sortRows(rows.filter(([w, c, f]) => f === 1 && c >= 2 && /^\p{L}+$/u.test(w)), 'count').slice(0, 10)
+
+export const movieWordsHash = (id: string, q: string): string =>
+  norm(q) ? `#/movie/${id}?q=${encodeURIComponent(norm(q))}` : `#/movie/${id}`
