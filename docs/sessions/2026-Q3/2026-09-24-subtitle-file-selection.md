@@ -69,8 +69,7 @@ Restore the work cache from `r2:moviewords-pipeline-cache` first (see
   2010 (LOTR RotK), DBZ Broly Second Coming, Vinaya Vidheya Rama (13
   Neevevaro copies outranked the genuine files), Zatoichi and the Chest of
   Gold, Battles Without Honor and Humanity, Haunting Me. A ~400-film second
-  batch is coming from that sweep and needs its own blocklist + re-bake +
-  publish.
+  batch was CANCELLED in favour of a structural follow-up (below).
 - scan_mislabels' consensus threshold (0.8) sits at the stopword floor, so
   every pair comes back "manual review". Read the per-file tables instead.
 
@@ -107,7 +106,14 @@ Restore the work cache from `r2:moviewords-pipeline-cache` first (see
 
 ## Open threads
 
-- Batch 2 of the mislabel sweep (~400 films) from the moviewords-73 session.
+- **Follow-up PR (moviewords-73 session, approved by Andrew):** content-
+  consensus selection. It clusters each folder's candidates by content-word
+  cosine and picks the most typical file of the largest cluster; 1-2 file
+  folders get a commentary-track detector + langid + tag-junk rate. A
+  100-film study found the remaining bad picks are mostly the LARGEST file
+  in big folders: DVD commentary tracks (Heat, Logan, Deadpool...), wrong
+  films, junk. So size-based ranking (this PR) is a stepping stone. It also
+  adds a parser fix for {\pos}/<font>/nbsp styling tags.
 - `yyy`/`yyyi` encoding-junk tokens leak from some files (parser encoding
   bug; these make Match Point / Just Like Heaven look like duplicates).
 - Old-pipeline cache records skip the count-time checks unless invalidated.
