@@ -359,7 +359,8 @@
     "wordNotSaid": "“{word}” wordt niet gezegd in deze film.",
     "wordResult": "“{word}”: {count}× in deze film · {rate}/1k woorden · gezegd in {films} films",
     "wordTrendLink": "“{word}” in de loop der tijd →",
-    "wordsUnavailable": "De volledige woordenlijst is niet beschikbaar voor deze film."
+    "wordsUnavailable": "De volledige woordenlijst is niet beschikbaar voor deze film.",
+    "wordResultOnlyFilm": "“{word}”: {count}× in deze film · {rate}/1k woorden · de enige film die het zegt"
   },
   "themeToggle": {
     "day": "DAG",

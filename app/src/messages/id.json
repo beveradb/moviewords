@@ -359,7 +359,8 @@
     "wordNotSaid": "“{word}” tidak diucapkan di film ini.",
     "wordResult": "“{word}”: {count}× di film ini · {rate}/1rb kata · diucapkan di {films} film",
     "wordTrendLink": "“{word}” dari waktu ke waktu →",
-    "wordsUnavailable": "Daftar kata lengkap tidak tersedia untuk film ini."
+    "wordsUnavailable": "Daftar kata lengkap tidak tersedia untuk film ini.",
+    "wordResultOnlyFilm": "“{word}”: {count}× di film ini · {rate}/1k kata · satu-satunya film yang mengucapkannya"
   },
   "themeToggle": {
     "day": "SIANG",

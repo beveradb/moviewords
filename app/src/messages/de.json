@@ -359,7 +359,8 @@
     "wordNotSaid": "„{word}“ wird in diesem Film nicht gesagt.",
     "wordResult": "„{word}“: {count}× in diesem Film · {rate}/1k Wörter · in {films} Filmen gesagt",
     "wordTrendLink": "„{word}“ im Zeitverlauf →",
-    "wordsUnavailable": "Die vollständige Wortliste ist für diesen Film nicht verfügbar."
+    "wordsUnavailable": "Die vollständige Wortliste ist für diesen Film nicht verfügbar.",
+    "wordResultOnlyFilm": "„{word}“: {count}× in diesem Film · {rate}/1k Wörter · der einzige Film, in dem es vorkommt"
   },
   "themeToggle": {
     "day": "TAG",

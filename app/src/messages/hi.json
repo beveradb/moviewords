@@ -359,7 +359,8 @@
     "wordNotSaid": "इस फिल्म में “{word}” नहीं बोला गया है।",
     "wordResult": "“{word}”: इस फिल्म में {count}× · {rate}/1k शब्द · {films} फिल्मों में बोला गया",
     "wordTrendLink": "समय के साथ “{word}” →",
-    "wordsUnavailable": "इस फिल्म के लिए पूरी शब्द सूची उपलब्ध नहीं है।"
+    "wordsUnavailable": "इस फिल्म के लिए पूरी शब्द सूची उपलब्ध नहीं है।",
+    "wordResultOnlyFilm": "“{word}”: इस फिल्म में {count} बार · {rate}/1k शब्द · यह कहने वाली एकमात्र फिल्म"
   },
   "themeToggle": {
     "day": "दिन",

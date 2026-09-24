@@ -262,6 +262,7 @@
     "findWordPlaceholder": "Find a word in this film…",
     "findWordAriaLabel": "Find a word in this film",
     "wordResult": "“{word}”: {count}× in this film · {rate}/1k words · said in {films} films",
+    "wordResultOnlyFilm": "“{word}”: {count}× in this film · {rate}/1k words · the only film that says it",
     "wordNotSaid": "“{word}” isn't said in this film.",
     "alsoWrittenAs": "Also written as:",
     "wordTrendLink": "“{word}” over time →",

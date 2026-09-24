@@ -359,7 +359,8 @@
     "wordNotSaid": "لم تُقل كلمة “{word}” في هذا الفيلم.",
     "wordResult": "“{word}”: {count}× في هذا الفيلم · {rate}/1000 كلمة · قيلت في {films} أفلام",
     "wordTrendLink": "“{word}” بمرور الوقت ←",
-    "wordsUnavailable": "قائمة الكلمات الكاملة غير متوفرة لهذا الفيلم."
+    "wordsUnavailable": "قائمة الكلمات الكاملة غير متوفرة لهذا الفيلم.",
+    "wordResultOnlyFilm": "“{word}”: {count}× في هذا الفيلم · {rate}/ألف كلمة · الفيلم الوحيد الذي استخدمها"
   },
   "themeToggle": {
     "day": "نهار",

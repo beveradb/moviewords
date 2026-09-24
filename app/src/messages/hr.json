@@ -359,7 +359,8 @@
     "wordNotSaid": "“{word}” se ne izgovara u ovom filmu.",
     "wordResult": "“{word}”: {count}× u ovom filmu · {rate}/1k riječi · izgovoreno u {films} filmova",
     "wordTrendLink": "“{word}” kroz vrijeme →",
-    "wordsUnavailable": "Cijeli popis riječi nije dostupan za ovaj film."
+    "wordsUnavailable": "Cijeli popis riječi nije dostupan za ovaj film.",
+    "wordResultOnlyFilm": "“{word}”: {count}× u ovom filmu · {rate}/1k riječi · jedini film koji ju koristi"
   },
   "themeToggle": {
     "day": "DAN",

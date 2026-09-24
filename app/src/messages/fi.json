@@ -359,7 +359,8 @@
     "wordNotSaid": "Sanaa ”{word}” ei sanota tässä elokuvassa.",
     "wordResult": "”{word}”: {count}× tässä elokuvassa · {rate} / 1000 sanaa · sanotaan {films} elokuvassa",
     "wordTrendLink": "”{word}” ajan myötä →",
-    "wordsUnavailable": "Koko sanaluettelo ei ole saatavilla tälle elokuvalle."
+    "wordsUnavailable": "Koko sanaluettelo ei ole saatavilla tälle elokuvalle.",
+    "wordResultOnlyFilm": "”{word}”: {count}× tässä elokuvassa · {rate}/1k sanaa · ainoa elokuva, jossa se sanotaan"
   },
   "themeToggle": {
     "day": "PÄIVÄ",

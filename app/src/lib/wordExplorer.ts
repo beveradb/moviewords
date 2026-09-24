@@ -4,10 +4,11 @@ import type { WordEntry } from './data'
 
 const norm = (q: string) => q.trim().toLowerCase()
 
-/** Squash every run of one repeated character to a single char. */
-export const collapse = (w: string): string => w.replace(/(.)\1+/gu, '$1')
+/** Squash every run of one repeated letter to a single char (letters only, so
+ * digit/punctuation runs like "1000" aren't treated as stretched spellings). */
+export const collapse = (w: string): string => w.replace(/(\p{L})\1+/gu, '$1')
 
-const hasRun3 = (w: string) => /(.)\1\1/u.test(w)
+const hasRun3 = (w: string) => /(\p{L})\1\1/u.test(w)
 
 /** Stretched spellings of `q` said in this film ("shiiiit" for "shit"): a 3+
  * run of one letter that collapses to the same word. The 3-run rule keeps

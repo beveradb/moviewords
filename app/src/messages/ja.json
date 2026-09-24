@@ -359,7 +359,8 @@
     "wordNotSaid": "「{word}」はこの映画では使われていません。",
     "wordResult": "「{word}」: この映画で{count}回 ・ {rate}回/1,000語 ・ {films}本の映画で使用",
     "wordTrendLink": "「{word}」の時代ごとの推移 →",
-    "wordsUnavailable": "この映画の完全な単語リストは利用できません。"
+    "wordsUnavailable": "この映画の完全な単語リストは利用できません。",
+    "wordResultOnlyFilm": "「{word}」: 本作で{count}回 · 1000語あたり{rate}回 · この言葉が登場する唯一の映画"
   },
   "themeToggle": {
     "day": "昼",

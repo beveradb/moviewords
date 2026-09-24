@@ -359,7 +359,8 @@
     "wordNotSaid": "这部电影中没有出现“{word}”。",
     "wordResult": "“{word}”：在这部电影中出现 {count} 次 · {rate}次/千词 · 在 {films} 部电影中出现过",
     "wordTrendLink": "“{word}”的随时间变化趋势 →",
-    "wordsUnavailable": "这部电影的完整词汇表暂不可用。"
+    "wordsUnavailable": "这部电影的完整词汇表暂不可用。",
+    "wordResultOnlyFilm": "“{word}”：本片中出现 {count}× · {rate}/千字 · 唯一使用该词的电影"
   },
   "themeToggle": {
     "day": "日间",

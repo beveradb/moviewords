@@ -359,7 +359,8 @@
     "wordNotSaid": "„{word}“ v tomto filme nezaznie.",
     "wordResult": "„{word}“: {count}× v tomto filme · {rate}/1k slov · zaznie v {films} filmoch",
     "wordTrendLink": "„{word}“ v priebehu času →",
-    "wordsUnavailable": "Úplný zoznam slov pre tento film nie je k dispozícii."
+    "wordsUnavailable": "Úplný zoznam slov pre tento film nie je k dispozícii.",
+    "wordResultOnlyFilm": "„{word}“: {count}× v tomto filme · {rate}/1k slov · jediný film, v ktorom to zaznie"
   },
   "themeToggle": {
     "day": "DEŇ",

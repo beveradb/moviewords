@@ -359,7 +359,8 @@
     "wordNotSaid": "„{word}” nu este rostit în acest film.",
     "wordResult": "„{word}”: de {count}× în acest film · {rate}/1k cuvinte · rostit în {films} filme",
     "wordTrendLink": "„{word}” de-a lungul timpului →",
-    "wordsUnavailable": "Lista completă de cuvinte nu este disponibilă pentru acest film."
+    "wordsUnavailable": "Lista completă de cuvinte nu este disponibilă pentru acest film.",
+    "wordResultOnlyFilm": "„{word}”: {count}× în acest film · {rate}/1k cuvinte · singurul film care îl folosește"
   },
   "themeToggle": {
     "day": "ZI",

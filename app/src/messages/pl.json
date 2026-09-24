@@ -359,7 +359,8 @@
     "wordNotSaid": "„{word}” nie pada w tym filmie.",
     "wordResult": "„{word}”: {count}× w tym filmie · {rate}/1000 słów · pada w {films} filmach",
     "wordTrendLink": "„{word}” na przestrzeni czasu →",
-    "wordsUnavailable": "Pełna lista słów nie jest dostępna dla tego filmu."
+    "wordsUnavailable": "Pełna lista słów nie jest dostępna dla tego filmu.",
+    "wordResultOnlyFilm": "„{word}”: {count}× w tym filmie · {rate}/1k słów · jedyny film, w którym to pada"
   },
   "themeToggle": {
     "day": "DZIEŃ",

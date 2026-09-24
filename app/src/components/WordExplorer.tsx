@@ -59,7 +59,12 @@ export function WordExplorer({ id, totalWords, initialQuery }: { id: string; tot
   const onQuery = (value: string) => {
     setQ(value)
     setPage(1)
-    window.history.replaceState(null, '', movieWordsHash(id, value))
+    try {
+      // Safari throws SecurityError past ~100 replaceState calls in 10s (e.g. held backspace); state is already set above, so just skip the URL update
+      window.history.replaceState(null, '', movieWordsHash(id, value))
+    } catch {
+      // ignore
+    }
   }
 
   return (
@@ -82,7 +87,9 @@ export function WordExplorer({ id, totalWords, initialQuery }: { id: string; tot
             <div className="mt-3 border-l-2 border-ink-3 pl-4 font-script text-sm">
               {exact ? (
                 <p>
-                  {t('movie.wordResult', { word: exact[0], count: n(exact[1]), rate: per1k(exact[1]), films: n(exact[2]) })}
+                  {exact[2] === 1
+                    ? t('movie.wordResultOnlyFilm', { word: exact[0], count: n(exact[1]), rate: per1k(exact[1]) })
+                    : t('movie.wordResult', { word: exact[0], count: n(exact[1]), rate: per1k(exact[1]), films: n(exact[2]) })}
                 </p>
               ) : (
                 <p>{t('movie.wordNotSaid', { word: query })}</p>

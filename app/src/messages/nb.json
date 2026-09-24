@@ -359,7 +359,8 @@
     "wordNotSaid": "“{word}” sies ikke i denne filmen.",
     "wordResult": "“{word}”: {count}× i denne filmen · {rate}/1k ord · sagt i {films} filmer",
     "wordTrendLink": "“{word}” over tid →",
-    "wordsUnavailable": "Den fulle ordlisten er ikke tilgjengelig for denne filmen."
+    "wordsUnavailable": "Den fulle ordlisten er ikke tilgjengelig for denne filmen.",
+    "wordResultOnlyFilm": "“{word}”: {count}× i denne filmen · {rate}/1k ord · den eneste filmen som sier det"
   },
   "themeToggle": {
     "day": "DAG",

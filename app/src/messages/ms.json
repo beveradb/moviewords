@@ -359,7 +359,8 @@
     "wordNotSaid": "“{word}” tidak disebut dalam filem ini.",
     "wordResult": "“{word}”: {count}× dalam filem ini · {rate}/1k perkataan · disebut dalam {films} filem",
     "wordTrendLink": "“{word}” dari semasa ke semasa →",
-    "wordsUnavailable": "Senarai perkataan penuh tidak tersedia untuk filem ini."
+    "wordsUnavailable": "Senarai perkataan penuh tidak tersedia untuk filem ini.",
+    "wordResultOnlyFilm": "“{word}”: {count}× dalam filem ini · {rate}/1k perkataan · satu-satunya filem yang menyebutnya"
   },
   "themeToggle": {
     "day": "SIANG",

@@ -359,7 +359,8 @@
     "wordNotSaid": "Hindi sinasabi ang “{word}” sa pelikulang ito.",
     "wordResult": "“{word}”: {count}× sa pelikulang ito · {rate}/1k na salita · sinabi sa {films} na pelikula",
     "wordTrendLink": "“{word}” sa paglipas ng panahon →",
-    "wordsUnavailable": "Hindi available ang buong listahan ng salita para sa pelikulang ito."
+    "wordsUnavailable": "Hindi available ang buong listahan ng salita para sa pelikulang ito.",
+    "wordResultOnlyFilm": "“{word}”: {count}× sa pelikulang ito · {rate}/1k salita · ang kaisa-isang pelikulang nagsabi nito"
   },
   "themeToggle": {
     "day": "ARAW",

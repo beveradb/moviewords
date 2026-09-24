@@ -43,6 +43,12 @@ describe('WordExplorer', () => {
     expect(screen.getByText(/“oh”: 11× in this film/)).toBeTruthy()
   })
 
+  it('shows the singular only-film line for a word said in just this film', async () => {
+    await mount('sundance')
+    expect(screen.getByText(/the only film that says it/)).toBeTruthy()
+    expect(screen.queryByText(/1 films/)).toBeNull()
+  })
+
   it('lists only-in-this-film words', async () => {
     await mount()
     expect(screen.getByText('Only in this film')).toBeTruthy()

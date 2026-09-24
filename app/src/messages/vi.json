@@ -359,7 +359,8 @@
     "wordNotSaid": "“{word}” không được nói trong phim này.",
     "wordResult": "“{word}”: {count}× trong phim này · {rate}/1k từ · được nói trong {films} phim",
     "wordTrendLink": "“{word}” theo thời gian →",
-    "wordsUnavailable": "Danh sách từ đầy đủ không có sẵn cho phim này."
+    "wordsUnavailable": "Danh sách từ đầy đủ không có sẵn cho phim này.",
+    "wordResultOnlyFilm": "“{word}”: {count}× trong phim này · {rate}/1k từ · bộ phim duy nhất nói từ này"
   },
   "themeToggle": {
     "day": "NGÀY",

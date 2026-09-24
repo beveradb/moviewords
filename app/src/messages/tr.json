@@ -359,7 +359,8 @@
     "wordNotSaid": "“{word}” bu filmde söylenmiyor.",
     "wordResult": "“{word}”: bu filmde {count}× · {rate}/1000 kelime · {films} filmde söylendi",
     "wordTrendLink": "Zaman içinde “{word}” →",
-    "wordsUnavailable": "Bu film için tam kelime listesi mevcut değil."
+    "wordsUnavailable": "Bu film için tam kelime listesi mevcut değil.",
+    "wordResultOnlyFilm": "“{word}”: bu filmde {count}× · 1k kelimede {rate} · bunu söyleyen tek film"
   },
   "themeToggle": {
     "day": "GÜNDÜZ",

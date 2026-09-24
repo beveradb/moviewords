@@ -359,7 +359,8 @@
     "wordNotSaid": "«{word}» не произносится в этом фильме.",
     "wordResult": "«{word}»: {count}× в этом фильме · {rate}/1 тыс. слов · звучит в {films} фильмах",
     "wordTrendLink": "«{word}» со временем →",
-    "wordsUnavailable": "Полный список слов для этого фильма недоступен."
+    "wordsUnavailable": "Полный список слов для этого фильма недоступен.",
+    "wordResultOnlyFilm": "«{word}»: {count}× в этом фильме · {rate}/1 тыс. слов · единственный фильм, где это произносят"
   },
   "themeToggle": {
     "day": "ДЕНЬ",

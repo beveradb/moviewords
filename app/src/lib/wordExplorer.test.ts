@@ -17,6 +17,9 @@ describe('collapse', () => {
     expect(collapse('good')).toBe('god')
     expect(collapse('oh')).toBe('oh')
   })
+  it('leaves digit runs alone (letters only)', () => {
+    expect(collapse('1000')).toBe('1000')
+  })
 })
 
 describe('stretchedVariants', () => {
@@ -28,6 +31,9 @@ describe('stretchedVariants', () => {
   })
   it('never returns the query itself and is case/space-insensitive', () => {
     expect(stretchedVariants(rows, ' SHIIIIT ').map((r) => r[0])).toEqual(['shiiiitttt'])
+  })
+  it('does not treat a digit run as a stretched spelling', () => {
+    expect(stretchedVariants([['1000', 1, 1], ['10', 2, 5]], '10')).toEqual([])
   })
 })
 

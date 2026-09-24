@@ -359,7 +359,8 @@
     "wordNotSaid": "“{word}” no es diu en aquesta pel·lícula.",
     "wordResult": "“{word}”: {count}× en aquesta pel·lícula · {rate}/1k paraules · dita en {films} pel·lícules",
     "wordTrendLink": "“{word}” al llarg del temps →",
-    "wordsUnavailable": "La llista completa de paraules no està disponible per a aquesta pel·lícula."
+    "wordsUnavailable": "La llista completa de paraules no està disponible per a aquesta pel·lícula.",
+    "wordResultOnlyFilm": "“{word}”: {count}× en aquesta pel·lícula · {rate}/1k paraules · l'única pel·lícula que ho diu"
   },
   "themeToggle": {
     "day": "DIA",

@@ -359,7 +359,8 @@
     "wordNotSaid": "“{word}” non viene detta in questo film.",
     "wordResult": "“{word}”: {count}× in questo film · {rate}/1k parole · detta in {films} film",
     "wordTrendLink": "“{word}” nel tempo →",
-    "wordsUnavailable": "L'elenco completo delle parole non è disponibile per questo film."
+    "wordsUnavailable": "L'elenco completo delle parole non è disponibile per questo film.",
+    "wordResultOnlyFilm": "“{word}”: {count}× in questo film · {rate}/1k parole · l'unico film a dirla"
   },
   "themeToggle": {
     "day": "GIORNO",

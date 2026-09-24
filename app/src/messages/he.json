@@ -359,7 +359,8 @@
     "wordNotSaid": "המילה “{word}” לא נאמרת בסרט הזה.",
     "wordResult": "“{word}”: {count}× בסרט הזה · {rate}/1,000 מילים · נאמרת ב- {films} סרטים",
     "wordTrendLink": "“{word}” לאורך זמן ←",
-    "wordsUnavailable": "רשימת המילים המלאה אינה זמינה עבור הסרט הזה."
+    "wordsUnavailable": "רשימת המילים המלאה אינה זמינה עבור הסרט הזה.",
+    "wordResultOnlyFilm": "“{word}”: {count}× בסרט הזה · {rate} ל-1k מילים · הסרט היחיד שאומר את זה"
   },
   "themeToggle": {
     "day": "יום",

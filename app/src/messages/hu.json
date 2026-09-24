@@ -359,7 +359,8 @@
     "wordNotSaid": "A(z) „{word}” nem hangzik el ebben a filmben.",
     "wordResult": "„{word}”: {count}× ebben a filmben · {rate}/1000 szó · {films} filmben hangzik el",
     "wordTrendLink": "„{word}” az idő múlásával →",
-    "wordsUnavailable": "A teljes szólista nem érhető el ehhez a filmhez."
+    "wordsUnavailable": "A teljes szólista nem érhető el ehhez a filmhez.",
+    "wordResultOnlyFilm": "„{word}”: {count}× ebben a filmben · {rate}/1k szó · az egyetlen film, amelyben elhangzik"
   },
   "themeToggle": {
     "day": "NAPPAL",
