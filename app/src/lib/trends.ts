@@ -188,13 +188,14 @@ export function perFilmSummary(
 }
 
 /** MPAA rating filter (Trends only). Codes are the URL values + slice dir
- * names; labels are MPAA marks (not translated). X folds into NC-17. */
+ * names; labels are MPAA marks (not translated). NC-17/X gets only ~5
+ * films/year in the corpus - never enough to chart on its own - so it folds
+ * into the 'r' slice as a combined "R & NC-17/X" option. */
 export const RATINGS = [
   { code: 'g', label: 'G' },
   { code: 'pg', label: 'PG' },
   { code: 'pg13', label: 'PG-13' },
-  { code: 'r', label: 'R' },
-  { code: 'nc17', label: 'NC-17/X' },
+  { code: 'r', label: 'R & NC-17/X' },
 ] as const
 
 export type RatingCode = (typeof RATINGS)[number]['code']

@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import duckdb  # noqa: E402
 
-RATING_CODES = ("g", "pg", "pg13", "r", "nc17")
+RATING_CODES = ("g", "pg", "pg13", "r")
 
 # MPAA ratings began Nov 1968; earlier films only carry later re-release
 # ratings, so rated slices exclude them at source (a biased "re-released
@@ -20,17 +20,25 @@ RATING_CODES = ("g", "pg", "pg13", "r", "nc17")
 # the baked trend top/byYear/year-totals/year-films).
 RATING_MIN_YEAR = 1968
 
+# Which ratings.parquet codes fall into each slice. NC-17/X gets only ~5
+# films/year in the corpus - never enough to chart on its own (0 plottable
+# years) - so it folds into the 'r' slice as a combined "R & NC-17/X" option;
+# every other slice is just its own code. See
+# docs/superpowers/specs/2026-09-24-mpaa-rating-filter-design.md.
+SLICE_MEMBERS = {"r": ("r", "nc17")}
+
 
 def build_rating_slice(all_in: Path, out_in: Path, ratings: Path, code: str) -> int:
     if code not in RATING_CODES:
         raise ValueError(f"unknown rating code {code!r}")
+    members = SLICE_MEMBERS.get(code, (code,))
     out_in.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect()
     con.sql(f"""
         CREATE TABLE movies AS
             SELECT m.* FROM '{all_in}/movies.parquet' m
             JOIN '{ratings}' r USING (imdb_id)
-            WHERE r.rating = '{code}' AND m.year >= {RATING_MIN_YEAR};
+            WHERE r.rating IN {members!r} AND m.year >= {RATING_MIN_YEAR};
         CREATE TABLE wc AS
             SELECT w.* FROM '{all_in}/words_by_movie.parquet' w
             WHERE w.imdb_id IN (SELECT imdb_id FROM movies);

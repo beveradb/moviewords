@@ -12,7 +12,7 @@ Spec: `docs/superpowers/specs/2026-09-24-mpaa-rating-filter-design.md`.
 
 ## Global Constraints
 
-- Rating codes (URL values + slice dir names): `g`, `pg`, `pg13`, `r`, `nc17`. Labels: `G`, `PG`, `PG-13`, `R`, `NC-17/X` (MPAA marks - not translated).
+- Rating codes (URL values + slice dir names): `g`, `pg`, `pg13`, `r`. Labels: `G`, `PG`, `PG-13`, `R & NC-17/X` (MPAA marks - not translated). NC-17/X gets only ~5 films/year in the corpus (never enough to chart on its own), so it folds into the `r` slice (`SLICE_MEMBERS["r"] = ("r", "nc17")` in `build_rating_slice.py`) rather than getting its own option; `ratings.parquet` still keeps `nc17` as its own code.
 - Buckets: `G->g, PG->pg, PG-13->pg13, R->r, NC-17->nc17, X->nc17`; NR/Unrated/anything else/missing -> no rating.
 - Certification pick: US release dates with non-empty certification; prefer type 3 (theatrical), then 2 (limited), then 1 (premiere), then any other; earliest `release_date` within the chosen type.
 - Rating slice `word_year`: `SUM(count)` + `COUNT(*) AS movie_count` per word+year from the slice's `words_by_movie` joined to its `movies`; keep words whose total across years is >= 20 (same floor as language slices).

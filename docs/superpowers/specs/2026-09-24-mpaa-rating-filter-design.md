@@ -7,8 +7,11 @@ spicier?). We promised a rating filter "later today".
 ## Decisions
 
 - **Trends-only filter** (not site-wide), single select:
-  `All ratings | G | PG | PG-13 | R | NC-17/X`, URL param `rating=g|pg|pg13|r|nc17`.
-  Composes with multiple words, `per=film` and the per-word summary.
+  `All ratings | G | PG | PG-13 | R & NC-17/X`, URL param `rating=g|pg|pg13|r`.
+  NC-17/X gets only ~5 films/year in the corpus - never enough of its own to
+  chart (0 plottable years) - so it folds into the `r` option rather than
+  getting its own slice. Composes with multiple words, `per=film` and the
+  per-word summary.
 - **Source:** TMDB `/movie/{id}/release_dates`, US entry. It is the film's
   *original theatrical* US certification (re-releases can carry a different,
   later certification, which is ignored).
@@ -37,20 +40,26 @@ spicier?). We promised a rating filter "later today".
    (NR, Unrated, missing) -> no rating. Output `webdata/in/all/ratings.parquet`
    `(imdb_id VARCHAR, rating VARCHAR)` for rated films only.
    Sample check (120 English films): ~45% rated; 1968-89 ~75%, 2010+ ~35%.
-2. Rating slices `webdata/in/all/rating/<code>/` = that rating's `movies`,
-   `words_by_movie`, and `word_year` re-derived from `words_by_movie`
-   (`SUM(count)`, `COUNT(*) AS movie_count` per word+year, same per-word >= 20
-   floor as the language slices). Baked with `rebuild_web_data.py --corpus all
-   --rating <code> --stage trends` -> `webdata/out/all/rating/<code>/json/`
-   `trend/<word>.json`, `year-totals.json`, `year-films.json`.
+2. Rating slices, one per `RATING_CODES` entry (`g`, `pg`, `pg13`, `r`) under
+   `webdata/in/all/rating/<code>/` = that slice's `movies`, `words_by_movie`,
+   and `word_year` re-derived from `words_by_movie` (`SUM(count)`,
+   `COUNT(*) AS movie_count` per word+year, same per-word >= 20 floor as the
+   language slices). The `r` slice includes both `r`- and `nc17`-rated films
+   from `ratings.parquet` (`SLICE_MEMBERS["r"] = ("r", "nc17")` in
+   `build_rating_slice.py`); every other slice is just its own code.
+   `ratings.parquet` itself keeps `nc17` as its own rating code - no
+   information lost there, only folded at slice-build time. Baked with
+   `rebuild_web_data.py --corpus all --rating <code> --stage trends` ->
+   `webdata/out/all/rating/<code>/json/` `trend/<word>.json`,
+   `year-totals.json`, `year-films.json`.
 3. `upload_r2.sh`: `all/rating/*/json/trend/**`, `.../year-totals.json`,
    `.../year-films.json` at 1h TTL (same as the language equivalents).
 
 ## Frontend
 
 - `data.ts`: `ratingUrl(code, path)` -> `${DATA_BASE}/all/rating/${code}/${path}`.
-- `trends.ts`: `RATINGS` (codes + display labels "G", "PG", "PG-13", "R",
-  "NC-17/X" - MPAA marks, not translated), `ratingFromParams(params)` (valid
+- `trends.ts`: `RATINGS` (codes + display labels "G", "PG", "PG-13",
+  "R & NC-17/X" - MPAA marks, not translated), `ratingFromParams(params)` (valid
   code or null), `RATING_MIN_YEAR = 1968`, `trendsHref(words, { perFilm,
   rating })` (keeps both params).
 - `series.ts`: `loadTrends(words, colors, rating)` and the year-map loaders take
@@ -84,5 +93,5 @@ spicier?). We promised a rating filter "later today".
 
 ## Ship
 
-Fetch -> bake 5 slices -> upload -> verify 200s -> merge app PR -> prod check
+Fetch -> bake 4 slices -> upload -> verify 200s -> merge app PR -> prod check
 -> Reddit follow-up to hipsterdoofus.

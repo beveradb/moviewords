@@ -294,16 +294,17 @@ describe('trendsHref / isPerFilm', () => {
 })
 
 describe('ratings', () => {
-  it('lists the five MPAA buckets in order with display labels', () => {
-    expect(RATINGS.map((r) => r.code)).toEqual(['g', 'pg', 'pg13', 'r', 'nc17'])
+  it('lists the four MPAA buckets in order with display labels', () => {
+    expect(RATINGS.map((r) => r.code)).toEqual(['g', 'pg', 'pg13', 'r'])
     expect(ratingLabel('pg13')).toBe('PG-13')
-    expect(ratingLabel('nc17')).toBe('NC-17/X')
+    expect(ratingLabel('r')).toBe('R & NC-17/X')
     expect(RATING_MIN_YEAR).toBe(1968)
   })
   it('accepts only known rating codes from the URL', () => {
     expect(ratingFromParams(new URLSearchParams('rating=pg'))).toBe('pg')
     expect(ratingFromParams(new URLSearchParams('rating=PG'))).toBeNull()
     expect(ratingFromParams(new URLSearchParams('rating=xxx'))).toBeNull()
+    expect(ratingFromParams(new URLSearchParams('rating=nc17'))).toBeNull()
     expect(ratingFromParams(new URLSearchParams(''))).toBeNull()
   })
   it('counts films released from a year onwards', () => {
