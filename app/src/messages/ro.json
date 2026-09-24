@@ -378,7 +378,12 @@
     "perMillionToggle": "Per milion de cuvinte",
     "usesPerFilmCaption": "media de utilizări per film lansat în acel an",
     "yAxisLabelPerFilm": "utilizări per film",
-    "introPerFilm": "Cât de des este rostit un cuvânt în toate filmele din corpus, ca medie de utilizări per film, în funcție de anul lansării."
+    "introPerFilm": "Cât de des este rostit un cuvânt în toate filmele din corpus, ca medie de utilizări per film, în funcție de anul lansării.",
+    "allRatings": "Toate ratingurile",
+    "ratingLabel": "Rating",
+    "ratingNeedsAllFilms": "Filtrul de rating funcționează cu Toate filmele",
+    "ratingNote": "Bazat pe {count} filme cu ratingul {rating} (ratingul actual US MPAA, via TMDB).",
+    "ratingSince1968": "Ratingurile MPAA au început în noiembrie 1968 - filmele anterioare au primit rating doar la relansările ulterioare, așa că graficul începe în 1968."
   },
   "languageFilter": {
     "allFilms": "Toate filmele",

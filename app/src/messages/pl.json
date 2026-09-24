@@ -378,7 +378,12 @@
     "perMillionToggle": "Na milion słów",
     "usesPerFilmCaption": "średnia liczba użyć na film wydany w tym roku",
     "yAxisLabelPerFilm": "użyć na film",
-    "introPerFilm": "Jak często dane słowo pada we wszystkich filmach w korpusie, jako średnia liczba użyć na film, według roku premiery."
+    "introPerFilm": "Jak często dane słowo pada we wszystkich filmach w korpusie, jako średnia liczba użyć na film, według roku premiery.",
+    "allRatings": "Wszystkie kategorie wiekowe",
+    "ratingLabel": "Kategoria wiekowa",
+    "ratingNeedsAllFilms": "Filtr kategorii wiekowej działa z opcją Wszystkie filmy",
+    "ratingNote": "Na podstawie {count} filmów z kategorią {rating} (aktualna kategoria wiekowa MPAA w USA, przez TMDB).",
+    "ratingSince1968": "Kategorie wiekowe MPAA wprowadzono w listopadzie 1968 roku - wcześniejsze filmy otrzymały je dopiero przy późniejszych wznowieniach, dlatego wykres zaczyna się w 1968 roku."
   },
   "languageFilter": {
     "allFilms": "Wszystkie filmy",

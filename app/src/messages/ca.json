@@ -378,7 +378,12 @@
     "perMillionToggle": "Per milió de paraules",
     "usesPerFilmCaption": "mitjana d'usos per pel·lícula estrenada aquell any",
     "yAxisLabelPerFilm": "usos per pel·lícula",
-    "introPerFilm": "Amb quina freqüència es pronuncia una paraula en totes les pel·lícules del corpus, com a mitjana d'usos per pel·lícula, segons l'any d'estrena."
+    "introPerFilm": "Amb quina freqüència es pronuncia una paraula en totes les pel·lícules del corpus, com a mitjana d'usos per pel·lícula, segons l'any d'estrena.",
+    "allRatings": "Totes les qualificacions",
+    "ratingLabel": "Qualificació",
+    "ratingNeedsAllFilms": "El filtre de qualificació funciona amb Totes les pel·lícules",
+    "ratingNote": "Basat en {count} pel·lícules amb qualificació {rating} (qualificació actual de la MPAA dels EUA, via TMDB).",
+    "ratingSince1968": "Les qualificacions de la MPAA van començar el novembre de 1968 - les pel·lícules anteriors només tenen qualificació per reestrenes posteriors, així que el gràfic comença el 1968."
   },
   "languageFilter": {
     "allFilms": "Totes les pel·lícules",

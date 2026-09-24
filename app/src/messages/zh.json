@@ -378,7 +378,12 @@
     "perMillionToggle": "每百万词",
     "usesPerFilmCaption": "当年上映电影的平均每部使用次数",
     "yAxisLabelPerFilm": "每部电影使用次数",
-    "introPerFilm": "某个词在语料库所有电影中被说出的频率，按上映年份统计，以每部电影的平均使用次数表示。"
+    "introPerFilm": "某个词在语料库所有电影中被说出的频率，按上映年份统计，以每部电影的平均使用次数表示。",
+    "allRatings": "所有分级",
+    "ratingLabel": "分级",
+    "ratingNeedsAllFilms": "分级筛选适用于所有电影",
+    "ratingNote": "基于 {count} 部 {rating} 级电影（当前美国 MPAA 分级，数据来自 TMDB）。",
+    "ratingSince1968": "MPAA 分级始于 1968 年 11 月 - 早期电影的分级仅来自后来的重新发行，因此图表从 1968 年开始。"
   },
   "languageFilter": {
     "allFilms": "所有电影",

@@ -378,7 +378,12 @@
     "perMillionToggle": "Per miljon ord",
     "usesPerFilmCaption": "genomsnittligt antal förekomster per film utgiven det året",
     "yAxisLabelPerFilm": "förekomster per film",
-    "introPerFilm": "Hur ofta ett ord sägs i alla filmer i korpusen, som genomsnittlig användning per film, efter premiärår."
+    "introPerFilm": "Hur ofta ett ord sägs i alla filmer i korpusen, som genomsnittlig användning per film, efter premiärår.",
+    "allRatings": "Alla åldersgränser",
+    "ratingLabel": "Åldersgräns",
+    "ratingNeedsAllFilms": "Åldersgränsfiltret fungerar med Alla filmer",
+    "ratingNote": "Baserat på {count} filmer med åldersgränsen {rating} (nuvarande amerikansk MPAA-åldersgräns, via TMDB).",
+    "ratingSince1968": "MPAA-åldersgränserna infördes i november 1968 - tidigare filmer har bara fått åldersgränser vid senare nypremiärer, så diagrammet börjar 1968."
   },
   "languageFilter": {
     "allFilms": "Alla filmer",

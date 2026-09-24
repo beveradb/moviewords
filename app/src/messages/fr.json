@@ -378,7 +378,12 @@
     "perMillionToggle": "Par million de mots",
     "usesPerFilmCaption": "moyenne des occurrences par film sorti cette année-là",
     "yAxisLabelPerFilm": "occurrences par film",
-    "introPerFilm": "La fréquence à laquelle un mot est prononcé dans l'ensemble des films du corpus, exprimée en moyenne par film, selon l'année de sortie."
+    "introPerFilm": "La fréquence à laquelle un mot est prononcé dans l'ensemble des films du corpus, exprimée en moyenne par film, selon l'année de sortie.",
+    "allRatings": "Toutes les classifications",
+    "ratingLabel": "Classification",
+    "ratingNeedsAllFilms": "Le filtre de classification fonctionne avec Tous les films",
+    "ratingNote": "Basé sur {count} films classés {rating} (classification américaine MPAA actuelle, via TMDB).",
+    "ratingSince1968": "Les classifications MPAA ont commencé en novembre 1968 - les films antérieurs ne sont classés qu'à partir de ressorties ultérieures, le graphique commence donc en 1968."
   },
   "languageFilter": {
     "allFilms": "Tous les films",

@@ -378,7 +378,12 @@
     "perMillionToggle": "Per miljoen woorden",
     "usesPerFilmCaption": "gemiddeld aantal keer gebruikt per film uitgebracht in dat jaar",
     "yAxisLabelPerFilm": "keer gebruikt per film",
-    "introPerFilm": "Hoe vaak een woord wordt uitgesproken in alle films in het corpus, als gemiddeld aantal keer per film, per releasejaar."
+    "introPerFilm": "Hoe vaak een woord wordt uitgesproken in alle films in het corpus, als gemiddeld aantal keer per film, per releasejaar.",
+    "allRatings": "Alle keuringen",
+    "ratingLabel": "Keuring",
+    "ratingNeedsAllFilms": "Keuringsfilter werkt met Alle films",
+    "ratingNote": "Gebaseerd op {count} films met keuring {rating} (huidige Amerikaanse MPAA-keuring, via TMDB).",
+    "ratingSince1968": "MPAA-keuringen begonnen in november 1968 - eerdere films kregen pas een keuring bij latere heruitgaven, dus de grafiek begint in 1968."
   },
   "languageFilter": {
     "allFilms": "Alle films",

@@ -378,7 +378,12 @@
     "perMillionToggle": "Milyon kelime başına",
     "usesPerFilmCaption": "o yıl vizyona giren film başına ortalama kullanım",
     "yAxisLabelPerFilm": "film başına kullanım",
-    "introPerFilm": "Bir kelimenin derlemdeki tüm filmlerde ne sıklıkla söylendiği, vizyon yılına göre film başına ortalama kullanım olarak."
+    "introPerFilm": "Bir kelimenin derlemdeki tüm filmlerde ne sıklıkla söylendiği, vizyon yılına göre film başına ortalama kullanım olarak.",
+    "allRatings": "Tüm derecelendirmeler",
+    "ratingLabel": "Derecelendirme",
+    "ratingNeedsAllFilms": "Derecelendirme filtresi Tüm filmler ile çalışır",
+    "ratingNote": "{count} adet {rating} dereceli filme dayanmaktadır (TMDB aracılığıyla güncel ABD MPAA derecelendirmesi).",
+    "ratingSince1968": "MPAA derecelendirmeleri Kasım 1968'de başladı - daha eski filmler yalnızca daha sonraki yeniden gösterimlerden derecelendirildi, bu yüzden grafik 1968'den başlıyor."
   },
   "languageFilter": {
     "allFilms": "Tüm filmler",

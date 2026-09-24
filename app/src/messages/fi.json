@@ -378,7 +378,12 @@
     "perMillionToggle": "Miljoonaa sanaa kohden",
     "usesPerFilmCaption": "keskimääräiset käyttökerrat kyseisenä vuonna julkaistua elokuvaa kohden",
     "yAxisLabelPerFilm": "käyttökertaa elokuvaa kohden",
-    "introPerFilm": "Kuinka usein sana lausutaan kaikissa aineiston elokuvissa, esitettynä keskimääräisinä käyttökertoina elokuvaa kohden julkaisuvuoden mukaan."
+    "introPerFilm": "Kuinka usein sana lausutaan kaikissa aineiston elokuvissa, esitettynä keskimääräisinä käyttökertoina elokuvaa kohden julkaisuvuoden mukaan.",
+    "allRatings": "Kaikki ikärajat",
+    "ratingLabel": "Ikäraja",
+    "ratingNeedsAllFilms": "Ikärajasuodatin toimii Kaikki elokuvat -valinnalla",
+    "ratingNote": "Perustuu {count} elokuvaan, joiden ikäraja on {rating} (nykyinen Yhdysvaltain MPAA-ikäraja TMDB:n kautta).",
+    "ratingSince1968": "MPAA-ikärajat otettiin käyttöön marraskuussa 1968 - aiemmat elokuvat on luokiteltu vasta myöhempien uusintajulkaisujen yhteydessä, joten kaavio alkaa vuodesta 1968."
   },
   "languageFilter": {
     "allFilms": "Kaikki elokuvat",

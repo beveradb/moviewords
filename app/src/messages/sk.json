@@ -378,7 +378,12 @@
     "perMillionToggle": "Na milión slov",
     "usesPerFilmCaption": "priemerný počet použití na film vydaný v danom roku",
     "yAxisLabelPerFilm": "použití na film",
-    "introPerFilm": "Ako často sa slovo vyskytuje vo všetkých filmoch v korpuse, ako priemerný počet použití na film, podľa roku uvedenia."
+    "introPerFilm": "Ako často sa slovo vyskytuje vo všetkých filmoch v korpuse, ako priemerný počet použití na film, podľa roku uvedenia.",
+    "allRatings": "Všetky hodnotenia",
+    "ratingLabel": "Hodnotenie",
+    "ratingNeedsAllFilms": "Filter hodnotenia funguje pri Všetkých filmoch",
+    "ratingNote": "Založené na {count} filmoch s hodnotením {rating} (aktuálne hodnotenie US MPAA, cez TMDB).",
+    "ratingSince1968": "Hodnotenia MPAA začali v novembri 1968 - staršie filmy sú hodnotené len z neskorších znovuuvedení, takže graf začína rokom 1968."
   },
   "languageFilter": {
     "allFilms": "Všetky filmy",

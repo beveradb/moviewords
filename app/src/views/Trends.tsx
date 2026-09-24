@@ -8,6 +8,12 @@ import {
   perFilmSeries,
   perFilmSummary,
   trendsHref,
+  RATINGS,
+  RATING_MIN_YEAR,
+  ratingFromParams,
+  ratingLabel,
+  filmsSince,
+  type RatingCode,
   type TopFilm,
   type WordSeries,
   type YearTopMovie,
@@ -184,13 +190,23 @@ export function TrendsView() {
   const langs = activeLanguages()
   const langLabel = useMemo(() => langs.map((c) => languageName(c, locale)).join(', '), [langs, locale])
   const perFilm = isPerFilm(params)
+  // rating filter (Trends only); ignored while a language filter is active
+  const rating: RatingCode | null = langs.length ? null : ratingFromParams(params)
   const [wordSeries, setWordSeries] = useState<WordSeries | null>(null)
   const [films, setFilms] = useState<Map<number, number> | null>(null)
   const [filmsError, setFilmsError] = useState<string | null>(null)
 
   useEffect(() => {
-    bakedYearFilms().then(setFilms).catch((e) => setFilmsError(String(e)))
-  }, [])
+    let cancelled = false
+    setFilms(null)
+    setFilmsError(null)
+    bakedYearFilms(rating)
+      .then((f) => !cancelled && setFilms(f))
+      .catch((e) => !cancelled && setFilmsError(String(e)))
+    return () => {
+      cancelled = true
+    }
+  }, [rating])
 
   const [input, setInput] = useState('')
   const [filmCount, setFilmCount] = useState<number | null>(null)
@@ -240,7 +256,7 @@ export function TrendsView() {
         .catch((e) => !cancelled && setError(String(e)))
         .finally(() => !cancelled && setLoading(false))
     } else {
-      loadTrends(chartWords, COLORS)
+      loadTrends(chartWords, COLORS, rating)
         .then(({ wordSeries, topMovies, topFilms }) => {
           if (cancelled) return
           setWordSeries(wordSeries)
@@ -257,7 +273,7 @@ export function TrendsView() {
     return () => {
       cancelled = true
     }
-  }, [wordsKey])
+  }, [wordsKey, rating])
 
   // per-film mode re-divides the same counts by films per year (no refetch)
   const shownSeries = useMemo(() => {
@@ -281,7 +297,7 @@ export function TrendsView() {
     const w = input.trim().toLowerCase()
     if (!w) return
     setInput('')
-    navigate(trendsHref([...new Set([...words, w])].slice(0, MAX_WORDS), { perFilm }))
+    navigate(trendsHref([...new Set([...words, w])].slice(0, MAX_WORDS), { perFilm, rating }))
   }
 
   return (
@@ -290,6 +306,12 @@ export function TrendsView() {
       {langs.length > 0 && filmCount !== null && (
         <p className="mt-1 text-sm text-ink-2">
           {t('trends.languageNote', { count: n(filmCount), langs: langLabel })} <ExplainerLink />
+        </p>
+      )}
+      {rating && films && (
+        <p className="mt-1 text-sm text-ink-2">
+          {t('trends.ratingNote', { count: n(filmsSince(films, RATING_MIN_YEAR)), rating: ratingLabel(rating) })}{' '}
+          {t('trends.ratingSince1968')}
         </p>
       )}
 
@@ -317,7 +339,7 @@ export function TrendsView() {
           {words.map((w, i) => (
             <button
               key={w}
-              onClick={() => navigate(trendsHref(words.filter((x) => x !== w), { perFilm }))}
+              onClick={() => navigate(trendsHref(words.filter((x) => x !== w), { perFilm, rating }))}
               className="flex items-center gap-1.5 border-2 border-ink bg-card px-2.5 py-1 font-script text-sm hover:bg-paper-2"
               title={t('trends.removeWordTitle', { word: w })}
             >
@@ -354,18 +376,37 @@ export function TrendsView() {
               onStep={(dir) => setFeaturedIdx((i) => stepFeatured(i, dir, FEATURED.length))}
             />
           )}
-          <div className="mb-3 flex gap-1" role="group" aria-label={t('trends.measureAriaLabel')}>
-            {([false, true] as const).map((on) => (
-              <button
-                key={String(on)}
-                type="button"
-                aria-pressed={perFilm === on}
-                onClick={() => navigate(trendsHref(words, { perFilm: on }))}
-                className={`border-2 border-ink px-2.5 py-1 font-script text-xs ${perFilm === on ? 'bg-ink text-paper' : 'bg-card hover:bg-paper-2'}`}
-              >
-                {on ? t('trends.perFilmToggle') : t('trends.perMillionToggle')}
-              </button>
-            ))}
+          <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex gap-1" role="group" aria-label={t('trends.measureAriaLabel')}>
+              {([false, true] as const).map((on) => (
+                <button
+                  key={String(on)}
+                  type="button"
+                  aria-pressed={perFilm === on}
+                  onClick={() => navigate(trendsHref(words, { perFilm: on, rating }))}
+                  className={`border-2 border-ink px-2.5 py-1 font-script text-xs ${perFilm === on ? 'bg-ink text-paper' : 'bg-card hover:bg-paper-2'}`}
+                >
+                  {on ? t('trends.perFilmToggle') : t('trends.perMillionToggle')}
+                </button>
+              ))}
+            </div>
+            {!featured && (
+              <label className="flex items-center gap-1.5 font-script text-xs">
+                {t('trends.ratingLabel')}
+                <select
+                  value={rating ?? ''}
+                  disabled={langs.length > 0}
+                  onChange={(e) => navigate(trendsHref(words, { perFilm, rating: (e.target.value || null) as RatingCode | null }))}
+                  className="border-2 border-ink bg-card px-1.5 py-1 font-script text-xs disabled:opacity-50"
+                >
+                  <option value="">{t('trends.allRatings')}</option>
+                  {RATINGS.map((r) => (
+                    <option key={r.code} value={r.code}>{r.label}</option>
+                  ))}
+                </select>
+                {langs.length > 0 && <span className="text-ink-3">{t('trends.ratingNeedsAllFilms')}</span>}
+              </label>
+            )}
           </div>
           {/* legend built from the drawn series so colors always match,
               even if a featured word is missing from the dataset */}
@@ -416,7 +457,7 @@ export function TrendsView() {
             {['love', 'war', 'money', 'god', 'phone'].map((w) => (
               <button
                 key={w}
-                onClick={() => navigate(trendsHref([w], { perFilm }))}
+                onClick={() => navigate(trendsHref([w], { perFilm, rating }))}
                 className="border-2 border-ink bg-card px-3 py-1 hover:bg-mark"
               >
                 {w}
