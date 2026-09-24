@@ -12,3 +12,42 @@ tt0119947 OpenSubtitles/raw/en/1997/119947/1954373643.xml Prince Valiant 1954 su
 tt0338477 OpenSubtitles/raw/en/2003/338477/1955600854.xml Talaash 2012 sub filed under Talaash 2003
 tt0401233 OpenSubtitles/raw/en/2004/401233/1955035061.xml Appleseed Ex Machina 2007 sub filed under Appleseed 2004
 tt0044741 OpenSubtitles/raw/en/1952/44741/286736.xml To Live 1994 sub filed under Ikiru
+# 2026-09-24 scan after the subtitle-selection fix (rank_candidates now
+# prefers the largest peered rip, which surfaced these mis-filed uploads).
+tt0381348 OpenSubtitles/raw/en/2004/381348/1954843822.xml The Last: Naruto the Movie sub filed under The Place Promised in Our Early Days
+tt0120882 OpenSubtitles/raw/en/1998/120882/173493.xml The Visitors 1993 sub filed under The Visitors II
+# 2026-09-24 batch 1 from a content sweep (content-word cosine >= 0.97 vs a
+# hand-checked genuine file after blocking; TMDB cast names where noted).
+# Comment lines name the genuine file each film falls back to.
+# tt0045251 Othello 1951 -> 1955811360.xml
+tt0045251 OpenSubtitles/raw/en/1951/45251/1955694074.xml O (2001) sub filed under Othello 1951
+# tt0938283 -> 1958625106.xml
+tt0938283 OpenSubtitles/raw/en/2010/938283/1958971787.xml Prince of Persia sub filed under The Last Airbender
+# tt0955308 -> 1952749530.xml
+tt0955308 OpenSubtitles/raw/en/2010/955308/1958637774.xml LOTR Return of the King sub filed under Robin Hood 2010
+# tt0142239 -> 1954136266.xml
+tt0142239 OpenSubtitles/raw/en/1994/142239/1954322324.xml Broly Legendary Super Saiyan sub filed under Broly Second Coming
+# tt8361196 -> 1958345022.xml (13 Neevevaro copies outrank the genuine files)
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956510261.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956402717.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956315796.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956348837.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956295604.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956260963.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956473103.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956431609.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956400445.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956390162.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956235659.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956416716.xml Neevevaro sub filed under Vinaya Vidheya Rama
+tt8361196 OpenSubtitles/raw/en/2019/8361196/1956403581.xml Neevevaro sub filed under Vinaya Vidheya Rama
+# tt0130377 -> 287199.xml
+tt0130377 OpenSubtitles/raw/en/1964/130377/282769.xml Tale of Zatoichi sub filed under Chest of Gold
+tt0130377 OpenSubtitles/raw/en/1964/130377/287198.xml other Zatoichi film sub filed under Chest of Gold
+tt0130377 OpenSubtitles/raw/en/1964/130377/287196.xml other Zatoichi film sub filed under Chest of Gold
+# tt0070246 -> 1958117158.xml
+tt0070246 OpenSubtitles/raw/en/1973/70246/139439.xml Final Episode sub filed under Battles Without Honor and Humanity
+tt0070246 OpenSubtitles/raw/en/1973/70246/282690.xml other series entry sub filed under Battles Without Honor and Humanity
+tt0070246 OpenSubtitles/raw/en/1973/70246/1957228076.xml other series entry sub filed under Battles Without Honor and Humanity
+# tt0969711 -> 1959309432.xml
+tt0969711 OpenSubtitles/raw/en/2007/969711/1956640397.xml Oh My Ghosts! sub filed under Haunting Me

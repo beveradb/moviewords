@@ -27,3 +27,12 @@ def test_derive_accepts_corpus_flag(monkeypatch):
     main(["derive", "--corpus", "all"])
     main(["derive"])
     assert calls == ["all", "en"]
+
+
+def test_count_accepts_workers_flag(monkeypatch):
+    calls = []
+    import moviewords_pipeline.counts as counts_mod
+    monkeypatch.setattr(counts_mod, "run", lambda workers=1: calls.append(workers))
+    main(["count", "--workers", "16"])
+    main(["count"])
+    assert calls == [16, 1]

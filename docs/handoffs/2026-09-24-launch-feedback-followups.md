@@ -18,6 +18,20 @@ the published R2 data (`https://data.moviewords.org/all/...`), checked 2026-09-2
 
 ## 1. Bad / truncated subtitle files (data correctness) - do first
 
+> **DONE 2026-09-24** (branch `feat/sess-20260924-1100-subtitle-file-selection`).
+> Root cause was the index stage's size estimate (raw XML bytes / 8; the
+> real ratio is ~24.5), so the 250 wpm cap meant ~80 and rejected every
+> full-length rip of talky films. Beyond the featurette picks it had
+> silently DROPPED 12,959 films (GoodFellas, Toy Story, The Social Network,
+> 12 Angry Men...). Fixed selection (calibrated band + size-peer ranking +
+> upper-quartile cap + count-time checks for mis-encoded and doubled files);
+> corpus is now 35,066 en / 64,579 all. Chart aggregates move up to ~10-15%
+> per point but keep their shape; the posted chart was not regenerated.
+> The "subtitles look incomplete" UI note was NOT built - after the fix the
+> remaining < 30 wpm films are genuinely quiet (silents, A Quiet Place, John
+> Wick) or musicals (lyrics are stripped by design). Follow-up spotted: some
+> files leak `yyy`/`yyyi` encoding-junk tokens (parser encoding bug).
+
 **Problem.** Some films are matched to a subtitle file that isn't the film's full
 dialogue. Example: **The Wolf of Wall Street** (tt0993846) has **2,920 words**
 for a 180-min film (16 words/min); its top words are "marty, really, characters,

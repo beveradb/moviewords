@@ -12,7 +12,7 @@
       "displayName": "Movie Words - films index",
       "type": "application/json",
       "url": "https://data.moviewords.org/all/json/movies-index.json",
-      "description": "Index of 51,624 films with title, year, genres, runtime, rating and total word count, derived from English subtitles.",
+      "description": "Index of 64,579 films with title, year, genres, runtime, rating and total word count, derived from English subtitles.",
       "tags": ["movies", "film", "subtitles", "word-frequency", "dataset", "linguistics"],
       "capabilities": ["FilmMetadataLookup", "WordFrequencyDataset"],
       "representativeQueries": [
