@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { activeLanguages } from './languages'
+import { q } from './duck'
 import { bakedYearFilms, loadTrends, mergeTrendFiles } from './series'
 import type { TrendFile } from './trends'
 
@@ -8,9 +9,15 @@ vi.mock('./languages', async (importOriginal) => ({
   activeLanguages: vi.fn(() => []),
 }))
 
+vi.mock('./duck', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./duck')>()),
+  q: vi.fn(async () => { throw new Error('engine should not be used') }),
+}))
+
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.mocked(activeLanguages).mockReturnValue([])
+  vi.mocked(q).mockClear()
 })
 
 describe('mergeTrendFiles', () => {
@@ -69,6 +76,7 @@ describe('rating-scoped loaders', () => {
 
   it('does not fall back to the SQL engine for a rated view', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('boom', { status: 500 })))
-    await expect(loadTrends(['fuck'], ['c1'], 'g')).rejects.toThrow()
+    await expect(loadTrends(['fuck'], ['c1'], 'g')).rejects.toThrow(/500/)
+    expect(vi.mocked(q)).not.toHaveBeenCalled()
   })
 })
