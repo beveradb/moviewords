@@ -365,6 +365,40 @@ export function TrendsView() {
       {error && <ErrorBox message={error} />}
       {(perFilm || rating) && filmsError && <ErrorBox message={filmsError} />}
       {loading && <Spinner label={t('trends.queryingCorpus')} />}
+      {(words.length > 0 || featured) && (
+        <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="flex gap-1" role="group" aria-label={t('trends.measureAriaLabel')}>
+            {([false, true] as const).map((on) => (
+              <button
+                key={String(on)}
+                type="button"
+                aria-pressed={perFilm === on}
+                onClick={() => navigate(trendsHref(words, { perFilm: on, rating }))}
+                className={`border-2 border-ink px-2.5 py-1 font-script text-xs ${perFilm === on ? 'bg-ink text-paper' : 'bg-card hover:bg-paper-2'}`}
+              >
+                {on ? t('trends.perFilmToggle') : t('trends.perMillionToggle')}
+              </button>
+            ))}
+          </div>
+          {!featured && (
+            <label className="flex items-center gap-1.5 font-script text-xs">
+              {t('trends.ratingLabel')}
+              <select
+                value={rating ?? ''}
+                disabled={langs.length > 0}
+                onChange={(e) => navigate(trendsHref(words, { perFilm, rating: (e.target.value || null) as RatingCode | null }))}
+                className="border-2 border-ink bg-card px-1.5 py-1 font-script text-xs disabled:opacity-50"
+              >
+                <option value="">{t('trends.allRatings')}</option>
+                {RATINGS.map((r) => (
+                  <option key={r.code} value={r.code}>{r.label}</option>
+                ))}
+              </select>
+              {langs.length > 0 && <span className="text-ink-3">{t('trends.ratingNeedsAllFilms')}</span>}
+            </label>
+          )}
+        </div>
+      )}
       {notedSeries && notedSeries.length > 0 && !loading && (!perFilm || films) && (
         <div className="mt-6 border-2 border-ink bg-card p-4">
           {featured && (
@@ -378,38 +412,6 @@ export function TrendsView() {
               onStep={(dir) => setFeaturedIdx((i) => stepFeatured(i, dir, FEATURED.length))}
             />
           )}
-          <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-            <div className="flex gap-1" role="group" aria-label={t('trends.measureAriaLabel')}>
-              {([false, true] as const).map((on) => (
-                <button
-                  key={String(on)}
-                  type="button"
-                  aria-pressed={perFilm === on}
-                  onClick={() => navigate(trendsHref(words, { perFilm: on, rating }))}
-                  className={`border-2 border-ink px-2.5 py-1 font-script text-xs ${perFilm === on ? 'bg-ink text-paper' : 'bg-card hover:bg-paper-2'}`}
-                >
-                  {on ? t('trends.perFilmToggle') : t('trends.perMillionToggle')}
-                </button>
-              ))}
-            </div>
-            {!featured && (
-              <label className="flex items-center gap-1.5 font-script text-xs">
-                {t('trends.ratingLabel')}
-                <select
-                  value={rating ?? ''}
-                  disabled={langs.length > 0}
-                  onChange={(e) => navigate(trendsHref(words, { perFilm, rating: (e.target.value || null) as RatingCode | null }))}
-                  className="border-2 border-ink bg-card px-1.5 py-1 font-script text-xs disabled:opacity-50"
-                >
-                  <option value="">{t('trends.allRatings')}</option>
-                  {RATINGS.map((r) => (
-                    <option key={r.code} value={r.code}>{r.label}</option>
-                  ))}
-                </select>
-                {langs.length > 0 && <span className="text-ink-3">{t('trends.ratingNeedsAllFilms')}</span>}
-              </label>
-            )}
-          </div>
           {/* legend built from the drawn series so colors always match,
               even if a featured word is missing from the dataset */}
           {featured && <SeriesLegend series={notedSeries} />}
