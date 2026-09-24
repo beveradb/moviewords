@@ -1,7 +1,7 @@
 # Movie Words - moviewords
 
 **Live: https://moviewords.org** — explore the words spoken in
-**two corpora: 25,515 English-original films (default) and 51,624 films of
+**two corpora: 35,066 English-original films (default) and 64,579 films of
 every original language** (translated subtitles, clearly labeled): what any
 movie actually says, how words rise and fall across decades, and what makes a
 film, a decade, or a genre sound like itself.

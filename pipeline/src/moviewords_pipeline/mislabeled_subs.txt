@@ -12,3 +12,7 @@ tt0119947 OpenSubtitles/raw/en/1997/119947/1954373643.xml Prince Valiant 1954 su
 tt0338477 OpenSubtitles/raw/en/2003/338477/1955600854.xml Talaash 2012 sub filed under Talaash 2003
 tt0401233 OpenSubtitles/raw/en/2004/401233/1955035061.xml Appleseed Ex Machina 2007 sub filed under Appleseed 2004
 tt0044741 OpenSubtitles/raw/en/1952/44741/286736.xml To Live 1994 sub filed under Ikiru
+# 2026-09-24 scan after the subtitle-selection fix (rank_candidates now
+# prefers the largest peered rip, which surfaced these mis-filed uploads).
+tt0381348 OpenSubtitles/raw/en/2004/381348/1954843822.xml The Last: Naruto the Movie sub filed under The Place Promised in Our Early Days
+tt0120882 OpenSubtitles/raw/en/1998/120882/173493.xml The Visitors 1993 sub filed under The Visitors II
