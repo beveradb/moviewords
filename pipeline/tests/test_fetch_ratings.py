@@ -33,6 +33,16 @@ def test_pick_takes_earliest_within_type_and_ignores_blank():
     assert mod.pick_certification([]) is None
 
 
+def test_pick_ignores_non_mpaa_entries_even_when_earlier_or_higher_type():
+    # 'NR' (not MPAA-mappable) must not beat a real MPAA mark on the same film,
+    # even though it's an earlier date and a theatrical (type 3) release.
+    assert mod.pick_certification([rd("NR", 3, "1980-01-01"), rd("R", 4, "1990-01-01")]) == "R"
+    # 'TV-MA' must not beat a real MPAA mark even at the same/better type rank.
+    assert mod.pick_certification([rd("TV-MA", 3, "1985-01-01"), rd("PG", 3, "1995-01-01")]) == "PG"
+    # Only non-MPAA entries present -> None.
+    assert mod.pick_certification([rd("NR", 3, "1990-01-01"), rd("TV-MA", 5, "1991-01-01")]) is None
+
+
 def test_bucket_maps_mpaa_marks():
     assert [mod.bucket(c) for c in ["G", "PG", "PG-13", "R", "NC-17", "X"]] == \
         ["g", "pg", "pg13", "r", "nc17", "nc17"]

@@ -4,7 +4,8 @@ webdata/in/all/ratings.parquet (imdb_id, rating) for the Trends rating filter.
 Per film: /find/{imdb_id} -> TMDB id, then /movie/{id}/release_dates. The raw US
 release_dates entries are cached per film (resumable + incremental - re-run
 after the corpus grows and only new films are fetched). The rating is the
-film's CURRENT US certification (re-releases re-rate old films).
+film's ORIGINAL US theatrical certification (re-releases can carry a
+different, later certification, which this deliberately ignores).
 
 Run: cd pipeline && uv run python scripts/fetch_ratings.py [--stage fetch|parquet|all]
        [--workers 8] [--cache DIR] [--out PATH] [--data-base https://data.moviewords.org]
@@ -36,10 +37,13 @@ TYPE_RANK = {3: 0, 2: 1, 1: 2}
 
 
 def pick_certification(us_release_dates):
-    """The certification to use from a film's US release_dates entries: prefer
-    theatrical, then limited, then premiere, then any type; earliest date
-    within the chosen type. None when no entry carries a certification."""
-    cands = [d for d in us_release_dates if (d.get("certification") or "").strip()]
+    """The certification to use from a film's US release_dates entries:
+    only entries whose certification maps to an MPAA bucket (G, PG, PG-13,
+    R, NC-17, X) are considered - an 'NR'/'TV-MA'/other non-MPAA entry must
+    never win over a real MPAA mark on the same film. Among MPAA-mappable
+    entries, prefer theatrical, then limited, then premiere, then any type;
+    earliest date within the chosen type. None when no entry is MPAA-mappable."""
+    cands = [d for d in us_release_dates if bucket(d.get("certification"))]
     if not cands:
         return None
     best = min(cands, key=lambda d: (TYPE_RANK.get(d.get("type"), 9),
