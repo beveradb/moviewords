@@ -2,41 +2,52 @@
 
 Post: **Thu 24 Sep 2026, 8:30am ET (1:30pm UK)**. Be present 2–3h after to reply.
 
-Pre-flight (do these first):
-- [ ] Redeploy so the fixed OG card (51,624 films) is live, and to flush the stale-chunk cache.
+Already done: OG card fixed + live (51,624 films / 326M words / real logo); FB cache pre-warmed (200); HN logged in as `beveradb`; submit form pre-filled; calendar + phone alarm set.
+
+Tomorrow, before you click submit:
 - [ ] Open moviewords.org in a fresh incognito window — confirm a clean cold load.
-- [ ] Confirm the browser is logged into HN as `beveradb`.
+- [ ] Re-read the title + text; **rewrite the text in your own voice** (see HN note below).
+- [ ] Click submit. Then stay ~2–3h and reply to every comment.
 
 ---
 
 ## Hacker News — Show HN
 
-**Submit at:** https://news.ycombinator.com/submit
+> ⚠️ **Per HN's own guidance ([showhn.html](https://news.ycombinator.com/showhn.html) +
+> [tips thread](https://news.ycombinator.com/item?id=22336638)): rewrite the text below
+> in your own words, by hand.** HN is currently very sensitive to LLM-sounding copy, and
+> the guidance is explicit: *"avoid marketing language, use factual, direct language."*
+> The draft is a scaffold — make it sound like you. Don't ask anyone to upvote (against
+> the rules). Personal account ✓, email set in profile ✓ (both required/recommended).
+
+**Submit at:** https://news.ycombinator.com/submit  (form is pre-filled in the Playwright browser)
 **URL field:** `https://moviewords.org`
-**Title (pick one — my pick is #1):**
 
-1. `Show HN: Movie Words – what 51,000 films actually say, by word frequency`
-2. `Show HN: I reduced 51,000 films' dialogue to word counts and made it browsable`
-3. `Show HN: Analyzing how movie dialogue changed over 90 years`
+**Title** (filled):
+`Show HN: Movie Words - what 51,000 films actually say, by word frequency`
+Plainer alternative: `Show HN: Movie Words - word frequencies and dialogue trends from 51,000 films`
 
-**First comment — post immediately after submitting:**
+**Description** — this goes in the submission **text field** (renders at the top of the
+thread). Alternatively, leave the text field blank and paste this as your **first comment**
+right after submitting; both are accepted for Show HN. Pre-filled version:
 
-I built Movie Words to answer a question that kept nagging me: what do movies *actually say*? Not themes or plots — the literal words, counted.
+What do movies actually say? Not themes or plots, the literal words, counted.
 
-It takes English subtitles for ~51,000 films (from the OPUS OpenSubtitles corpus), reduces each to a bag of words, and compares it against the whole corpus with log-odds to find each film's signature vocabulary. A few things that fell out:
+Movie Words takes the English subtitles for ~51,000 films (from the OPUS OpenSubtitles corpus), reduces each to a bag of words, and uses log-odds against the whole corpus to find each film's most distinctive words. A few things I found:
 
-- The film that says "dude" the most is, inevitably, The Big Lebowski (120×).
-- The Godfather Part II's most distinctive words are corleone, fredo, roth, michael, vito.
-- You can watch "yes" lose to "yeah", "hello" get caught by "hi", and "shall" quietly die off across the decades.
-- The intensifier epidemic is real: totally / literally / basically / actually all climbing together.
+- The film that says "dude" the most is The Big Lebowski (120 times).
 
-You can filter by original language, decade, and genre, compare any two films/decades/genres head-to-head, and every claim links back to the underlying counts.
+- The Godfather Part II's signature words are corleone, fredo, roth, michael, vito.
 
-On the build: it's fully serverless. A Python/DuckDB batch pipeline turns the 34GB corpus into ~2GB of Parquet + JSON on Cloudflare R2. The site is a static SPA that reads pre-baked JSON for hot paths and runs real SQL *in the browser* (DuckDB-WASM over HTTP range requests) for anything interactive — no backend, hosting is free. UI's localized into 33 languages.
+- Across the decades you can watch "yes" give way to "yeah", "hi" catch up with "hello", and "shall" fade out.
 
-One deliberate constraint: only derived word counts are published, never any subtitle text — so nothing copyrighted is redistributed. Methodology and limitations (subtitles ≠ scripts, corpus is partial, translation caveats for non-English films) are in the FAQ.
+You can filter by original language, decade and genre, and compare any two films, decades or genres side by side. No signup.
 
-Happy to answer anything about the pipeline, the in-browser SQL, or the linguistics.
+How it's built: a Python/DuckDB pipeline turns the 34GB corpus into ~2GB of Parquet and JSON on Cloudflare R2. The site is a static page that reads pre-baked JSON for the common views and runs SQL in the browser (DuckDB-WASM over HTTP range requests) for the interactive ones, so there's no backend.
+
+I only publish derived word counts, never the subtitle text itself. Methodology and limitations (subtitles aren't scripts, the corpus is partial, non-English films use their English subtitles) are in the FAQ.
+
+Happy to answer questions.
 
 **Prepared replies for likely top comments:**
 - *"Subtitles aren't the script / OCR noise / fan-subs vary"* → agreed, acknowledged up front; details + caveats in the FAQ.
