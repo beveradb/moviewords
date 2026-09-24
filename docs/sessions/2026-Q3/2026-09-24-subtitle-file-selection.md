@@ -1,6 +1,6 @@
 # Subtitle file selection fix: +12,959 films, featurette/double/garbage picks — 2026-09-24
 
-**Project:** moviewords   **Branch:** feat/sess-20260924-1100-subtitle-file-selection (PR #38)   **Status:** data published to R2; PR merged + app auto-deployed (see end)
+**Project:** moviewords   **Branch/commit:** main @ 8abb664 (PR #38 squash-merged; worktree + branch cleaned up)   **Status:** done - data live on R2, app deployed, prod verified
 
 ## Summary
 
@@ -104,6 +104,24 @@ Restore the work cache from `r2:moviewords-pipeline-cache` first (see
   look incomplete" UI note was not built.
 - 11 films fail to parse (no usable alternate); 43 have no TMDB match.
 
+## Shipped + verified (2026-09-24 evening)
+
+- R2 publish finished ~19:25 UTC with a zone purge. PR #38 merged at 19:30
+  (8abb664), and the deploy workflow went green in 33s.
+- Prod checks: moviewords.org HTML says "64,579 films" and llms.txt says
+  "~65,000". The WoWS movie page renders 22,636 words / 126 wpm with real
+  signature words (jordan, donnie, belfort, stratton, ludes). Othello 1951
+  serves thou/cassio. GoodFellas (new) has its AVIF poster (1y immutable).
+  The all-films movies-index has 64,579 entries.
+- Interleaving check: PR #37 (Trends per-film view, other session) added a
+  `json/year-films.json` bake that my branch predates. The live
+  `all/json/year-films.json` sums to 64,579, i.e. it was baked AFTER my
+  parquets went live, so there's no stale denominator. The flat en
+  `json/year-films.json` 404s but the app never requests it (no-language =
+  `all/`, languages = `all/lang/<code>/`).
+- Merged `upload_r2.sh` = my 64-transfer defaults + #37's year-films and
+  #39's rating-slice filter rules (GitHub combined them cleanly).
+
 ## Open threads
 
 - **Follow-up PR (moviewords-73 session, approved by Andrew):** content-
@@ -122,4 +140,10 @@ Restore the work cache from `r2:moviewords-pipeline-cache` first (see
 - `tmdb_meta.parquet` was not rebuilt (the local tmdb_meta cache only has
   the new films); it has no app consumer.
 - (done) grown `data/work` cache re-archived as `moviewords-work-cache-2026-09-24.tar.zst` (787MB); the 2026-09-15 archive is kept alongside.
-- Handoff items #2 (per-film word lookup) and #3 (MPAA ratings) are untouched.
+- Handoff item #3 (MPAA ratings) shipped separately as PR #39 (Trends rating
+  filter, other session). Item #2 (a "find a word in this film" box on the
+  movie page) is still open as far as this session knows. #37's per-film
+  Trends view is related but not the same thing.
+- Future publishes: the next full re-bake must include #37/#39's new outputs
+  (year-films.json, all/rating/*). Run the current main's
+  rebuild_web_data.py + bake_all_ratings.py, not an older branch's.
