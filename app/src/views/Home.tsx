@@ -37,8 +37,9 @@ function Hero({ count, words }: { count: number; words: number }) {
         </h1>
         <p className="mt-4 max-w-xl text-ink-2">
           {tn('home.heroBody', {
-            count: n(count || 18000),
-            millions: n(words ? Math.round(words / 1e6) : 126),
+            // Fallbacks match the all-films default corpus (shown until the movie index loads).
+            count: n(count || 51624),
+            millions: n(words ? Math.round(words / 1e6) : 328),
             trends: heroLink('#/trends?w=awesome,swell', t('home.heroTrends')),
             sweariest: heroLink('#/leaderboard?b=films', t('home.heroSweariest')),
             versus: heroLink('#/compare?e=tt0078748,tt0090605', t('home.heroVersus')),

@@ -1,0 +1,45 @@
+name: deploy
+
+# Auto-build and deploy the app to Cloudflare Pages whenever app/ changes land on
+# main (including edits made directly on GitHub). Replaces the manual
+# `wrangler pages deploy` step. See docs/sessions for the manual recipe history.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch: {} # allow manual "Run workflow" from the Actions tab
+
+concurrency:
+  group: deploy-cloudflare-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Build
+        working-directory: app
+        run: npm run build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: app
+          command: pages deploy dist --project-name moviewords --branch main
