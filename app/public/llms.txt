@@ -1,0 +1,32 @@
+# Movie Words
+
+> What ~51,000 films actually say. Movie Words reduces the English subtitles of 51,624 films to word frequencies and compares them with log-odds to surface each film's, decade's, and genre's signature vocabulary. Only derived word counts are published - no subtitle text is redistributed.
+
+Movie Words is a static, serverless site: the UI reads pre-baked JSON and runs SQL in the browser (DuckDB-WASM) over data on a public Cloudflare R2 bucket at https://data.moviewords.org. Non-English films are counted from their English subtitles (translations), which is clearly labelled in the UI.
+
+## Explore
+- [Home](https://moviewords.org): search any film and browse its signature words
+- [Trends](https://moviewords.org/#/trends): how words rise and fall across the decades
+- [Facts](https://moviewords.org/#/leaderboard): records, superlatives and trivia
+- [Compare](https://moviewords.org/#/compare): films, decades or genres head-to-head
+- [Decades](https://moviewords.org/#/decades): vocabulary by decade
+- [Genres](https://moviewords.org/#/genres): vocabulary by genre
+
+## Data
+- [Films index (JSON)](https://data.moviewords.org/all/json/movies-index.json): 51,624 films with title, year, genres, runtime, rating and total word count
+- [Languages manifest (JSON)](https://data.moviewords.org/all/json/languages.json): selectable original languages and their film counts
+- [Word frequencies by year (Parquet)](https://data.moviewords.org/all/word_year.parquet): per-word counts per year across the whole corpus
+- [Year totals (JSON)](https://data.moviewords.org/all/json/year-totals.json): total words per year (rate denominators)
+- Per-film word counts (JSON): https://data.moviewords.org/all/json/movie/IMDB_ID.json (e.g. https://data.moviewords.org/all/json/movie/tt0068646.json)
+
+## Documentation
+- [README](https://github.com/beveradb/moviewords/blob/main/README.md): project overview
+- [Architecture and methodology](https://github.com/beveradb/moviewords/blob/main/docs/ARCHITECTURE.md): how the dataset and site are built
+- [Data dictionary](https://github.com/beveradb/moviewords/blob/main/docs/DATA.md): file formats and fields
+- [FAQ, limitations and licensing](https://github.com/beveradb/moviewords/blob/main/docs/FAQ.md): methodology, corpus bias, copyright position
+- [Source code](https://github.com/beveradb/moviewords): full pipeline and app
+
+## Notes
+- Subtitles are not scripts, and the corpus is partial (it skews modern and popular films).
+- Non-English films are measured from their English subtitles, not their original-language dialogue.
+- Dialogue is from the OPUS OpenSubtitles corpus; film metadata from IMDb and TMDB. See the FAQ for attribution and licensing.
