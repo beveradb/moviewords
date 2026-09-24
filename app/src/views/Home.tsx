@@ -80,28 +80,39 @@ export function HomeView() {
     <div>
       <Hero count={count} words={words} />
 
-      {featured.length > 0 && (
-        <section className="mt-10">
-          <h2 className="slug border-b-2 border-ink pb-1 text-sm">{t('home.shelfHeading')}</h2>
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {featured.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => navigate(`/movie/${m.id}`)}
-                className="border-2 border-ink bg-card text-start transition-transform hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_var(--color-ink)]"
-              >
-                <Poster id={m.id} title={m.title} className="w-full border-b-2 border-ink" />
-                <div className="p-2.5">
-                  <div className="line-clamp-2 font-script text-sm font-bold leading-snug">{m.title}</div>
-                  <div className="mt-1 text-xs text-ink-2">
-                    {t('home.movieMeta', { year: m.year, words: n(m.total_words) })}
+      {/* Shelf is always rendered (skeletons until data loads) so it reserves
+          its height from first paint and never shifts the sections below it. */}
+      <section className="mt-10">
+        <h2 className="slug border-b-2 border-ink pb-1 text-sm">{t('home.shelfHeading')}</h2>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {((featured.length ? featured : Array.from({ length: 8 }, () => null)) as (MovieIndexEntry | null)[]).map(
+            (m, i) =>
+              m ? (
+                <button
+                  key={m.id}
+                  onClick={() => navigate(`/movie/${m.id}`)}
+                  className="border-2 border-ink bg-card text-start transition-transform hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_var(--color-ink)]"
+                >
+                  <Poster id={m.id} title={m.title} className="w-full border-b-2 border-ink" />
+                  <div className="p-2.5">
+                    <div className="line-clamp-2 font-script text-sm font-bold leading-snug">{m.title}</div>
+                    <div className="mt-1 text-xs text-ink-2">
+                      {t('home.movieMeta', { year: m.year, words: n(m.total_words) })}
+                    </div>
+                  </div>
+                </button>
+              ) : (
+                <div key={`shelf-skeleton-${i}`} aria-hidden className="border-2 border-ink bg-card">
+                  <div className="aspect-[2/3] w-full border-b-2 border-ink bg-paper-2" />
+                  <div className="p-2.5">
+                    <div className="h-4 w-4/5 rounded-sm bg-paper-2" />
+                    <div className="mt-1.5 h-3 w-2/5 rounded-sm bg-paper-2" />
                   </div>
                 </div>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
+              ),
+          )}
+        </div>
+      </section>
 
       <section className="mt-10">
         <a

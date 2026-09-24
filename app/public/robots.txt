@@ -1,0 +1,8 @@
+# Movie Words - https://moviewords.org
+# Everything here is public; crawl freely.
+User-agent: *
+Allow: /
+
+# Machine-readable pointers for AI agents:
+# - /llms.txt          (site + data + docs overview)
+# - /ai-catalog.json   (ARD capability manifest)
