@@ -82,3 +82,119 @@ def test_cache_file_missing_required_fields_is_treated_as_miss(tmp_path):
     assert report == {"processed": 2, "skipped": 0, "failed": 0}
     record = json.loads((cache_dir / "tt0110912.json").read_text())
     assert "counts" in record
+
+
+def test_workers_give_same_output_as_serial(tmp_path):
+    zip_path = build_zip(tmp_path / "mini.zip")
+    serial = (tmp_path / "c1", tmp_path / "wc1.parquet", tmp_path / "ms1.parquet")
+    pooled = (tmp_path / "c2", tmp_path / "wc2.parquet", tmp_path / "ms2.parquet")
+    build(zip_path, INDEX, *serial, RUNTIMES)
+    report = build(zip_path, INDEX, *pooled, RUNTIMES, workers=4)
+    assert report == {"processed": 2, "skipped": 0, "failed": 0}
+    q = "SELECT * FROM '{}' ORDER BY ALL"
+    assert duckdb.sql(q.format(serial[1])).fetchall() == duckdb.sql(q.format(pooled[1])).fetchall()
+    assert duckdb.sql(q.format(serial[2])).fetchall() == duckdb.sql(q.format(pooled[2])).fetchall()
+
+
+def test_fully_cached_run_never_opens_the_zip(tmp_path, monkeypatch):
+    """Re-compacting from a warm cache must not touch the (possibly remote,
+    34GB) zip."""
+    from moviewords_pipeline import counts
+    zip_path = build_zip(tmp_path / "mini.zip")
+    args = (tmp_path / "cache", tmp_path / "wc.parquet", tmp_path / "ms.parquet")
+    build(zip_path, INDEX, *args, RUNTIMES)
+
+    def boom(*a, **k):
+        raise AssertionError("zip opened on a fully cached run")
+    monkeypatch.setattr(counts.opus_zip, "open_source", boom)
+    report = build(tmp_path / "gone.zip", INDEX, *args, RUNTIMES)
+    assert report == {"processed": 0, "skipped": 2, "failed": 0}
+
+
+def test_fetch_error_counts_as_failed_not_fatal(tmp_path, monkeypatch):
+    from moviewords_pipeline import counts
+
+    class Flaky:
+        def read(self, name):
+            raise OSError("connection reset")
+        def __enter__(self):
+            return self
+        def __exit__(self, *exc):
+            pass
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: Flaky())
+    args = (tmp_path / "cache", tmp_path / "wc.parquet", tmp_path / "ms.parquet")
+    report = build(tmp_path / "x.zip", INDEX, *args, RUNTIMES, workers=2)
+    assert report == {"processed": 0, "skipped": 0, "failed": 2}
+    assert not list((tmp_path / "cache").glob("*.json"))
+
+
+def _doc(sentences):
+    return ("<document>" + "".join(f'<s id="{i}">{t}</s>' for i, t in enumerate(sentences))
+            + "</document>").encode()
+
+
+GARBLED = "㐀㨀　㈀" * 40   # mis-encoded UTF-16: no English tokens
+TOP, ALT1, ALT2 = (f"OpenSubtitles/raw/en/2006/383574/{n}.xml" for n in ("top", "a1", "a2"))
+
+
+def _sparse_zip(tmp_path, top_sentences):
+    import zipfile
+    zip_path = tmp_path / "z.zip"
+    with zipfile.ZipFile(zip_path, "w") as z:
+        z.writestr(TOP, _doc(top_sentences))
+        z.writestr(ALT1, _doc(["why is this happening I do not know"] * 300))
+        z.writestr(ALT2, _doc(["why is this happening"] * 300))
+    return zip_path
+
+
+def test_sparse_top_pick_falls_back_to_wordiest_alternate(tmp_path):
+    """Pirates of the Caribbean: Dead Man's Chest - the top-ranked file is half
+    English, half mis-encoded garbage (378 bytes/word), so an alternate wins."""
+    zip_path = _sparse_zip(tmp_path, ["Will!"] * 10 + [GARBLED] * 200)
+    cache = tmp_path / "cache"
+    args = (cache, tmp_path / "wc.parquet", tmp_path / "ms.parquet")
+    report = build(zip_path, [("tt0383574", TOP, [ALT2, ALT1])], *args, {"tt0383574": 151})
+    assert report == {"processed": 1, "skipped": 0, "failed": 0}
+    record = json.loads((cache / "tt0383574.json").read_text())
+    assert record["zip_name"] == ALT1 and record["indexed_as"] == TOP
+    assert record["total_words"] == 300 * 8
+    # the verified result is a cache hit under the index's top pick
+    report = build(zip_path, [("tt0383574", TOP, [ALT2, ALT1])], *args, {"tt0383574": 151})
+    assert report == {"processed": 0, "skipped": 1, "failed": 0}
+
+
+def test_dense_top_pick_never_fetches_alternates(tmp_path):
+    zip_path = _sparse_zip(tmp_path, ["a perfectly normal line of film dialogue"] * 300)
+    cache = tmp_path / "cache"
+    build(zip_path, [("tt0383574", TOP, ["missing.xml"])], cache,
+          tmp_path / "wc.parquet", tmp_path / "ms.parquet", {})
+    record = json.loads((cache / "tt0383574.json").read_text())
+    assert record["zip_name"] == TOP and "indexed_as" not in record
+
+
+def test_sparse_top_pick_kept_when_alternates_are_no_better(tmp_path):
+    """Musicals parse sparse in every file (lyrics are stripped) - keep the pick."""
+    import zipfile
+    zip_path = tmp_path / "z.zip"
+    lyrics = ["♪ I dreamed a dream in time gone by ♪"] * 300
+    with zipfile.ZipFile(zip_path, "w") as z:
+        z.writestr(TOP, _doc(["At the end of the day"] * 20 + lyrics))
+        z.writestr(ALT1, _doc(["At the end"] * 20 + lyrics))
+    cache = tmp_path / "cache"
+    build(zip_path, [("tt1707386", TOP, [ALT1])], cache,
+          tmp_path / "wc.parquet", tmp_path / "ms.parquet", {})
+    record = json.loads((cache / "tt1707386.json").read_text())
+    assert record["zip_name"] == TOP and "indexed_as" not in record
+
+
+def test_unparseable_top_pick_falls_back_to_alternate(tmp_path):
+    import zipfile
+    zip_path = tmp_path / "z.zip"
+    with zipfile.ZipFile(zip_path, "w") as z:
+        z.writestr(TOP, b"<broken")
+        z.writestr(ALT1, _doc(["hello there"] * 50))
+    cache = tmp_path / "cache"
+    report = build(zip_path, [("tt0383574", TOP, [ALT1])], cache,
+                   tmp_path / "wc.parquet", tmp_path / "ms.parquet", {})
+    assert report == {"processed": 1, "skipped": 0, "failed": 0}
+    assert json.loads((cache / "tt0383574.json").read_text())["zip_name"] == ALT1

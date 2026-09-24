@@ -15,9 +15,14 @@ with all caches in roughly 30-45 minutes for ~$0.20 of compute.
 - Anything answerable from the published parquets (DuckDB over
   https://data.moviewords.org/...).
 
-A VM (or any box with ~60GB disk) is only needed to change the corpus
-itself: vote floor, new/other subtitle languages, TV, tokenizer changes,
-blocklist additions that re-select subtitle files, or an IMDb/TMDB refresh.
+A VM (or any box with ~60GB disk) is only needed for a FULL recount - e.g.
+a tokenizer change, which re-parses every film. Re-selecting subtitle files
+(selection-rule or blocklist changes) and counting new/changed films runs
+locally without the 34GB zip: restore the cache archive into `data/work/`,
+then `cli index` and `cli count --workers 16` read the published OPUS zip
+over HTTP range requests (2026-09-24: 24k films re-counted this way in
+~15 min on a laptop). A vote-floor or IMDb refresh adds `curate` (needs the
+IMDb TSVs, ~1GB, via `cli download` minus the zip) and `enrich`.
 
 ## What is archived, and where
 

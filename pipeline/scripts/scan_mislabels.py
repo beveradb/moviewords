@@ -19,7 +19,6 @@ Known limitation: only catches duplicates where BOTH ids are in the corpus.
 import argparse
 import math
 import sys
-import zipfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -27,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import duckdb  # noqa: E402
 
-from moviewords_pipeline import config  # noqa: E402
+from moviewords_pipeline import config, opus_zip  # noqa: E402
 from moviewords_pipeline.corpus_index import imdb_id_from_path  # noqa: E402
 from moviewords_pipeline.subtitle_parser import extract_text  # noqa: E402
 from moviewords_pipeline.wordcount import count_words  # noqa: E402
@@ -135,7 +134,7 @@ def main():
     if not args.adjudicate or not duplicates:
         return
     print("\nstage 3: directory consensus for DUPLICATE pairs")
-    with zipfile.ZipFile(config.RAW_DIR / "opus_en.zip") as z:
+    with opus_zip.open_source() as z:
         for cos, shared, a, b in sorted(duplicates, reverse=True):
             cons = {}
             for m in (a, b):
