@@ -1,6 +1,6 @@
 # Content-consensus subtitle selection - 2026-09-24/25
 
-**Project:** moviewords   **Branch:** feat/sess-20260924-1632-content-consensus-selection   **Status:** data published to R2 + verified live; PR pending merge (pipeline-only, no app deploy)
+**Project:** moviewords   **Branch:** feat/sess-20260924-1632-content-consensus-selection   **Status:** done - PR #41 merged (f0e4d50), data live + purged, VM deleted; follow-up handoff written
 
 ## Summary
 
@@ -96,12 +96,39 @@ movies-index 64,579 (unchanged count).
   blocklist or the cross-film pair scan (`scan_mislabels.py`, widen its
   rare-word window) still apply.
 
+## After merge (2026-09-25)
+
+- PR #41 squash-merged (f0e4d50) after an agent code review. The one
+  finding (cache reuse ignored runtime changes) was fixed in 61071ba.
+  CodeRabbit isn't installed on this repo.
+- The grown cache is archived as `r2:moviewords-pipeline-cache/moviewords-work-cache-2026-09-25.tar.zst`
+  (940MB, verified), and VM `moviewords-pipeline-tmp` is deleted.
+- **All 39 English-original pre-1968 films with "fuck" were read line by
+  line** (`~/Projects/beveradb/moviewords-mislabel-study-2026-09-24/pre1968-en-fuck-{lines.txt,verdicts.csv}`):
+  only ~7 are genuine (1960s docs/underground: Portrait of Jason, Warrendale,
+  Titicut Follies, Dont Look Back, Chelsea Girls, David Holzman's Diary, My
+  Hustler) and 3 uncertain. 18 are **back-translated English** (right film,
+  machine-translated from another language: "Fuck the cow yellow"), 7 are
+  **auto-captions** (unpunctuated ASR, misheard words), 2 transcriber
+  guesses, and 2 **wrong films**:
+  - **Sunrise 1927:** the silent film's genuine intertitle files fall below
+    the index's 5 wpm floor.
+  - **Lady Luck 1946:** 2 identical wrong copies win the "more files"
+    tie-break.
+- Andrew's bar: **never show inaccurate data.** A thorough handoff for a
+  fresh session covers every failure mode, plus detection ideas, policy
+  questions, and the VM playbook: `docs/handoffs/2026-09-25-subtitle-data-quality.md`.
+- The VM scripts that worked are now in the repo, with the deadlock/rclone/
+  `._*` fixes: `pipeline/scripts/vm/{bootstrap,count,bake,upload}.sh`.
+
 ## Open threads
 
-- Manual review of the remaining pre-1968 "fuck" films, especially English
-  single-file ones (Sunrise, Hollywood Revue, Lady Luck, Happy Go Lovely).
-- `scan_mislabels.py` recall (rare-word window 2-20 misses common names)
-  and its saturated stage-3 consensus threshold.
-- `yyy`/OCR letter-spacing junk in some files (consensus avoids them where a
-  folder has alternatives).
-- VM: archive `moviewords-work-cache-2026-09-25` then delete.
+- **Next session: `docs/handoffs/2026-09-25-subtitle-data-quality.md`** -
+  back-translated and ASR subtitles, the relaxation leak (a film whose only
+  file is commentary or other-language still gets published), the silent-
+  film floor (Sunrise), duplicate-copy tie-breaks (Lady Luck), TMDB cast-name
+  validation, OCR/junk, and a repeatable canary audit. Ask Andrew:
+  exclude vs flag.
+- Live now and known wrong: Sunrise (tt0018455), Lady Luck (tt0038680).
+- The next `count` re-chooses every film once (records lack
+  `selection.runtime_minutes`); it's ~2 min and needs no reads.
