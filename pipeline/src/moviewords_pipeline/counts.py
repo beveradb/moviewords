@@ -154,6 +154,7 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                     if raw is None:
                         return None
                     counts = count_words(extract_text(raw))
+                info = consensus.check_chosen_counts(info, counts, film)
                 total = sum(counts.values())
                 record = {"imdb_id": imdb_id, "zip_name": chosen, "counts": counts,
                           "total_words": total, "unique_words": len(counts),

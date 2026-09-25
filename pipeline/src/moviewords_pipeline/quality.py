@@ -90,9 +90,10 @@ def features(raw, text, counts, ocr_repaired=0):
 STRONG_PROFANITY_RE = re.compile(r"^(mother)?fuck|^cunt")
 
 
-def strong_profanity(q):
-    """How many times the file says fuck/motherfucker/cunt (any form)."""
-    return sum(n for w, n in q.get("profanity", {}).items() if STRONG_PROFANITY_RE.match(w))
+def strong_profanity(counts):
+    """How many times fuck/motherfucker/cunt (any form) occur in `counts`
+    (word counts, or a fingerprint's q["profanity"])."""
+    return sum(n for w, n in counts.items() if STRONG_PROFANITY_RE.match(w))
 
 
 def is_asr(q):

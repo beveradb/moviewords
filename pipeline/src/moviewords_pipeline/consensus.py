@@ -84,9 +84,7 @@ def quality_flags(pool, film=None):
         score = quality.mt_score(q, fp["tokens"]) if film.get("english") else None
         if q["mt"] == 1 or (score is not None and score >= config.MT_SCORE_MAX):
             flags[name].append("machine-translated")
-        if (film.get("english") and not film.get("documentary")
-                and (film.get("year") or 9999) < config.PROFANITY_ANACHRONISM_BEFORE
-                and quality.strong_profanity(q)):
+        if profanity_is_anachronism(film) and quality.strong_profanity(q.get("profanity", {})):
             flags[name].append("anachronism")
     if film.get("cast"):
         hits = {name: quality.cast_hits(fp, film["cast"]) for name, fp in pool}
@@ -95,6 +93,25 @@ def quality_flags(pool, film=None):
                 if not n:
                     flags[name].append("wrong-cast")
     return flags
+
+
+def profanity_is_anachronism(film):
+    """Whether strong profanity can't be genuine in this film: English-
+    original fiction from before PROFANITY_ANACHRONISM_BEFORE."""
+    return bool(film.get("english") and not film.get("documentary")
+                and (film.get("year") or 9999) < config.PROFANITY_ANACHRONISM_BEFORE)
+
+
+def check_chosen_counts(info, counts, film=None):
+    """Film-level flags from the chosen file's full word counts: the
+    fingerprint's profanity counts cover only the published profanity list,
+    so "fucked", "fuckin" etc. are caught here (the film goes to tier low;
+    other candidates can't be weighed without their full counts)."""
+    if (profanity_is_anachronism(film or {}) and "anachronism" not in info["flags"]
+            and quality.strong_profanity(counts)):
+        info["flags"] = [*info["flags"], "anachronism"]
+        info["tier"] = "low"
+    return info
 
 
 def choose(candidates, runtime_minutes, film=None):

@@ -419,3 +419,14 @@ def test_selection_report_records_quality_tiers(tmp_path):
     out = tmp_path / "sel.parquet"
     _build(tmp_path, zip_path, [_row("tt0045251", TOP)], out_selection=out)
     assert duckdb.sql(f"SELECT tier, flags, flagged FROM '{out}'").fetchall() == [("ok", "[]", "{}")]
+
+
+def test_anachronistic_profanity_off_the_published_list_is_caught_on_the_chosen_file(tmp_path):
+    """Reefer Madness (1936): "I'm fucked." - 'fucked' isn't on the published
+    profanity list the fingerprints count, so the chosen file's full counts
+    are checked too."""
+    zip_path = _zip(tmp_path, {TOP: [REAL] * 300 + ["Now I'm fucked."]})
+    films = {"tt0028346": {"english": True, "year": 1936, "documentary": False}}
+    _build(tmp_path, zip_path, [_row("tt0028346", TOP)], films=films)
+    sel = _record(tmp_path, "tt0028346")["selection"]
+    assert sel["tier"] == "low" and sel["flags"] == ["anachronism"]
