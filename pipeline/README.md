@@ -55,10 +55,12 @@ uv run python -m moviewords_pipeline.cli download
 uv run python -m moviewords_pipeline.cli curate
 
 # Build corpus index linking IMDb IDs to subtitle zip entries. Each film
-# usually has many candidate files (rips, forced-only tracks, featurettes);
-# corpus_index.rank_candidates picks by size: in a plausible words/min band
-# (estimated at 24.5 raw bytes/word), preferring files with a size peer
-# (real rips cluster), largest first. The next 3 are kept as `alternates`.
+# folder holds one file per OpenSubtitles upload (re-synced rips, edits,
+# hearing-impaired variants, other translations - and outliers: commentary
+# tracks, other films, other languages). corpus_index.rank_candidates
+# pre-filters by size (a plausible words/min band at 24.5 raw bytes/word,
+# no outsized doubles) and the index stores up to 12 `candidates` spread
+# evenly over that ranking.
 uv run python -m moviewords_pipeline.cli index
 
 # Parse subtitles and count word frequencies
@@ -72,10 +74,21 @@ uv run python -m moviewords_pipeline.cli index
 # with the corrected tokenizer — otherwise stale per-movie caches will keep
 # serving counts derived from the old, junk-token-producing regex.
 #   rm -rf ../data/work/counts/
-# If a top pick parses to > 60 bytes/word (mis-encoded garbage, or mostly
-# stripped lyrics/SDH cues) the alternates are counted too and the wordiest
-# wins; the cache records it with `indexed_as` = the index's pick.
-uv run python -m moviewords_pipeline.cli count [--workers 16]
+# (Since 2026-09-24 bumping config.FINGERPRINT_VERSION does this for you;
+# SELECTION_VERSION re-makes choices from cached fingerprints.)
+#
+# The count stage chooses each film's file by CONTENT CONSENSUS
+# (consensus.py): it fingerprints every candidate, drops commentary tracks,
+# other-language, sparse and tiny files, then takes the most typical file
+# (nearest the median length) of the largest group of agreeing texts
+# (content-word cosine >= 0.85; near-identical re-uploads count as one text,
+# so a wrong file uploaded 3 times can't outvote real translations).
+# Fingerprints are cached per file, so a re-run only fetches new candidates.
+# work/selection.parquet records every choice and why. A full recount is
+# ~242k reads: ~2h against the remote zip from a laptop; on a VM, download
+# the zip and run `count --shard K/N` x N processes (GIL-bound parsing), then
+# one unsharded `count` to write the outputs.
+uv run python -m moviewords_pipeline.cli count [--workers 12] [--shard K/N]
 
 # Fetch production country and original-language metadata from TMDB
 # Duration: ~1.5 hours for ~33k films (throttled ~20 req/s)

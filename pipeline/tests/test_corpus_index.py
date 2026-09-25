@@ -143,12 +143,23 @@ def test_blocklist_skips_file_and_film(tmp_path, monkeypatch):
 
     corpus_index.run()
     rows = duckdb.sql(
-        f"SELECT imdb_id, zip_name, alternates FROM '{work / 'corpus_index.parquet'}'"
+        f"SELECT imdb_id, zip_name, candidates FROM '{work / 'corpus_index.parquet'}'"
     ).fetchall()
-    assert rows == [("tt1000001", "OpenSubtitles/raw/en/2000/1000001/8.xml", [])]
+    assert rows == [("tt1000001", "OpenSubtitles/raw/en/2000/1000001/8.xml",
+                     [{"name": "OpenSubtitles/raw/en/2000/1000001/8.xml",
+                       "bytes": len(small)}])]
 
 
-def test_index_records_ranked_alternates(tmp_path, monkeypatch):
+def test_sample_candidates_spreads_over_the_ranking():
+    from moviewords_pipeline.corpus_index import sample_candidates
+    ranked = [f"f{i}" for i in range(10)]
+    assert sample_candidates(ranked, 20) == ranked
+    assert sample_candidates(ranked, 4) == ["f0", "f3", "f6", "f9"]
+    assert sample_candidates(ranked, 1) == ["f0"]
+    assert sample_candidates([], 4) == []
+
+
+def test_index_records_candidate_sample_with_sizes(tmp_path, monkeypatch):
     import duckdb
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -160,18 +171,21 @@ def test_index_records_ranked_alternates(tmp_path, monkeypatch):
     work = tmp_path / "work"; work.mkdir()
     monkeypatch.setattr(config, "RAW_DIR", raw)
     monkeypatch.setattr(config, "WORK_DIR", work)
-    monkeypatch.setattr(config, "MAX_ALTERNATES", 2)
+    monkeypatch.setattr(config, "CONSENSUS_MAX_CANDIDATES", 3)
     monkeypatch.setattr(corpus_index, "BLOCKLIST_PATH", tmp_path / "none.txt")
     line = b'<s id="1">hello there general kenobi today</s>'
+    sizes = {}
     with zipfile.ZipFile(raw / "opus_en.zip", "w") as z:
-        for name, reps in (("1", 800), ("2", 790), ("3", 780), ("4", 770)):
-            z.writestr(f"OpenSubtitles/raw/en/2000/1000001/{name}.xml",
-                       b"<document>" + line * reps + b"</document>")
+        for name, reps in (("1", 800), ("2", 790), ("3", 780), ("4", 770), ("5", 760)):
+            body = b"<document>" + line * reps + b"</document>"
+            sizes[name] = len(body)
+            z.writestr(f"OpenSubtitles/raw/en/2000/1000001/{name}.xml", body)
     pq.write_table(pa.table({"imdb_id": ["tt1000001"], "runtime_minutes": [90]}),
                    str(work / "curated.parquet"))
     corpus_index.run()
     (row,) = duckdb.sql(
-        f"SELECT zip_name, alternates FROM '{work / 'corpus_index.parquet'}'"
+        f"SELECT zip_name, candidates FROM '{work / 'corpus_index.parquet'}'"
     ).fetchall()
     prefix = "OpenSubtitles/raw/en/2000/1000001/"
-    assert row == (prefix + "1.xml", [prefix + "2.xml", prefix + "3.xml"])
+    assert row == (prefix + "1.xml",
+                   [{"name": prefix + n + ".xml", "bytes": sizes[n]} for n in ("1", "3", "5")])

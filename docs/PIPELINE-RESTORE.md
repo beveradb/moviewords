@@ -55,14 +55,17 @@ as the public data bucket; ~790MB ≈ $0.01/month):
 ## Recreate the VM and restore
 
 ```bash
-# 1. Provision (same shape as the original; ~$0.19/h, delete when done)
+# 1. Provision (~$0.50/h, delete when done). europe-north1 is next to the
+#    OPUS server (CSC, Finland): the 34GB zip downloads in ~10 min. 8 vCPUs
+#    because count parsing is GIL-bound - run it as 8 shards (step 5).
 gcloud compute instances create moviewords-pipeline-tmp \
-  --project=nomadkaraoke --zone=us-central1-a \
-  --machine-type=e2-highmem-4 --boot-disk-size=200GB \
+  --project=nomadkaraoke --zone=europe-north1-a \
+  --machine-type=n2-highmem-8 --boot-disk-size=200GB \
   --image-family=debian-12 --image-project=debian-cloud
 
 # 2. On the VM (gcloud compute ssh ..., then sudo -i):
-apt-get update && apt-get install -y git rclone zstd
+apt-get update && apt-get install -y git zstd unzip curl
+curl -fsS https://rclone.org/install.sh | bash   # NOT Debian's rclone 1.60 (R2 501s, see gotchas)
 curl -LsSf https://astral.sh/uv/install.sh | sh   # installs to /root/.local/bin
 git clone https://github.com/beveradb/moviewords /opt/moviewords
 cd /opt/moviewords/pipeline && /root/.local/bin/uv sync
@@ -71,7 +74,9 @@ cd /opt/moviewords/pipeline && /root/.local/bin/uv sync
 rclone copy r2:moviewords-pipeline-cache/moviewords-work-cache-2026-09-24.tar.zst /tmp/
 (cd /tmp && rclone cat r2:moviewords-pipeline-cache/moviewords-work-cache-2026-09-24.tar.zst.sha256 | sha256sum -c -)
 mkdir -p /opt/moviewords/data && cd /opt/moviewords/data
-tar -I zstd -xf /tmp/moviewords-work-cache-2026-09-24.tar.zst   # creates work/
+zstd -dc /tmp/moviewords-work-cache-2026-09-24.tar.zst | tar -x   # creates work/
+# archives made on a Mac carry AppleDouble `._*` files that break derive
+find /opt/moviewords/data -name '._*' -delete
 
 # 4. Re-download raw inputs (~20 min; OPUS zip + fresh IMDb TSVs)
 cd /opt/moviewords/pipeline
@@ -81,7 +86,13 @@ cd /opt/moviewords/pipeline
 #    (a no-change rerun: curate+index ~15 min, count/enrich ~0, derive ~20 min)
 /root/.local/bin/uv run python -m moviewords_pipeline.cli curate
 /root/.local/bin/uv run python -m moviewords_pipeline.cli index
-/root/.local/bin/uv run python -m moviewords_pipeline.cli count
+# count: a full recount (FINGERPRINT_VERSION bump) reads ~242k files - run
+# 8 shards in parallel, then once unsharded to write the outputs (~25 min
+# total with the zip local; a SELECTION_VERSION bump re-chooses in ~2 min)
+for k in 0 1 2 3 4 5 6 7; do
+  nohup /root/.local/bin/uv run python -u -m moviewords_pipeline.cli count --workers 2 --shard $k/8 > /opt/count.$k.log 2>&1 &
+done   # poll until all 8 logs end with a "count stage: {...}" summary
+/root/.local/bin/uv run python -m moviewords_pipeline.cli count --workers 8
 TMDB_API_KEY=... /root/.local/bin/uv run python -m moviewords_pipeline.cli enrich
 /root/.local/bin/uv run python scripts/scan_mislabels.py --adjudicate   # after any scope change
 /root/.local/bin/uv run python -m moviewords_pipeline.cli derive --corpus en
@@ -101,8 +112,18 @@ Gotchas that bit previous sessions (details in
   ordered `--filter` rules (upload_r2.sh is the reference).
 - Trend/R2 object keys must be RAW words (the edge percent-decodes URL
   paths once); `_word_key` in rebuild_web_data.py documents this.
-- rclone→R2 `501 NotImplemented` on unchanged files is harmless modtime
-  noise; `--no-update-modtime` silences it.
+- rclone→R2 `501 NotImplemented` on unchanged files comes from rclone
+  < 1.65 (Debian 12 ships 1.60) rewriting mtime metadata with a server-side
+  copy R2 rejects. It's harmless per file, but each counts as an error, so
+  rclone's default 3 whole-pass retries re-checked ~770k files for ~2 extra
+  hours and would then have failed upload_r2.sh before its later passes and
+  purge (2026-09-25). Use a current rclone; upload_r2.sh now sets
+  RCLONE_RETRIES=1 and warns on an old rclone.
+- Don't combine `exec > >(tee log)` with a bare `wait` in a bash script:
+  `wait` also waits on the tee process substitution and deadlocks.
+- A VM's pd-standard disk is slow for hundreds of thousands of small random
+  reads once they fall out of page cache - rclone `--checksum` re-reads are
+  disk-bound (~1 MB/s), so avoid needless re-checks.
 - Run long stages under `nohup ... & ` with `/opt/*_DONE` marker files and
   poll - SSH sessions drop.
 
@@ -118,5 +139,5 @@ rclone copy /tmp/moviewords-work-cache-$(date +%F).tar.zst r2:moviewords-pipelin
 rclone copy /tmp/moviewords-work-cache-$(date +%F).tar.zst.sha256 r2:moviewords-pipeline-cache/
 rclone check /tmp/moviewords-work-cache-$(date +%F).tar.zst r2:moviewords-pipeline-cache/ --one-way
 # keep the newest one or two archives; delete older ones with rclone deletefile
-gcloud compute instances delete moviewords-pipeline-tmp --project=nomadkaraoke --zone=us-central1-a
+gcloud compute instances delete moviewords-pipeline-tmp --project=nomadkaraoke --zone=europe-north1-a
 ```

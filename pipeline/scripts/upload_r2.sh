@@ -46,6 +46,19 @@ export RCLONE_CONFIG_R2_ENDPOINT="https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflare
 # 64 takes ~1.5h. Override via the environment if needed.
 export RCLONE_TRANSFERS="${RCLONE_TRANSFERS:-64}" RCLONE_CHECKERS="${RCLONE_CHECKERS:-64}"
 export RCLONE_NO_UPDATE_MODTIME=true   # silences R2's harmless 501 modtime noise
+# One attempt per pass: each file already gets rclone's low-level retries,
+# and a whole-pass retry re-checks all ~770k files. With an old rclone the
+# 501s below count as errors, so the default 3 attempts cost ~2 extra hours
+# and then fail the script before the later passes and the purge ran
+# (2026-09-25).
+export RCLONE_RETRIES="${RCLONE_RETRIES:-1}"
+# rclone < 1.65 (e.g. Debian 12's 1.60) rewrites an unchanged object's
+# mtime with an S3 server-side copy that R2 rejects (501 NotImplemented,
+# ~1 per unchanged file). Install a current one: curl https://rclone.org/install.sh | sudo bash
+rclone_minor=$(rclone version | sed -n 's/^rclone v1\.\([0-9]*\).*/\1/p')
+if [[ -n "$rclone_minor" && "$rclone_minor" -lt 65 ]]; then
+  echo "WARNING: rclone v1.$rclone_minor is too old for R2 (see comment above)" >&2
+fi
 
 # Ordered --filter rules, NOT mixed --include/--exclude: rclone does not
 # apply mixed include/exclude flags in command-line order (excludes never

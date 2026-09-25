@@ -137,130 +137,126 @@ GARBLED = "㐀㨀　㈀" * 40   # mis-encoded UTF-16: no English tokens
 TOP, ALT1, ALT2 = (f"OpenSubtitles/raw/en/2006/383574/{n}.xml" for n in ("top", "a1", "a2"))
 
 
-def _sparse_zip(tmp_path, top_sentences):
+def _row(imdb_id, *names):
+    return (imdb_id, names[0], [{"name": n, "bytes": 0} for n in names])
+
+
+def _zip(tmp_path, files):
     import zipfile
     zip_path = tmp_path / "z.zip"
     with zipfile.ZipFile(zip_path, "w") as z:
-        z.writestr(TOP, _doc(top_sentences))
-        z.writestr(ALT1, _doc(["why is this happening I do not know"] * 300))
-        z.writestr(ALT2, _doc(["why is this happening"] * 300))
+        for name, sentences in files.items():
+            z.writestr(name, _doc(sentences))
     return zip_path
 
 
-def test_sparse_top_pick_falls_back_to_wordiest_alternate(tmp_path):
-    """Pirates of the Caribbean: Dead Man's Chest - the top-ranked file is half
-    English, half mis-encoded garbage (378 bytes/word), so an alternate wins."""
-    zip_path = _sparse_zip(tmp_path, ["Will!"] * 10 + [GARBLED] * 200)
-    cache = tmp_path / "cache"
-    args = (cache, tmp_path / "wc.parquet", tmp_path / "ms.parquet")
-    report = build(zip_path, [("tt0383574", TOP, [ALT2, ALT1])], *args, {"tt0383574": 151})
+def _record(tmp_path, imdb_id):
+    return json.loads((tmp_path / "cache" / f"{imdb_id}.json").read_text())
+
+
+def _build(tmp_path, zip_path, rows, runtimes=None, **kw):
+    return build(zip_path, rows, tmp_path / "cache", tmp_path / "wc.parquet",
+                 tmp_path / "ms.parquet", runtimes or {}, **kw)
+
+
+class _CountingZip:
+    """Wraps a real zip, recording every member read."""
+    def __init__(self, zip_path, reads, fail=()):
+        import zipfile
+        self.z, self.reads, self.fail = zipfile.ZipFile(zip_path), reads, fail
+
+    def read(self, name):
+        self.reads.append(name)
+        if name in self.fail:
+            raise OSError("read timed out")
+        return self.z.read(name)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        pass
+
+
+REAL = "I know that honest iago is with cassio and the moor in venice"
+WRONG = "you know that odin is with hugo and the coach in the gym"
+
+
+def test_majority_beats_a_larger_mislabeled_file(tmp_path):
+    """Othello 1951: the O (2001) upload is the biggest file (the size
+    ranking's pick), but the other uploads agree with each other."""
+    zip_path = _zip(tmp_path, {TOP: [WRONG] * 400, ALT1: [REAL] * 300, ALT2: [REAL] * 310})
+    report = _build(tmp_path, zip_path, [_row("tt0045251", TOP, ALT1, ALT2)])
     assert report == {"processed": 1, "skipped": 0, "failed": 0}
-    record = json.loads((cache / "tt0383574.json").read_text())
-    assert record["zip_name"] == ALT1 and record["indexed_as"] == TOP
-    assert record["total_words"] == 300 * 8
-    # the verified result is a cache hit under the index's top pick
-    report = build(zip_path, [("tt0383574", TOP, [ALT2, ALT1])], *args, {"tt0383574": 151})
-    assert report == {"processed": 0, "skipped": 1, "failed": 0}
+    record = _record(tmp_path, "tt0045251")
+    assert record["zip_name"] in (ALT1, ALT2)
+    assert record["selection"]["reason"] == "consensus"
+    assert record["selection"]["rank_top"] == TOP
+    assert set(record["fingerprints"]) == {TOP, ALT1, ALT2}
 
 
-def test_dense_top_pick_never_fetches_alternates(tmp_path):
-    zip_path = _sparse_zip(tmp_path, ["a perfectly normal line of film dialogue"] * 300)
-    cache = tmp_path / "cache"
-    build(zip_path, [("tt0383574", TOP, ["missing.xml"])], cache,
-          tmp_path / "wc.parquet", tmp_path / "ms.parquet", {})
-    record = json.loads((cache / "tt0383574.json").read_text())
-    assert record["zip_name"] == TOP and "indexed_as" not in record
+def test_sparse_garbage_pick_loses_to_readable_candidates(tmp_path):
+    """Pirates: Dead Man's Chest - the rank-top is half mis-encoded garbage."""
+    zip_path = _zip(tmp_path, {TOP: ["Will!"] * 10 + [GARBLED] * 200,
+                               ALT1: [REAL] * 300, ALT2: [REAL] * 300})
+    _build(tmp_path, zip_path, [_row("tt0383574", TOP, ALT1, ALT2)])
+    record = _record(tmp_path, "tt0383574")
+    assert record["zip_name"] == ALT1
+    assert record["selection"]["rejected"] == {TOP: "tiny"}
 
 
-def test_sparse_top_pick_kept_when_alternates_are_no_better(tmp_path):
-    """Musicals parse sparse in every file (lyrics are stripped) - keep the pick."""
-    import zipfile
-    zip_path = tmp_path / "z.zip"
+def test_musical_keeps_a_file_when_every_candidate_is_sparse(tmp_path):
+    """Lyrics are stripped, so every file of a musical parses sparse."""
     lyrics = ["♪ I dreamed a dream in time gone by ♪"] * 300
-    with zipfile.ZipFile(zip_path, "w") as z:
-        z.writestr(TOP, _doc(["At the end of the day"] * 20 + lyrics))
-        z.writestr(ALT1, _doc(["At the end"] * 20 + lyrics))
-    cache = tmp_path / "cache"
-    build(zip_path, [("tt1707386", TOP, [ALT1])], cache,
-          tmp_path / "wc.parquet", tmp_path / "ms.parquet", {})
-    record = json.loads((cache / "tt1707386.json").read_text())
-    assert record["zip_name"] == TOP and "indexed_as" not in record
+    zip_path = _zip(tmp_path, {TOP: ["At the end of the day it is another day"] * 30 + lyrics,
+                               ALT1: ["At the end of the day it is another day"] * 28 + lyrics})
+    _build(tmp_path, zip_path, [_row("tt1707386", TOP, ALT1)])
+    record = _record(tmp_path, "tt1707386")
+    assert record["zip_name"] == TOP and record["selection"]["relaxed"] is True
 
 
-def test_unparseable_top_pick_falls_back_to_alternate(tmp_path):
+def test_unparseable_rank_top_falls_back_to_a_readable_file(tmp_path):
     import zipfile
     zip_path = tmp_path / "z.zip"
     with zipfile.ZipFile(zip_path, "w") as z:
         z.writestr(TOP, b"<broken")
-        z.writestr(ALT1, _doc(["hello there"] * 50))
-    cache = tmp_path / "cache"
-    report = build(zip_path, [("tt0383574", TOP, [ALT1])], cache,
-                   tmp_path / "wc.parquet", tmp_path / "ms.parquet", {})
+        z.writestr(ALT1, _doc([REAL] * 50))
+    report = _build(tmp_path, zip_path, [_row("tt0383574", TOP, ALT1)])
     assert report == {"processed": 1, "skipped": 0, "failed": 0}
-    assert json.loads((cache / "tt0383574.json").read_text())["zip_name"] == ALT1
+    assert _record(tmp_path, "tt0383574")["zip_name"] == ALT1
 
 
-def test_implausibly_fast_pick_with_half_size_alternate_is_a_double(tmp_path):
-    """Dragon Seed: the pick counts 232 wpm and an alternate holds half its
-    words - the pick is two subtitle tracks glued together."""
-    import zipfile
-    zip_path = tmp_path / "z.zip"
+def test_doubled_file_loses_to_the_single_copy(tmp_path):
+    """Dragon Seed: two subtitle tracks glued together (232 wpm)."""
     line = "we must fight for the land our fathers gave us"   # 10 words
-    with zipfile.ZipFile(zip_path, "w") as z:
-        z.writestr(TOP, _doc([line] * 3000))    # 30,000 words in 100 min
-        z.writestr(ALT1, _doc([line] * 2700))   # 90%: a real variant, not a half
-        z.writestr(ALT2, _doc([line] * 1500))   # 50%: the single copy
-    cache = tmp_path / "cache"
-    build(zip_path, [("tt0036777", TOP, [ALT1, ALT2])], cache,
-          tmp_path / "wc.parquet", tmp_path / "ms.parquet", {"tt0036777": 100})
-    record = json.loads((cache / "tt0036777.json").read_text())
-    assert record["zip_name"] == ALT2 and record["indexed_as"] == TOP
-    assert record["total_words"] == 15_000
+    zip_path = _zip(tmp_path, {TOP: [line] * 3000, ALT1: [line] * 2700, ALT2: [line] * 1500})
+    _build(tmp_path, zip_path, [_row("tt0036777", TOP, ALT1, ALT2)], {"tt0036777": 100})
+    record = _record(tmp_path, "tt0036777")
+    assert record["zip_name"] == ALT2 and record["total_words"] == 15_000
 
 
 def test_fast_talker_without_half_size_twin_keeps_pick(tmp_path):
-    import zipfile
-    zip_path = tmp_path / "z.zip"
     line = "listen here you mug I got a story for the paper"
-    with zipfile.ZipFile(zip_path, "w") as z:
-        z.writestr(TOP, _doc([line] * 2100))
-        z.writestr(ALT1, _doc([line] * 1900))
-    cache = tmp_path / "cache"
-    build(zip_path, [("tt0032599", TOP, [ALT1])], cache,
-          tmp_path / "wc.parquet", tmp_path / "ms.parquet", {"tt0032599": 92})
-    assert json.loads((cache / "tt0032599.json").read_text())["zip_name"] == TOP
+    zip_path = _zip(tmp_path, {TOP: [line] * 2100, ALT1: [line] * 1900})
+    _build(tmp_path, zip_path, [_row("tt0032599", TOP, ALT1)], {"tt0032599": 92})
+    assert _record(tmp_path, "tt0032599")["zip_name"] == TOP
 
 
-def test_fetch_failure_on_top_pick_never_caches_an_alternate(tmp_path, monkeypatch):
-    """A network blip is not evidence against the file: fail the film
-    (retried next run) instead of permanently caching a fallback."""
-    import zipfile
+def test_fetch_failure_on_any_candidate_fails_the_film_uncached(tmp_path, monkeypatch):
+    """A network blip is not evidence against a file: fail the film
+    (retried next run) instead of caching a choice made without it."""
     from moviewords_pipeline import counts
-    zip_path = tmp_path / "z.zip"
-    with zipfile.ZipFile(zip_path, "w") as z:
-        z.writestr(ALT1, _doc(["hello there"] * 50))
-
-    class TopTimesOut:
-        def __init__(self):
-            self.z = zipfile.ZipFile(zip_path)
-        def read(self, name):
-            if name == TOP:
-                raise OSError("read timed out")
-            return self.z.read(name)
-        def __enter__(self):
-            return self
-        def __exit__(self, *exc):
-            pass
-    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: TopTimesOut())
-    cache = tmp_path / "cache"
-    report = build(zip_path, [("tt0383574", TOP, [ALT1])], cache,
-                   tmp_path / "wc.parquet", tmp_path / "ms.parquet", {})
+    zip_path = _zip(tmp_path, {TOP: [REAL] * 300, ALT1: [REAL] * 300})
+    monkeypatch.setattr(counts.opus_zip, "open_source",
+                        lambda p: _CountingZip(zip_path, [], fail={ALT1}))
+    report = _build(tmp_path, zip_path, [_row("tt0383574", TOP, ALT1)])
     assert report == {"processed": 0, "skipped": 0, "failed": 1}
-    assert not (cache / "tt0383574.json").exists()
+    assert not (tmp_path / "cache" / "tt0383574.json").exists()
 
 
 def test_transient_fetch_error_is_retried(tmp_path, monkeypatch):
     import zipfile
+    import zlib
     from moviewords_pipeline import counts
     zip_path = build_zip(tmp_path / "mini.zip")
     calls = []
@@ -271,28 +267,118 @@ def test_transient_fetch_error_is_retried(tmp_path, monkeypatch):
         def read(self, name):
             calls.append(name)
             if len(calls) == 1:
-                raise zlib_error("incomplete stream")
+                raise zlib.error("incomplete stream")
             return self.z.read(name)
         def __enter__(self):
             return self
         def __exit__(self, *exc):
             pass
-    import zlib
-    zlib_error = zlib.error
     monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: FlakyOnce())
     report = build(zip_path, [INDEX[0]], tmp_path / "cache",
                    tmp_path / "wc.parquet", tmp_path / "ms.parquet", RUNTIMES)
     assert report == {"processed": 1, "skipped": 0, "failed": 0}
 
 
-def test_cached_alternate_is_dropped_once_blocklisted(tmp_path):
-    """A record counted from alternate B (indexed_as=A) must not survive B
-    leaving the alternates (e.g. B was blocklisted)."""
-    zip_path = _sparse_zip(tmp_path, ["Will!"] * 10 + [GARBLED] * 200)
-    cache = tmp_path / "cache"
-    args = (cache, tmp_path / "wc.parquet", tmp_path / "ms.parquet")
-    build(zip_path, [("tt0383574", TOP, [ALT1, ALT2])], *args, {})
-    assert json.loads((cache / "tt0383574.json").read_text())["zip_name"] == ALT1
-    report = build(zip_path, [("tt0383574", TOP, [ALT2])], *args, {})
+def test_new_candidate_only_fetches_the_new_file(tmp_path, monkeypatch):
+    from moviewords_pipeline import counts
+    zip_path = _zip(tmp_path, {TOP: [REAL] * 300, ALT1: [REAL] * 300, ALT2: [REAL] * 305})
+    _build(tmp_path, zip_path, [_row("tt0045251", TOP, ALT1)])
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    report = _build(tmp_path, zip_path, [_row("tt0045251", TOP, ALT1, ALT2)])
     assert report == {"processed": 1, "skipped": 0, "failed": 0}
-    assert json.loads((cache / "tt0383574.json").read_text())["zip_name"] == ALT2
+    assert reads == [ALT2]
+
+
+def test_chosen_file_known_only_by_fingerprint_is_refetched_for_counts(tmp_path, monkeypatch):
+    """Dropping a candidate can make a previously unchosen file win: its full
+    counts were never stored, so it is read again."""
+    from moviewords_pipeline import counts
+    zip_path = _zip(tmp_path, {TOP: [WRONG] * 400, ALT1: [REAL] * 300, ALT2: [REAL] * 310})
+    _build(tmp_path, zip_path, [_row("tt0045251", TOP, ALT1, ALT2)])
+    first = _record(tmp_path, "tt0045251")["zip_name"]
+    remaining = ALT2 if first == ALT1 else ALT1
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    _build(tmp_path, zip_path, [_row("tt0045251", remaining, TOP)])
+    record = _record(tmp_path, "tt0045251")
+    assert record["zip_name"] == remaining and reads == [remaining]
+    assert record["total_words"] == sum(record["counts"].values()) > 0
+
+
+def test_fingerprint_version_bump_refetches_everything(tmp_path, monkeypatch):
+    from moviewords_pipeline import config, counts
+    zip_path = _zip(tmp_path, {TOP: [REAL] * 300, ALT1: [REAL] * 300})
+    rows = [_row("tt0045251", TOP, ALT1)]
+    _build(tmp_path, zip_path, rows)
+    assert _build(tmp_path, zip_path, rows)["skipped"] == 1
+    monkeypatch.setattr(config, "FINGERPRINT_VERSION", config.FINGERPRINT_VERSION + 1)
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    assert _build(tmp_path, zip_path, rows)["processed"] == 1
+    assert sorted(reads) == sorted([TOP, ALT1])
+
+
+def test_selection_version_bump_rechooses_from_cached_fingerprints(tmp_path, monkeypatch):
+    """A new selection rule re-runs choose() on the stored fingerprints; only
+    a newly chosen file whose full counts were never kept is read."""
+    from moviewords_pipeline import config, consensus, counts
+    zip_path = _zip(tmp_path, {TOP: [REAL] * 300, ALT1: [REAL] * 310})
+    rows = [_row("tt0045251", TOP, ALT1)]
+    _build(tmp_path, zip_path, rows)
+    first = _record(tmp_path, "tt0045251")["zip_name"]
+    other = ALT1 if first == TOP else TOP
+    monkeypatch.setattr(config, "SELECTION_VERSION", config.SELECTION_VERSION + 1)
+    monkeypatch.setattr(consensus, "choose", lambda cands, rt: (other, {"reason": "rank",
+                        "cluster": 1, "usable": 2, "relaxed": False, "rejected": {}}))
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    assert _build(tmp_path, zip_path, rows)["processed"] == 1
+    assert reads == [other]
+    record = _record(tmp_path, "tt0045251")
+    assert record["zip_name"] == other and record["selection_version"] == config.SELECTION_VERSION
+    # and a rerun under the same rule is a pure cache hit
+    assert _build(tmp_path, zip_path, rows)["skipped"] == 1
+
+
+def test_selection_report_says_what_was_chosen_and_why(tmp_path):
+    zip_path = _zip(tmp_path, {TOP: [WRONG] * 400, ALT1: [REAL] * 300, ALT2: [REAL] * 310})
+    out = tmp_path / "selection.parquet"
+    _build(tmp_path, zip_path, [_row("tt0045251", TOP, ALT1, ALT2)], out_selection=out)
+    (row,) = duckdb.sql(f"SELECT imdb_id, rank_top, reason, candidates, usable, cluster, "
+                        f"relaxed, rejected FROM '{out}'").fetchall()
+    assert row == ("tt0045251", TOP, "consensus", 3, 3, 2, False, "{}")
+
+
+def test_shards_partition_the_films_and_only_fill_the_cache(tmp_path):
+    """count --shard i/n: n processes each fill the cache for their films
+    (no parquet outputs); an unsharded run then compacts from cache alone."""
+    from moviewords_pipeline.counts import in_shard
+    ids = [f"tt{i:07d}" for i in range(200)]
+    shards = [[i for i in ids if in_shard(i, (k, 4))] for k in range(4)]
+    assert sorted(sum(shards, [])) == ids and all(shards)
+    zip_path = build_zip(tmp_path / "mini.zip")
+    args = (tmp_path / "cache", tmp_path / "wc.parquet", tmp_path / "ms.parquet")
+    for k in range(3):
+        build(zip_path, INDEX, *args, RUNTIMES, shard=(k, 3))
+    assert not args[1].exists()
+    assert build(zip_path, INDEX, *args, RUNTIMES) == {"processed": 0, "skipped": 2, "failed": 0}
+    assert args[1].exists()
+
+
+def test_changed_runtime_rechooses_without_refetching(tmp_path, monkeypatch):
+    """runtime drives the doubled-file guard and words_per_minute: a corrected
+    runtime from a later curate must re-choose (from cached fingerprints)."""
+    from moviewords_pipeline import counts
+    line = "we must fight for the land our fathers gave us"
+    zip_path = _zip(tmp_path, {TOP: [line] * 3000, ALT1: [line] * 1500})
+    rows = [_row("tt0036777", TOP, ALT1)]
+    _build(tmp_path, zip_path, rows, {})                       # runtime unknown
+    assert _record(tmp_path, "tt0036777")["zip_name"] == TOP
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    assert _build(tmp_path, zip_path, rows, {"tt0036777": 100})["processed"] == 1
+    record = _record(tmp_path, "tt0036777")
+    assert record["zip_name"] == ALT1 and record["words_per_minute"] == 150
+    assert reads == [ALT1]          # only the newly chosen file's full counts
+    assert _build(tmp_path, zip_path, rows, {"tt0036777": 100})["skipped"] == 1

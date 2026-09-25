@@ -9,7 +9,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
 
-from . import config, opus_zip
+from . import config, consensus, opus_zip
 from .subtitle_parser import extract_text
 from .wordcount import count_words
 
@@ -22,10 +22,13 @@ STATS_SCHEMA = pa.schema([("imdb_id", pa.string()), ("total_words", pa.int64()),
 FETCH_ATTEMPTS = 3
 
 _CACHE_RECORD_FIELDS = ("imdb_id", "zip_name", "counts", "total_words",
-                        "unique_words", "words_per_minute")
+                        "unique_words", "words_per_minute", "version",
+                        "fingerprints", "selection")
 
 
-def _cached(cache_dir, imdb_id, zip_name, alternates=()):
+def _load(cache_dir, imdb_id):
+    """The film's cache record if it is well-formed and from the current
+    FINGERPRINT_VERSION (parser/tokenizer changes invalidate), else None."""
     dest = cache_dir / f"{imdb_id}.json"
     if not dest.exists():
         return None
@@ -37,13 +40,9 @@ def _cached(cache_dir, imdb_id, zip_name, alternates=()):
         return None
     if any(field not in record for field in _CACHE_RECORD_FIELDS):
         return None
-    if record.get("zip_name") == zip_name:
-        return record
-    # `indexed_as`: the top pick was verified but an alternate won - still
-    # valid only while that alternate is a current (non-blocklisted) one
-    if record.get("indexed_as") == zip_name and record.get("zip_name") in alternates:
-        return record
-    return None
+    if record["version"] != config.FINGERPRINT_VERSION:
+        return None
+    return record
 
 
 def _write_cache(cache_dir, imdb_id, record):
@@ -53,20 +52,51 @@ def _write_cache(cache_dir, imdb_id, record):
     os.replace(tmp, dest)
 
 
+def _candidate_names(row):
+    """Index row -> candidate zip names, best rank first. Rows are
+    (imdb_id, zip_name[, candidates]); without a candidate list the film's
+    only candidate is zip_name."""
+    imdb_id, zip_name, *rest = row
+    cands = rest[0] if rest and rest[0] else [{"name": zip_name}]
+    return [c["name"] if isinstance(c, dict) else c for c in cands]
+
+
+def in_shard(imdb_id, shard):
+    """Whether a film belongs to shard (k, n) - a stable split by id."""
+    k, n = shard
+    return zlib.crc32(imdb_id.encode()) % n == k
+
+
 def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
-          workers=1):
-    """Count every indexed film, reusing per-film caches. The zip is only
-    opened when something is uncached; `workers` parallelises the fetch+parse
-    of uncached entries (worth it against the remote zip, where each read is
-    a network round trip)."""
+          workers=1, out_selection=None, shard=None):
+    """Choose and count every indexed film, reusing per-film caches.
+
+    Each film's sampled candidates are fingerprinted (cached per file) and
+    consensus.choose picks one; only the chosen file's full counts are kept.
+    A record whose candidate list and selection rule are unchanged is reused
+    without opening the zip; otherwise only files not yet fingerprinted are
+    fetched (plus a newly chosen file whose full counts weren't kept). `workers` parallelises
+    films (worth it against the remote zip, where each read is a network
+    round trip). `out_selection`, if given, gets one row per film saying
+    what was chosen and why (for review). With `shard` (k, n) only that
+    shard's films are counted, into the cache only - run n shards as
+    separate processes (parsing is GIL-bound), then once unsharded to write
+    the outputs from the warm cache."""
+    if shard:
+        index_rows = [row for row in index_rows if in_shard(row[0], shard)]
     cache_dir.mkdir(parents=True, exist_ok=True)
     records, todo = {}, []
-    for imdb_id, zip_name, *rest in index_rows:
-        record = _cached(cache_dir, imdb_id, zip_name, rest[0] if rest else ())
-        if record:
+    for row in index_rows:
+        imdb_id, names = row[0], _candidate_names(row)
+        record = _load(cache_dir, imdb_id)
+        # runtime feeds the doubled-file guard and words_per_minute, so a
+        # corrected runtime (a later curate) re-chooses too
+        if (record and record["selection"].get("candidates") == names
+                and record.get("selection_version") == config.SELECTION_VERSION
+                and record["selection"].get("runtime_minutes") == runtimes.get(imdb_id)):
             records[imdb_id] = record
         else:
-            todo.append((imdb_id, zip_name, rest[0] if rest else ()))
+            todo.append((imdb_id, names, record))
     skipped, processed, failed = len(records), 0, 0
     if todo:
         with opus_zip.open_source(zip_path) as z:
@@ -81,51 +111,44 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                             print(f"count {zip_name}: {exc!r}")
                 return None
 
-            def parse(raw):
-                """(counts, raw byte size), or None if no words parse out."""
-                counts = count_words(extract_text(raw))
-                return (counts, len(raw)) if counts else None
-
-            def parse_alt(zip_name):
-                raw = fetch(zip_name)
-                return parse(raw) if raw is not None else None
-
-            def count_one(row):
-                imdb_id, zip_name, alternates = row
+            def count_one(item):
+                imdb_id, names, old = item
                 runtime = runtimes.get(imdb_id)
-                raw = fetch(zip_name)
-                if raw is None:
-                    # a fetch failure is not evidence against the file: fail
-                    # (uncached, retried next run) rather than cache a fallback
+                known = old["fingerprints"] if old else {}
+                fps, full = {}, {}
+                for name in names:
+                    if name in known:
+                        fps[name] = known[name]
+                        continue
+                    raw = fetch(name)
+                    if raw is None:
+                        # a fetch failure is not evidence against the file:
+                        # fail the film (uncached, retried next run) rather
+                        # than choose without it
+                        return None
+                    full[name] = count_words(extract_text(raw))
+                    fps[name] = consensus.fingerprint(full[name], len(raw))
+                chosen, info = consensus.choose([(n, fps[n]) for n in names], runtime)
+                if chosen is None:
                     return None
-                best, chosen = parse(raw), zip_name
-                if (best is None
-                        or best[1] / sum(best[0].values()) > config.MAX_BYTES_PER_WORD):
-                    # unreadable or suspiciously sparse: keep whichever
-                    # candidate says the most
-                    for alt in alternates:
-                        parsed = parse_alt(alt)
-                        if parsed and (best is None or sum(parsed[0].values())
-                                       > sum(best[0].values())):
-                            best, chosen = parsed, alt
-                elif runtime and sum(best[0].values()) / runtime > config.MAX_COUNTED_WPM:
-                    # implausibly fast: if an alternate holds about half the
-                    # words, the pick is a doubled file - take the half
-                    top_total = sum(best[0].values())
-                    for alt in alternates:
-                        parsed = parse_alt(alt)
-                        if parsed and 0.4 <= sum(parsed[0].values()) / top_total <= 0.6:
-                            best, chosen = parsed, alt
-                            break
-                if best is None:
-                    return None
-                counts = best[0]
+                if chosen in full:
+                    counts = full[chosen]
+                elif old and old["zip_name"] == chosen:
+                    counts = old["counts"]
+                else:
+                    raw = fetch(chosen)
+                    if raw is None:
+                        return None
+                    counts = count_words(extract_text(raw))
                 total = sum(counts.values())
                 record = {"imdb_id": imdb_id, "zip_name": chosen, "counts": counts,
                           "total_words": total, "unique_words": len(counts),
-                          "words_per_minute": total / runtime if runtime else None}
-                if chosen != zip_name:
-                    record["indexed_as"] = zip_name
+                          "words_per_minute": total / runtime if runtime else None,
+                          "version": config.FINGERPRINT_VERSION,
+                          "selection_version": config.SELECTION_VERSION,
+                          "fingerprints": fps,
+                          "selection": info | {"rank_top": names[0], "candidates": names,
+                                               "runtime_minutes": runtime}}
                 _write_cache(cache_dir, imdb_id, record)
                 return record
 
@@ -138,8 +161,12 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                         failed += 1
                     if i % 1000 == 0:
                         print(f"count stage: {i}/{len(todo)} uncached entries")
+    if shard:
+        return {"processed": processed, "skipped": skipped, "failed": failed}
     ordered = [records[row[0]] for row in index_rows if row[0] in records]
     _compact(ordered, out_counts, out_stats)
+    if out_selection:
+        _write_selection(ordered, out_selection)
     return {"processed": processed, "skipped": skipped, "failed": failed}
 
 
@@ -165,9 +192,24 @@ def _compact(records, out_counts, out_stats):
         schema=STATS_SCHEMA), out_stats)
 
 
-def run(workers=1):
+def _write_selection(records, out):
+    sel = [r["selection"] for r in records]
+    pq.write_table(pa.table({
+        "imdb_id": [r["imdb_id"] for r in records],
+        "zip_name": [r["zip_name"] for r in records],
+        "rank_top": [s["rank_top"] for s in sel],
+        "reason": [s["reason"] for s in sel],
+        "candidates": pa.array([len(s["candidates"]) for s in sel], pa.int32()),
+        "usable": pa.array([s["usable"] for s in sel], pa.int32()),
+        "cluster": pa.array([s["cluster"] for s in sel], pa.int32()),
+        "relaxed": [s["relaxed"] for s in sel],
+        "rejected": [json.dumps(s["rejected"]) for s in sel],
+    }), out)
+
+
+def run(workers=1, shard=None):
     index_rows = duckdb.sql(
-        f"SELECT imdb_id, zip_name, alternates "
+        f"SELECT imdb_id, zip_name, candidates "
         f"FROM '{config.WORK_DIR / 'corpus_index.parquet'}'"
     ).fetchall()
     runtimes = dict(duckdb.sql(
@@ -177,5 +219,7 @@ def run(workers=1):
                    config.WORK_DIR / "counts" / config.LANG,
                    config.WORK_DIR / "word_counts.parquet",
                    config.WORK_DIR / "movie_stats.parquet", runtimes,
-                   workers=workers)
+                   workers=workers,
+                   out_selection=config.WORK_DIR / "selection.parquet",
+                   shard=shard)
     print(f"count stage: {report}")

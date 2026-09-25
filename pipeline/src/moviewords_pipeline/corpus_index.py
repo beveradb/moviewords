@@ -79,6 +79,18 @@ def rank_candidates(candidates, runtime_minutes):
     return peered + peerless
 
 
+def sample_candidates(ranked, k):
+    """Up to k of a ranked list, spread evenly from first to last (the rank-
+    top always included) - an unbiased sample for the count stage's content
+    consensus, not just the largest files."""
+    n = len(ranked)
+    if n <= k:
+        return list(ranked)
+    if k == 1:
+        return ranked[:1]
+    return [ranked[round(i * (n - 1) / (k - 1))] for i in range(k)]
+
+
 def select_best(candidates, runtime_minutes):
     """The top-ranked candidate (see rank_candidates), or None."""
     ranked = rank_candidates(candidates, runtime_minutes)
@@ -106,14 +118,17 @@ def run():
     for imdb_id, cands in by_movie.items():
         ranked = rank_candidates(cands, runtimes[imdb_id])
         if ranked:
+            size = dict(cands)
+            sample = sample_candidates(ranked, config.CONSENSUS_MAX_CANDIDATES)
             rows.append((imdb_id, ranked[0],
-                         ranked[1:1 + config.MAX_ALTERNATES]))
-    # `alternates` are the next-ranked files, tried by the count stage when
-    # the top pick parses suspiciously sparse (see counts.build)
+                         [{"name": n, "bytes": size[n]} for n in sample]))
+    # `zip_name` is the size ranking's pick; the count stage chooses among
+    # `candidates` by content (see consensus.py) and records the file used
     table = pa.table({
         "imdb_id": pa.array([r[0] for r in rows], type=pa.string()),
         "zip_name": pa.array([r[1] for r in rows], type=pa.string()),
-        "alternates": pa.array([r[2] for r in rows], type=pa.list_(pa.string())),
+        "candidates": pa.array([r[2] for r in rows], type=pa.list_(pa.struct(
+            [("name", pa.string()), ("bytes", pa.int64())]))),
     })
     import pyarrow.parquet as pq
     pq.write_table(table, str(config.WORK_DIR / "corpus_index.parquet"))
