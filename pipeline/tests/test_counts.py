@@ -1,6 +1,7 @@
 import json
 
 import duckdb
+import pytest
 
 from moviewords_pipeline.counts import build
 from tests.fixtures.make_mini_corpus import build as build_zip
@@ -8,6 +9,15 @@ from tests.fixtures.make_mini_corpus import build as build_zip
 INDEX = [("tt0110912", "OpenSubtitles/raw/en/1994/110912/1.xml"),
          ("tt9999999", "OpenSubtitles/raw/en/2001/9999999/3.xml")]
 RUNTIMES = {"tt0110912": 154, "tt9999999": 90}
+
+
+@pytest.fixture(autouse=True)
+def _no_style_model(monkeypatch):
+    """These fixtures repeat one sentence hundreds of times, which the
+    machine-translation style model rightly finds unnatural; the model has
+    its own tests (test_quality)."""
+    from moviewords_pipeline import config
+    monkeypatch.setattr(config, "MT_SCORE_MAX", 1.01)
 
 
 def test_build_counts_and_stats(tmp_path):
@@ -178,8 +188,8 @@ class _CountingZip:
         pass
 
 
-REAL = "I know that honest iago is with cassio and the moor in venice"
-WRONG = "you know that odin is with hugo and the coach in the gym"
+REAL = "I know that honest iago is with cassio and the moor in venice."
+WRONG = "You know that odin is with hugo and the coach in the gym."
 
 
 def test_majority_beats_a_larger_mislabeled_file(tmp_path):
@@ -332,7 +342,7 @@ def test_selection_version_bump_rechooses_from_cached_fingerprints(tmp_path, mon
     first = _record(tmp_path, "tt0045251")["zip_name"]
     other = ALT1 if first == TOP else TOP
     monkeypatch.setattr(config, "SELECTION_VERSION", config.SELECTION_VERSION + 1)
-    monkeypatch.setattr(consensus, "choose", lambda cands, rt: (other, {"reason": "rank",
+    monkeypatch.setattr(consensus, "choose", lambda cands, rt, cast=None: (other, {"reason": "rank",
                         "cluster": 1, "usable": 2, "relaxed": False, "rejected": {}}))
     reads = []
     monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
@@ -385,3 +395,42 @@ def test_changed_runtime_rechooses_without_refetching(tmp_path, monkeypatch):
     assert record["zip_name"] == ALT1 and record["words_per_minute"] == 150
     assert reads == [ALT1]          # only the newly chosen file's full counts
     assert _build(tmp_path, zip_path, rows, {"tt0036777": 100})["skipped"] == 1
+
+
+VIET = "toi khong biet ong co the lam gi"
+
+
+def test_film_with_only_other_language_files_is_dropped_and_cached(tmp_path, monkeypatch):
+    """Every file fails a hard gate: the film is left out of the counts, and
+    the decision is cached so the next run doesn't read the files again."""
+    zip_path = _zip(tmp_path, {TOP: [VIET] * 300, ALT1: [REAL] * 300})
+    rows = [_row("tt0000001", TOP), ("tt0000002", ALT1, [{"name": ALT1, "bytes": 0}])]
+    out = tmp_path / "sel.parquet"
+    assert _build(tmp_path, zip_path, rows, out_selection=out) == {
+        "processed": 2, "skipped": 0, "failed": 0}
+    counted = {r[0] for r in duckdb.sql(f"SELECT DISTINCT imdb_id FROM '{tmp_path / 'wc.parquet'}'").fetchall()}
+    assert counted == {"tt0000002"}
+    sel = dict(duckdb.sql(f"SELECT imdb_id, tier FROM '{out}'").fetchall())
+    assert sel == {"tt0000001": "drop", "tt0000002": "ok"}
+    from moviewords_pipeline import counts
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    assert _build(tmp_path, zip_path, rows)["skipped"] == 2 and reads == []
+
+
+def test_new_cast_list_rechooses_from_cached_fingerprints(tmp_path, monkeypatch):
+    """TMDB credits fetched after a count: the wrong-film check must run, and
+    needs no reads beyond a newly chosen file."""
+    from moviewords_pipeline import counts
+    zip_path = _zip(tmp_path, {TOP: [WRONG] * 400, ALT1: [REAL] * 300})
+    rows = [_row("tt0045251", TOP, ALT1)]
+    _build(tmp_path, zip_path, rows)
+    assert _record(tmp_path, "tt0045251")["zip_name"] == TOP     # size rank, no agreement
+    cast = {"tt0045251": {"strict": frozenset({"cassio", "iago"}),
+                          "broad": frozenset({"cassio", "iago", "moor"})}}
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    assert _build(tmp_path, zip_path, rows, casts=cast)["processed"] == 1
+    record = _record(tmp_path, "tt0045251")
+    assert record["zip_name"] == ALT1 and reads == [ALT1]
+    assert record["selection"]["flagged"] == {TOP: ["wrong-cast"]}

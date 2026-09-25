@@ -67,8 +67,16 @@ def in_shard(imdb_id, shard):
     return zlib.crc32(imdb_id.encode()) % n == k
 
 
+def _cast_key(cast):
+    """A stable, JSON-able summary of the cast tokens a choice was made with
+    (a later credits fetch must re-choose)."""
+    if not cast:
+        return None
+    return sorted(cast["broad"])
+
+
 def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
-          workers=1, out_selection=None, shard=None):
+          workers=1, out_selection=None, shard=None, casts=None):
     """Choose and count every indexed film, reusing per-film caches.
 
     Each film's sampled candidates are fingerprinted (cached per file) and
@@ -81,7 +89,11 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     what was chosen and why (for review). With `shard` (k, n) only that
     shard's films are counted, into the cache only - run n shards as
     separate processes (parsing is GIL-bound), then once unsharded to write
-    the outputs from the warm cache."""
+    the outputs from the warm cache. `casts` maps imdb_id to cast name
+    tokens ({"strict", "broad"}, see quality.cast_tokens) for the
+    wrong-film check. A film whose every file fails a hard gate is cached
+    as dropped (zip_name None) and left out of the counts."""
+    casts = casts or {}
     if shard:
         index_rows = [row for row in index_rows if in_shard(row[0], shard)]
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -93,7 +105,8 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
         # corrected runtime (a later curate) re-chooses too
         if (record and record["selection"].get("candidates") == names
                 and record.get("selection_version") == config.SELECTION_VERSION
-                and record["selection"].get("runtime_minutes") == runtimes.get(imdb_id)):
+                and record["selection"].get("runtime_minutes") == runtimes.get(imdb_id)
+                and record["selection"].get("cast") == _cast_key(casts.get(imdb_id))):
             records[imdb_id] = record
         else:
             todo.append((imdb_id, names, record))
@@ -130,10 +143,13 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                     full[name], repaired = count_words_repaired(text)
                     fps[name] = consensus.fingerprint(full[name], len(raw))
                     fps[name]["q"] = quality.features(raw, text, full[name], repaired)
-                chosen, info = consensus.choose([(n, fps[n]) for n in names], runtime)
-                if chosen is None:
+                cast = casts.get(imdb_id)
+                chosen, info = consensus.choose([(n, fps[n]) for n in names], runtime, cast)
+                if chosen is None and info["reason"] != "dropped":
                     return None
-                if chosen in full:
+                if chosen is None:
+                    counts = {}
+                elif chosen in full:
                     counts = full[chosen]
                 elif old and old["zip_name"] == chosen:
                     counts = old["counts"]
@@ -150,7 +166,8 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                           "selection_version": config.SELECTION_VERSION,
                           "fingerprints": fps,
                           "selection": info | {"rank_top": names[0], "candidates": names,
-                                               "runtime_minutes": runtime}}
+                                               "runtime_minutes": runtime,
+                                               "cast": _cast_key(cast)}}
                 _write_cache(cache_dir, imdb_id, record)
                 return record
 
@@ -166,7 +183,7 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     if shard:
         return {"processed": processed, "skipped": skipped, "failed": failed}
     ordered = [records[row[0]] for row in index_rows if row[0] in records]
-    _compact(ordered, out_counts, out_stats)
+    _compact([r for r in ordered if r["zip_name"]], out_counts, out_stats)
     if out_selection:
         _write_selection(ordered, out_selection)
     return {"processed": processed, "skipped": skipped, "failed": failed}
@@ -202,11 +219,30 @@ def _write_selection(records, out):
         "rank_top": [s["rank_top"] for s in sel],
         "reason": [s["reason"] for s in sel],
         "candidates": pa.array([len(s["candidates"]) for s in sel], pa.int32()),
-        "usable": pa.array([s["usable"] for s in sel], pa.int32()),
-        "cluster": pa.array([s["cluster"] for s in sel], pa.int32()),
-        "relaxed": [s["relaxed"] for s in sel],
+        "usable": pa.array([s.get("usable", 0) for s in sel], pa.int32()),
+        "cluster": pa.array([s.get("cluster", 0) for s in sel], pa.int32()),
+        "relaxed": [s.get("relaxed", False) for s in sel],
         "rejected": [json.dumps(s["rejected"]) for s in sel],
+        "tier": [s.get("tier", "ok") for s in sel],
+        "flags": [json.dumps(s.get("flags", [])) for s in sel],
+        "flagged": [json.dumps(s.get("flagged", {})) for s in sel],
     }), out)
+
+
+def load_casts(imdb_ids, cache_dir=None):
+    """{imdb_id: {"strict", "broad"} cast name tokens} for films whose TMDB
+    credits have been fetched (the `credits` stage) and name anyone."""
+    cache_dir = cache_dir or config.WORK_DIR / "tmdb_credits"
+    out = {}
+    for imdb_id in imdb_ids:
+        path = cache_dir / f"{imdb_id}.json"
+        if not path.exists():
+            continue
+        credits = json.loads(path.read_text())
+        broad = quality.cast_tokens(credits, strict=False)
+        if broad:
+            out[imdb_id] = {"strict": quality.cast_tokens(credits), "broad": broad}
+    return out
 
 
 def run(workers=1, shard=None):
@@ -223,5 +259,6 @@ def run(workers=1, shard=None):
                    config.WORK_DIR / "movie_stats.parquet", runtimes,
                    workers=workers,
                    out_selection=config.WORK_DIR / "selection.parquet",
-                   shard=shard)
+                   shard=shard,
+                   casts=load_casts([row[0] for row in index_rows]))
     print(f"count stage: {report}")

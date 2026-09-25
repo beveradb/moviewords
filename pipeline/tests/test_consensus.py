@@ -156,3 +156,92 @@ def test_doubled_pick_swaps_for_its_half_size_twin():
     cands = [("double", _fp(FILM, 30_000)), ("single", _fp(FILM, 15_000))]
     name, info = _pick(cands, runtime=100)
     assert name == "single" and info["reason"] == "doubled"
+
+
+# --- v3: hard gates, quality flags, tiers ----------------------------------
+
+def _q(**over):
+    """Quality features of an ordinary, human-made subtitle file."""
+    q = {"toks_per_line": 5.2, "cap_start": 0.98, "end_punct": 0.97, "mt": 0,
+         "style": {}}
+    return q | over
+
+
+def _qfp(words, n, **q):
+    fp = _fp(words, n)
+    fp["q"] = _q(**q)
+    return fp
+
+
+ASR = {"toks_per_line": 22.0, "cap_start": 0.4, "end_punct": 0.2}
+
+
+def test_commentary_only_film_is_dropped_not_published():
+    """The relaxation leak: gates used to relax when every file failed, so a
+    film whose only file was a commentary track got published."""
+    talk = FILM + "movie film scene shot director actor camera".split()
+    name, info = _pick([("commentary", _fp(talk, 20_000, bytes_per_word=14))])
+    assert name is None
+    assert info["reason"] == "dropped" and info["tier"] == "drop"
+
+
+def test_other_language_only_film_is_dropped():
+    viet = Counter({"toi": 400, "khong": 330, "co": 260, "ong": 250, "the": 30})
+    name, info = _pick([("vi", fingerprint(viet, 30_000))])
+    assert name is None and info["reason"] == "dropped"
+
+
+def test_auto_captions_lose_to_a_human_file():
+    cands = [("asr", _qfp(FILM, 9000, **ASR)), ("human", _qfp(FILM, 8000))]
+    name, info = _pick(cands)
+    assert name == "human" and info["tier"] == "ok" and info["flags"] == []
+    assert info["flagged"] == {"asr": ["asr"]}
+
+
+def test_only_auto_captions_keeps_the_film_at_low_tier():
+    name, info = _pick([("asr", _qfp(FILM, 9000, **ASR))])
+    assert name == "asr" and info["tier"] == "low" and info["flags"] == ["asr"]
+
+
+def test_opus_machine_translated_flag_is_a_quality_flag():
+    name, info = _pick([("mt", _qfp(FILM, 9000, mt=1))])
+    assert info["tier"] == "low" and info["flags"] == ["machine-translated"]
+
+
+def test_every_agreeing_file_machine_translated_is_low_tier():
+    """tt1027683: six uploads of one machine translation agree with each
+    other - consensus can't vouch for them."""
+    cands = [(f"mt{i}", _qfp(FILM, 8000 + i, mt=1)) for i in range(6)]
+    name, info = _pick(cands)
+    assert info["reason"] == "consensus" and info["tier"] == "low"
+
+
+def test_wrong_cast_file_loses_to_one_naming_the_characters():
+    """Lady Luck 1946: two identical uploads of a modern film beat the one
+    genuine file on the files tie-break; the genuine one names the cast."""
+    cast = {"strict": frozenset({"cassio", "desdemona"}),
+            "broad": frozenset({"cassio", "desdemona", "moor", "venice"})}
+    cands = [("wrong_a", _qfp(OTHER, 9000)), ("wrong_b", _qfp(OTHER, 9000)),
+             ("real", _qfp(FILM, 8000))]
+    name, info = choose(cands, 90, cast)
+    assert name == "real" and info["tier"] == "ok"
+    assert info["flagged"] == {"wrong_a": ["wrong-cast"], "wrong_b": ["wrong-cast"]}
+
+
+def test_lone_file_naming_none_of_a_rich_cast_is_low_tier():
+    cast = {"strict": frozenset("brabantio cassio desdemona lodovico roderigo".split()),
+            "broad": frozenset("brabantio cassio desdemona lodovico roderigo iago".split())}
+    name, info = choose([("o2001", _qfp(OTHER, 9000))], 90, cast)
+    assert name == "o2001" and info["tier"] == "low" and info["flags"] == ["wrong-cast"]
+
+
+def test_sparse_cast_list_is_not_evidence_against_a_lone_file():
+    """Few distinctive names (documentaries, silents): no verdict."""
+    cast = {"strict": frozenset({"desi"}), "broad": frozenset({"desi", "hugo"})}
+    name, info = choose([("only", _qfp(FILM, 9000))], 90, cast)
+    assert info["tier"] == "ok"
+
+
+def test_fingerprints_without_quality_features_are_never_flagged():
+    name, info = _pick([("old", _fp(FILM, 9000))])
+    assert info["tier"] == "ok" and info["flags"] == []

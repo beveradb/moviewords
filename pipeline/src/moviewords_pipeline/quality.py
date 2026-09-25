@@ -119,3 +119,58 @@ def mt_score(q, tokens):
     z = model["intercept"] + sum(
         c * (v - m) / s for c, v, m, s in zip(model["coef"], x, model["mean"], model["std"]))
     return 1 / (1 + math.exp(-z))
+
+
+# --- cast-name check -------------------------------------------------------
+# A subtitle names its film's characters; a wrong film filed under this id
+# names another film's. Only distinctive name tokens count: common words
+# (role names like "sheriff", everyday names like "john") appear anywhere.
+SELF_ROLES = re.compile(r"^(him|her|them)sel(f|ves)\b|^self\b|^narrator\b|^various\b", re.I)
+PARENS_RE = re.compile(r"\([^)]*\)|\[[^\]]*\]")
+NAME_TOKEN_RE = re.compile(r"[a-z]{3,}")
+
+
+def cast_tokens(credits, strict=True):
+    """Lower-case name tokens from a tmdb_credits record: each character's
+    name, or the actor's when they play themselves (documentaries). strict:
+    only distinctive ones (see _is_name_like) - evidence on their own;
+    otherwise every non-stopword token - only good for comparing one
+    candidate file with another. Empty for None (no TMDB match)."""
+    if not credits:
+        return frozenset()
+    from .derive import load_stopwords
+    import unicodedata
+    stop = load_stopwords()
+    out = set()
+    for character, actor in zip(credits.get("characters") or [], credits.get("actors") or []):
+        name = PARENS_RE.sub(" ", character or "").strip()
+        if not name or SELF_ROLES.match(name):
+            name = actor or ""
+        name = unicodedata.normalize("NFKD", name.lower())
+        name = "".join(ch for ch in name if not unicodedata.combining(ch))
+        for tok in NAME_TOKEN_RE.findall(name):
+            if tok not in stop and (not strict or _is_name_like(tok)):
+                out.add(tok)
+    return frozenset(out)
+
+
+# a token is name-like if it is rare in English, or uncommon and not a
+# dictionary word ("barber", "villager", "stagecoach" are roles, not names)
+CAST_RARE_ZIPF = 2.5
+CAST_MAX_ZIPF = 4.0
+
+
+@cache
+def _is_name_like(tok):
+    import wordfreq
+    from .word_meta2 import _wordnet
+    z = wordfreq.zipf_frequency(tok, "en")
+    if z < CAST_RARE_ZIPF:
+        return True
+    return z < CAST_MAX_ZIPF and not _wordnet().synsets(tok)
+
+
+def cast_hits(fp, tokens):
+    """How many of the film's cast name tokens this file uses often enough
+    to be among its top content words."""
+    return len(tokens & fp["vec"].keys())

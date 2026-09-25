@@ -72,5 +72,13 @@ MIN_CANDIDATE_TOKENS = 200
 # cached fingerprint and count is refetched. Bump SELECTION_VERSION when only
 # consensus.choose changes: choices are re-made from cached fingerprints
 # (only a newly chosen file whose full counts weren't kept is read).
+# Quality flags (consensus.quality_flags; calibration in docs/superpowers/
+# plans/2026-09-25-subtitle-quality.md). A file at or above MT_SCORE_MAX
+# on the machine-translation style model is flagged; so is one naming none
+# of the film's cast while another candidate names CAST_MIN_HITS+ of them,
+# or - with CAST_MIN_STRICT_TOKENS+ distinctive names to look for - none.
+MT_SCORE_MAX = 0.7
+CAST_MIN_HITS = 2
+CAST_MIN_STRICT_TOKENS = 5
 FINGERPRINT_VERSION = 2   # 2: quality features (fp["q"]), OCR repair, credit junk
-SELECTION_VERSION = 2   # 2: distinct-text voting (Baahubali 2)
+SELECTION_VERSION = 3   # 2: distinct-text voting (Baahubali 2); 3: quality tiers, hard gates

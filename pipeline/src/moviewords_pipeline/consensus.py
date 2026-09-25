@@ -13,7 +13,7 @@ consensus-selection.md for the study and calibration behind the thresholds.
 import math
 import statistics
 
-from . import config
+from . import config, quality
 from .derive import load_stopwords
 
 STOPWORDS = load_stopwords()
@@ -42,6 +42,11 @@ def fingerprint(counts, raw_bytes):
     }
 
 
+# gate() verdicts that mean the file is not this film's dialogue at all:
+# never relaxed - a film whose every file fails one is dropped
+HARD_GATES = frozenset({"tiny", "not-english", "commentary"})
+
+
 def gate(fp):
     """Why this candidate can't be picked, or None if it's usable."""
     if fp["tokens"] < config.MIN_CANDIDATE_TOKENS:
@@ -63,23 +68,74 @@ def cosine(a, b):
     return dot / (na * nb) if na and nb else 0.0
 
 
-def choose(candidates, runtime_minutes):
+def quality_flags(pool, cast=None):
+    """{zip_name: [flags]} for (zip_name, fingerprint) pairs: "asr"
+    (auto-captions), "machine-translated" (OPUS flag or style model),
+    "wrong-cast" (names none of the film's characters while another file
+    does, or - with plenty of distinctive names to look for - names none
+    at all). `cast` is {"strict": tokens, "broad": tokens} or None."""
+    flags = {name: [] for name, _ in pool}
+    for name, fp in pool:
+        q = fp.get("q")
+        if not q:
+            continue   # fingerprint from before quality features
+        if quality.is_asr(q):
+            flags[name].append("asr")
+        score = quality.mt_score(q, fp["tokens"])
+        if q["mt"] == 1 or (score is not None and score >= config.MT_SCORE_MAX):
+            flags[name].append("machine-translated")
+    if cast:
+        broad = {name: quality.cast_hits(fp, cast["broad"]) for name, fp in pool}
+        best = max(broad.values(), default=0)
+        for name, fp in pool:
+            if broad[name]:
+                continue
+            if best >= config.CAST_MIN_HITS or (
+                    len(cast["strict"]) >= config.CAST_MIN_STRICT_TOKENS
+                    and not quality.cast_hits(fp, cast["strict"])):
+                flags[name].append("wrong-cast")
+    return flags
+
+
+def choose(candidates, runtime_minutes, cast=None):
     """(zip_name, info) for the best of `candidates`, a best-rank-first list
-    of (zip_name, fingerprint); (None, {"reason": "none"}) if nothing parses.
+    of (zip_name, fingerprint); (None, info) if none is this film's dialogue
+    - info["reason"] "none" when nothing parses, "dropped" when every file
+    fails a hard gate (commentary, other language, tiny).
 
     info: reason (consensus | rank | single | doubled), cluster size, usable
-    count, relaxed (every file failed a gate, so gates were dropped), and
-    rejected {zip_name: gate}."""
+    count, relaxed (every file was sparse, as musicals are, so that gate
+    was dropped), rejected {zip_name: gate}, tier ("ok", or "low" when every
+    usable file has quality flags and the least bad was kept), flags (the
+    chosen file's quality flags) and flagged {zip_name: flags} for files
+    passed over."""
     rejected = {name: g for name, fp in candidates if (g := gate(fp))}
-    usable = [(n, fp) for n, fp in candidates if n not in rejected]
-    relaxed = False
-    if not usable:
-        usable = [(n, fp) for n, fp in candidates if fp["tokens"] > 0]
-        relaxed = True
-    if not usable:
+    readable = [(n, fp) for n, fp in candidates if fp["tokens"] > 0]
+    if not readable:
         return None, {"reason": "none"}
-    info = {"usable": len(usable), "relaxed": relaxed, "rejected": rejected}
+    pool = [(n, fp) for n, fp in readable if n not in rejected]
+    relaxed = False
+    if not pool:
+        pool = [(n, fp) for n, fp in readable if rejected[n] not in HARD_GATES]
+        relaxed = True
+    if not pool:
+        return None, {"reason": "dropped", "rejected": rejected, "tier": "drop",
+                      "flags": [], "flagged": {}}
+    flags = quality_flags(pool, cast)
+    usable = [(n, fp) for n, fp in pool if not flags[n]]
+    tier = "ok"
+    if not usable:
+        usable, tier = pool, "low"
+    info = {"usable": len(usable), "relaxed": relaxed, "rejected": rejected,
+            "tier": tier, "flagged": {n: f for n, f in flags.items() if f}}
+    name, info = _consensus(usable, runtime_minutes, info)
+    info["flags"] = flags[name]
+    if tier == "ok":
+        info["flagged"] = {n: f for n, f in info["flagged"].items() if n != name}
+    return name, info
 
+
+def _consensus(usable, runtime_minutes, info):
     if len(usable) == 1:
         return usable[0][0], info | {"reason": "single", "cluster": 1}
 
