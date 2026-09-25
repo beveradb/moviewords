@@ -75,8 +75,9 @@ def quality_flags(pool, cast=None):
     """{zip_name: [flags]} for (zip_name, fingerprint) pairs: "asr"
     (auto-captions), "machine-translated" (OPUS flag or style model),
     "wrong-cast" (names none of the film's characters while another file
-    does, or - with plenty of distinctive names to look for - names none
-    at all). `cast` is {"strict": tokens, "broad": tokens} or None."""
+    does, or - with plenty of distinctive names to look for, in a film
+    where that is evidence ("absolute") - names none at all). `cast` is
+    {"strict": tokens, "broad": tokens, "absolute": bool} or None."""
     flags = {name: [] for name, _ in pool}
     for name, fp in pool:
         q = fp.get("q")
@@ -94,7 +95,8 @@ def quality_flags(pool, cast=None):
             if broad[name]:
                 continue
             if best >= config.CAST_MIN_HITS or (
-                    len(cast["strict"]) >= config.CAST_MIN_STRICT_TOKENS
+                    cast.get("absolute", True)
+                    and len(cast["strict"]) >= config.CAST_MIN_STRICT_TOKENS
                     and not quality.cast_hits(fp, cast["strict"])):
                 flags[name].append("wrong-cast")
     return flags

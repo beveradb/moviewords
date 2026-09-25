@@ -72,7 +72,7 @@ def _cast_key(cast):
     (a later credits fetch must re-choose)."""
     if not cast:
         return None
-    return sorted(cast["broad"])
+    return [*sorted(cast["broad"]), f"absolute={cast.get('absolute', True)}"]
 
 
 def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
@@ -229,19 +229,29 @@ def _write_selection(records, out):
     }), out)
 
 
-def load_casts(imdb_ids, cache_dir=None):
-    """{imdb_id: {"strict", "broad"} cast name tokens} for films whose TMDB
-    credits have been fetched (the `credits` stage) and name anyone."""
-    cache_dir = cache_dir or config.WORK_DIR / "tmdb_credits"
+def load_casts(imdb_ids, work_dir=None, genres=None):
+    """{imdb_id: {"strict", "broad", "absolute"}} cast name tokens for films
+    whose TMDB credits have been fetched (the `credits` stage) and name
+    anyone. "absolute": whether naming none of them is evidence on its own -
+    only for English-original fiction (calibration: documentaries name
+    their subjects rarely, and non-English films' TMDB characters are often
+    role descriptions in the original language). `genres`: {imdb_id:
+    [IMDb genres]}."""
+    work_dir = work_dir or config.WORK_DIR
+    genres = genres or {}
     out = {}
     for imdb_id in imdb_ids:
-        path = cache_dir / f"{imdb_id}.json"
+        path = work_dir / "tmdb_credits" / f"{imdb_id}.json"
         if not path.exists():
             continue
         credits = json.loads(path.read_text())
         broad = quality.cast_tokens(credits, strict=False)
-        if broad:
-            out[imdb_id] = {"strict": quality.cast_tokens(credits), "broad": broad}
+        if not broad:
+            continue
+        tmdb = work_dir / "tmdb" / f"{imdb_id}.json"
+        lang = (json.loads(tmdb.read_text()) or {}).get("original_language") if tmdb.exists() else None
+        out[imdb_id] = {"strict": quality.cast_tokens(credits), "broad": broad,
+                        "absolute": lang == "en" and "Documentary" not in (genres.get(imdb_id) or [])}
     return out
 
 
@@ -250,9 +260,11 @@ def run(workers=1, shard=None):
         f"SELECT imdb_id, zip_name, candidates "
         f"FROM '{config.WORK_DIR / 'corpus_index.parquet'}'"
     ).fetchall()
-    runtimes = dict(duckdb.sql(
-        f"SELECT imdb_id, runtime_minutes FROM '{config.WORK_DIR / 'curated.parquet'}'"
-    ).fetchall())
+    curated = duckdb.sql(
+        f"SELECT imdb_id, runtime_minutes, genres FROM '{config.WORK_DIR / 'curated.parquet'}'"
+    ).fetchall()
+    runtimes = {i: r for i, r, _ in curated}
+    genres = {i: g for i, _, g in curated}
     report = build(config.RAW_DIR / "opus_en.zip", index_rows,
                    config.WORK_DIR / "counts" / config.LANG,
                    config.WORK_DIR / "word_counts.parquet",
@@ -260,5 +272,5 @@ def run(workers=1, shard=None):
                    workers=workers,
                    out_selection=config.WORK_DIR / "selection.parquet",
                    shard=shard,
-                   casts=load_casts([row[0] for row in index_rows]))
+                   casts=load_casts([row[0] for row in index_rows], genres=genres))
     print(f"count stage: {report}")

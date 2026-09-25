@@ -251,3 +251,12 @@ def test_near_wordless_film_keeps_its_tiny_file():
     """Silent Movie (1976) says one word; every upload is tiny."""
     name, info = _pick([("a", _fp(["non"], 3)), ("b", _fp(["non"], 3))])
     assert name == "a" and info["relaxed"] is True and info["tier"] == "ok"
+
+
+def test_lone_file_of_a_documentary_is_not_judged_on_cast_names():
+    """Life in a Day, Under the Skin: genuine files naming none of the cast."""
+    cast = {"strict": frozenset("brabantio cassio desdemona lodovico roderigo".split()),
+            "broad": frozenset("brabantio cassio desdemona lodovico roderigo".split()),
+            "absolute": False}
+    name, info = choose([("only", _qfp(OTHER, 9000))], 90, cast)
+    assert info["tier"] == "ok"
