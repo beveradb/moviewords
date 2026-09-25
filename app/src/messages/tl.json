@@ -360,7 +360,13 @@
     "wordResult": "“{word}”: {count}× sa pelikulang ito · {rate}/1k na salita · sinabi sa {films} na pelikula",
     "wordTrendLink": "“{word}” sa paglipas ng panahon →",
     "wordsUnavailable": "Hindi available ang buong listahan ng salita para sa pelikulang ito.",
-    "wordResultOnlyFilm": "“{word}”: {count}× sa pelikulang ito · {rate}/1k salita · ang kaisa-isang pelikulang nagsabi nito"
+    "wordResultOnlyFilm": "“{word}”: {count}× sa pelikulang ito · {rate}/1k salita · ang kaisa-isang pelikulang nagsabi nito",
+    "qualityAsr": "Ang tanging subtitle na mayroon kami para sa pelikulang ito ay auto-generated na mga caption, kaya may ilang salitang mali ang pagkakarinig.",
+    "qualityExcluded": "Ang mga salita nito ay hindi isinama sa bawat kabuuan, chart, at ranking sa site.",
+    "qualityHeading": "Kalidad ng subtitle: mababa",
+    "qualityMachineTranslated": "Ang tanging English subtitle na mayroon kami para sa pelikulang ito ay mukhang machine-translated mula sa ibang wika, kaya maaaring mali ang ilang salita.",
+    "qualityWrongCast": "Ang tanging subtitle na mayroon kami para sa pelikulang ito ay hindi pinapangalanan ang mga karakter nito, kaya maaaring kabilang ito sa ibang pelikula.",
+    "qualityAnachronism": "Ang tanging subtitle na mayroon kami para sa pelikulang ito ay gumagamit ng mga salitang imposibleng nabanggit dito, kaya malamang na isa itong muling pagsasalin o maling pagkakarinig."
   },
   "themeToggle": {
     "day": "ARAW",

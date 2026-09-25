@@ -22,6 +22,12 @@ BYTES_PER_WORD = 24.5
 # Deliberately wide: silent films sit at 5-10, the rest at 25-150.
 MIN_WORDS_PER_MIN = 5
 MAX_WORDS_PER_MIN = 400
+# Silent films' genuine files are intertitles only (Sunrise 1927: ~350 words
+# in 94 min), below MIN_WORDS_PER_MIN - which left an in-band file of another
+# film as the only candidate. Before talkies took over, let low-rate files
+# in and let content consensus decide.
+SILENT_ERA_END_YEAR = 1930
+SILENT_MIN_WORDS_PER_MIN = 1
 FALLBACK_WORD_RANGE = (2_000, 40_000)  # when runtime unknown
 # Within the band, prefer files with a size peer: another candidate at most
 # this ratio away (see corpus_index.rank_candidates).
@@ -66,5 +72,19 @@ MIN_CANDIDATE_TOKENS = 200
 # cached fingerprint and count is refetched. Bump SELECTION_VERSION when only
 # consensus.choose changes: choices are re-made from cached fingerprints
 # (only a newly chosen file whose full counts weren't kept is read).
-FINGERPRINT_VERSION = 1
-SELECTION_VERSION = 2   # 2: distinct-text voting (Baahubali 2)
+# Quality flags (consensus.quality_flags; calibration in docs/superpowers/
+# plans/2026-09-25-subtitle-quality.md). A file of an English-original film
+# at or above MT_SCORE_MAX on the machine-translation style model is
+# flagged; so is one naming none of the film's cast while another
+# candidate names CAST_MIN_HITS+ of them.
+MT_SCORE_MAX = 0.8
+CAST_MIN_HITS = 2
+# Strong profanity in an English-original fiction film before this year is
+# an anachronism (the audit's pre-1968 canary: every genuine hit was a
+# 1965-67 underground film or a documentary).
+PROFANITY_ANACHRONISM_BEFORE = 1965
+FINGERPRINT_VERSION = 2   # 2: quality features (fp["q"]), OCR repair, credit junk
+# 2: distinct-text voting (Baahubali 2); 3: quality tiers, hard gates;
+# 4: no hard gates, style model for English-original only, relative cast rule;
+# 5: anachronistic profanity; 6: ...also on the chosen file's full counts
+SELECTION_VERSION = 6

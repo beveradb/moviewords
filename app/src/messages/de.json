@@ -360,7 +360,13 @@
     "wordResult": "„{word}“: {count}× in diesem Film · {rate}/1k Wörter · in {films} Filmen gesagt",
     "wordTrendLink": "„{word}“ im Zeitverlauf →",
     "wordsUnavailable": "Die vollständige Wortliste ist für diesen Film nicht verfügbar.",
-    "wordResultOnlyFilm": "„{word}“: {count}× in diesem Film · {rate}/1k Wörter · der einzige Film, in dem es vorkommt"
+    "wordResultOnlyFilm": "„{word}“: {count}× in diesem Film · {rate}/1k Wörter · der einzige Film, in dem es vorkommt",
+    "qualityAsr": "Der einzige Untertitel, den wir für diesen Film haben, ist automatisch generiert, daher könnten einige Wörter falsch verstanden worden sein.",
+    "qualityExcluded": "Seine Wörter werden bei allen Gesamtzahlen, Diagrammen und Rankings auf der Website nicht berücksichtigt.",
+    "qualityHeading": "Untertitelqualität: niedrig",
+    "qualityMachineTranslated": "Der einzige englische Untertitel, den wir für diesen Film haben, wirkt wie maschinell aus einer anderen Sprache übersetzt, daher könnten einige Wörter falsch sein.",
+    "qualityWrongCast": "Der einzige Untertitel, den wir für diesen Film haben, nennt keine Charakternamen, daher könnte er zu einem anderen Film gehören.",
+    "qualityAnachronism": "Der einzige Untertitel, den wir für diesen Film haben, verwendet Wörter, die darin gar nicht gefallen sein können - es handelt sich also wahrscheinlich um eine Neuübersetzung oder einen Hörfehler."
   },
   "themeToggle": {
     "day": "TAG",

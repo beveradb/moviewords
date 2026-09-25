@@ -11,7 +11,9 @@ CACHE=${CACHE:-moviewords-work-cache-2026-09-25.tar.zst}
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -q && apt-get install -y -q git zstd curl unzip
 # Debian's rclone (1.60) makes R2 return 501 for every unchanged file
-minor=$(rclone version 2>/dev/null | sed -n 's/^rclone v1\.\([0-9]*\).*/\1/p')
+# (`|| true`: on a fresh image there is no rclone, and pipefail + set -e
+# would end the script right here, silently)
+minor=$(rclone version 2>/dev/null | sed -n 's/^rclone v1\.\([0-9]*\).*/\1/p' || true)
 if [[ -z "$minor" || "$minor" -lt 65 ]]; then curl -fsS https://rclone.org/install.sh | bash; fi
 command -v /root/.local/bin/uv || curl -LsSf https://astral.sh/uv/install.sh | sh
 UV=/root/.local/bin/uv

@@ -285,7 +285,13 @@
     "imdbPosterTitle": "{title} on IMDb",
     "wordsPerMinuteLabel": "Words per minute",
     "runtimeLabel": "Runtime",
-    "runtimeValue": "{minutes} min"
+    "runtimeValue": "{minutes} min",
+    "qualityHeading": "Subtitle quality: low",
+    "qualityAsr": "The only subtitle we have for this film is auto-generated captions, so some words are misheard.",
+    "qualityMachineTranslated": "The only English subtitle we have for this film looks machine-translated from another language, so some words may be wrong.",
+    "qualityWrongCast": "The only subtitle we have for this film doesn't name its characters, so it may belong to a different film.",
+    "qualityExcluded": "Its words are left out of every total, chart and ranking on the site.",
+    "qualityAnachronism": "The only subtitle we have for this film uses words that couldn't have been said in it, so it's likely a re-translation or a mishearing."
   },
   "leaderboard": {
     "tabs": {

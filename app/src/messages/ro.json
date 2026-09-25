@@ -360,7 +360,13 @@
     "wordResult": "„{word}”: de {count}× în acest film · {rate}/1k cuvinte · rostit în {films} filme",
     "wordTrendLink": "„{word}” de-a lungul timpului →",
     "wordsUnavailable": "Lista completă de cuvinte nu este disponibilă pentru acest film.",
-    "wordResultOnlyFilm": "„{word}”: {count}× în acest film · {rate}/1k cuvinte · singurul film care îl folosește"
+    "wordResultOnlyFilm": "„{word}”: {count}× în acest film · {rate}/1k cuvinte · singurul film care îl folosește",
+    "qualityAsr": "Singura subtitrare pe care o avem pentru acest film este generată automat, așa că unele cuvinte sunt transcrise greșit.",
+    "qualityExcluded": "Cuvintele sale sunt excluse din fiecare total, grafic și clasament de pe site.",
+    "qualityHeading": "Calitatea subtitrării: scăzută",
+    "qualityMachineTranslated": "Singura subtitrare în engleză pe care o avem pentru acest film pare tradusă automat din altă limbă, așa că unele cuvinte ar putea fi greșite.",
+    "qualityWrongCast": "Singura subtitrare pe care o avem pentru acest film nu numește personajele, așa că s-ar putea să aparțină unui alt film.",
+    "qualityAnachronism": "Singura subtitrare pe care o avem pentru acest film folosește cuvinte care nu ar fi putut fi rostite în el, deci este probabil vorba de o retraducere sau de o eroare de ascultare."
   },
   "themeToggle": {
     "day": "ZI",

@@ -360,7 +360,13 @@
     "wordResult": "“{word}”: {count}× i denne film · {rate}/1k ord · sagt i {films} film",
     "wordTrendLink": "“{word}” over tid →",
     "wordsUnavailable": "Den fulde ordliste er ikke tilgængelig for denne film.",
-    "wordResultOnlyFilm": "“{word}”: {count}× i denne film · {rate}/1k ord · den eneste film, der siger det"
+    "wordResultOnlyFilm": "“{word}”: {count}× i denne film · {rate}/1k ord · den eneste film, der siger det",
+    "qualityAsr": "Den eneste undertekst, vi har til denne film, er automatisk genererede tekster, så nogle ord er hørt forkert.",
+    "qualityExcluded": "Dens ord er udeladt fra alle totaler, grafer og ranglister på siden.",
+    "qualityHeading": "Undertekstkvalitet: lav",
+    "qualityMachineTranslated": "Den eneste engelske undertekst, vi har til denne film, ser ud til at være maskinoversat fra et andet sprog, så nogle ord kan være forkerte.",
+    "qualityWrongCast": "Den eneste undertekst, vi har til denne film, angiver ikke karakterernes navne, så den hører måske til en anden film.",
+    "qualityAnachronism": "Den eneste undertekst, vi har til denne film, bruger ord, der ikke kan være blevet sagt i den, så det er sandsynligvis en genoversættelse eller en fejlhøring."
   },
   "themeToggle": {
     "day": "DAG",

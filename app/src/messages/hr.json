@@ -360,7 +360,13 @@
     "wordResult": "“{word}”: {count}× u ovom filmu · {rate}/1k riječi · izgovoreno u {films} filmova",
     "wordTrendLink": "“{word}” kroz vrijeme →",
     "wordsUnavailable": "Cijeli popis riječi nije dostupan za ovaj film.",
-    "wordResultOnlyFilm": "“{word}”: {count}× u ovom filmu · {rate}/1k riječi · jedini film koji ju koristi"
+    "wordResultOnlyFilm": "“{word}”: {count}× u ovom filmu · {rate}/1k riječi · jedini film koji ju koristi",
+    "qualityAsr": "Jedini titl koji imamo za ovaj film je automatski generiran, pa su neke riječi pogrešno prepoznate.",
+    "qualityExcluded": "Njegove riječi izostavljene su iz svakog ukupnog zbroja, grafikona i ljestvice na stranici.",
+    "qualityHeading": "Kvaliteta titla: niska",
+    "qualityMachineTranslated": "Jedini engleski titl koji imamo za ovaj film izgleda strojno preveden s drugog jezika, pa bi neke riječi mogle biti pogrešne.",
+    "qualityWrongCast": "Jedini titl koji imamo za ovaj film ne imenuje likove, pa možda pripada nekom drugom filmu.",
+    "qualityAnachronism": "Jedini titl koji imamo za ovaj film koristi riječi koje u njemu nisu mogle biti izgovorene, pa je vjerojatno riječ o ponovnom prijevodu ili pogrešnom slušanju."
   },
   "themeToggle": {
     "day": "DAN",

@@ -9,9 +9,9 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
 
-from . import config, consensus, opus_zip
+from . import config, consensus, opus_zip, quality
 from .subtitle_parser import extract_text
-from .wordcount import count_words
+from .wordcount import count_words, count_words_repaired
 
 COUNTS_SCHEMA = pa.schema([("imdb_id", pa.string()), ("word", pa.string()),
                            ("count", pa.int32())])
@@ -67,8 +67,16 @@ def in_shard(imdb_id, shard):
     return zlib.crc32(imdb_id.encode()) % n == k
 
 
+def _film_key(film):
+    """A stable, JSON-able summary of the film context a choice was made
+    with: a later credits fetch or language fix must re-choose."""
+    if not film:
+        return None
+    return {k: sorted(v) if k == "cast" else v for k, v in sorted(film.items())}
+
+
 def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
-          workers=1, out_selection=None, shard=None):
+          workers=1, out_selection=None, shard=None, films=None):
     """Choose and count every indexed film, reusing per-film caches.
 
     Each film's sampled candidates are fingerprinted (cached per file) and
@@ -81,7 +89,9 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     what was chosen and why (for review). With `shard` (k, n) only that
     shard's films are counted, into the cache only - run n shards as
     separate processes (parsing is GIL-bound), then once unsharded to write
-    the outputs from the warm cache."""
+    the outputs from the warm cache. `films` maps imdb_id to the film
+    context the quality flags need (see load_films)."""
+    films = films or {}
     if shard:
         index_rows = [row for row in index_rows if in_shard(row[0], shard)]
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -93,7 +103,8 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
         # corrected runtime (a later curate) re-chooses too
         if (record and record["selection"].get("candidates") == names
                 and record.get("selection_version") == config.SELECTION_VERSION
-                and record["selection"].get("runtime_minutes") == runtimes.get(imdb_id)):
+                and record["selection"].get("runtime_minutes") == runtimes.get(imdb_id)
+                and record["selection"].get("film") == _film_key(films.get(imdb_id))):
             records[imdb_id] = record
         else:
             todo.append((imdb_id, names, record))
@@ -126,9 +137,12 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                         # fail the film (uncached, retried next run) rather
                         # than choose without it
                         return None
-                    full[name] = count_words(extract_text(raw))
+                    text = extract_text(raw)
+                    full[name], repaired = count_words_repaired(text)
                     fps[name] = consensus.fingerprint(full[name], len(raw))
-                chosen, info = consensus.choose([(n, fps[n]) for n in names], runtime)
+                    fps[name]["q"] = quality.features(raw, text, full[name], repaired)
+                film = films.get(imdb_id)
+                chosen, info = consensus.choose([(n, fps[n]) for n in names], runtime, film)
                 if chosen is None:
                     return None
                 if chosen in full:
@@ -140,6 +154,7 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                     if raw is None:
                         return None
                     counts = count_words(extract_text(raw))
+                info = consensus.check_chosen_counts(info, counts, film)
                 total = sum(counts.values())
                 record = {"imdb_id": imdb_id, "zip_name": chosen, "counts": counts,
                           "total_words": total, "unique_words": len(counts),
@@ -148,7 +163,8 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                           "selection_version": config.SELECTION_VERSION,
                           "fingerprints": fps,
                           "selection": info | {"rank_top": names[0], "candidates": names,
-                                               "runtime_minutes": runtime}}
+                                               "runtime_minutes": runtime,
+                                               "film": _film_key(film)}}
                 _write_cache(cache_dir, imdb_id, record)
                 return record
 
@@ -200,11 +216,39 @@ def _write_selection(records, out):
         "rank_top": [s["rank_top"] for s in sel],
         "reason": [s["reason"] for s in sel],
         "candidates": pa.array([len(s["candidates"]) for s in sel], pa.int32()),
-        "usable": pa.array([s["usable"] for s in sel], pa.int32()),
-        "cluster": pa.array([s["cluster"] for s in sel], pa.int32()),
-        "relaxed": [s["relaxed"] for s in sel],
+        "usable": pa.array([s.get("usable", 0) for s in sel], pa.int32()),
+        "cluster": pa.array([s.get("cluster", 0) for s in sel], pa.int32()),
+        "relaxed": [s.get("relaxed", False) for s in sel],
         "rejected": [json.dumps(s["rejected"]) for s in sel],
+        "tier": [s.get("tier", "ok") for s in sel],
+        "flags": [json.dumps(s.get("flags", [])) for s in sel],
+        "flagged": [json.dumps(s.get("flagged", {})) for s in sel],
     }), out)
+
+
+def load_films(imdb_ids, work_dir=None, curated=None):
+    """{imdb_id: film context for consensus.quality_flags} - whether the
+    film is English-original (the tmdb stage's cache), its year and whether
+    it's a documentary (`curated`: {imdb_id: (year, genres)}), and its TMDB
+    cast (the credits stage's cache, for the wrong-film check)."""
+    work_dir = work_dir or config.WORK_DIR
+    curated = curated or {}
+    out = {}
+    for imdb_id in imdb_ids:
+        film = {}
+        if imdb_id in curated:
+            year, genres = curated[imdb_id]
+            film["year"] = year
+            film["documentary"] = "Documentary" in (genres or [])
+        tmdb = work_dir / "tmdb" / f"{imdb_id}.json"
+        if tmdb.exists():
+            film["english"] = (json.loads(tmdb.read_text()) or {}).get("original_language") == "en"
+        credits = work_dir / "tmdb_credits" / f"{imdb_id}.json"
+        if credits.exists():
+            film["cast"] = quality.cast_tokens(json.loads(credits.read_text()))
+        if film:
+            out[imdb_id] = film
+    return out
 
 
 def run(workers=1, shard=None):
@@ -212,14 +256,17 @@ def run(workers=1, shard=None):
         f"SELECT imdb_id, zip_name, candidates "
         f"FROM '{config.WORK_DIR / 'corpus_index.parquet'}'"
     ).fetchall()
-    runtimes = dict(duckdb.sql(
-        f"SELECT imdb_id, runtime_minutes FROM '{config.WORK_DIR / 'curated.parquet'}'"
-    ).fetchall())
+    curated = duckdb.sql(
+        f"SELECT imdb_id, runtime_minutes, year, genres FROM '{config.WORK_DIR / 'curated.parquet'}'"
+    ).fetchall()
+    runtimes = {i: r for i, r, _, _ in curated}
     report = build(config.RAW_DIR / "opus_en.zip", index_rows,
                    config.WORK_DIR / "counts" / config.LANG,
                    config.WORK_DIR / "word_counts.parquet",
                    config.WORK_DIR / "movie_stats.parquet", runtimes,
                    workers=workers,
                    out_selection=config.WORK_DIR / "selection.parquet",
-                   shard=shard)
+                   shard=shard,
+                   films=load_films([row[0] for row in index_rows],
+                                    curated={i: (y, g) for i, _, y, g in curated}))
     print(f"count stage: {report}")

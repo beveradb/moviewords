@@ -360,7 +360,13 @@
     "wordResult": "“{word}”: {count}× di film ini · {rate}/1rb kata · diucapkan di {films} film",
     "wordTrendLink": "“{word}” dari waktu ke waktu →",
     "wordsUnavailable": "Daftar kata lengkap tidak tersedia untuk film ini.",
-    "wordResultOnlyFilm": "“{word}”: {count}× di film ini · {rate}/1k kata · satu-satunya film yang mengucapkannya"
+    "wordResultOnlyFilm": "“{word}”: {count}× di film ini · {rate}/1k kata · satu-satunya film yang mengucapkannya",
+    "qualityAsr": "Satu-satunya subtitle yang kami miliki untuk film ini adalah teks otomatis, jadi beberapa kata mungkin salah dengar.",
+    "qualityExcluded": "Kata-katanya dikecualikan dari semua total, grafik, dan peringkat di situs ini.",
+    "qualityHeading": "Kualitas subtitle: rendah",
+    "qualityMachineTranslated": "Satu-satunya subtitle bahasa Inggris yang kami miliki untuk film ini sepertinya diterjemahkan oleh mesin dari bahasa lain, jadi beberapa kata mungkin salah.",
+    "qualityWrongCast": "Satu-satunya subtitle yang kami miliki untuk film ini tidak menyebutkan nama karakternya, jadi mungkin subtitle ini milik film yang berbeda.",
+    "qualityAnachronism": "Satu-satunya subtitle yang kami punya untuk film ini menggunakan kata-kata yang tidak mungkin diucapkan di dalamnya, jadi kemungkinan ini adalah hasil terjemahan ulang atau salah dengar."
   },
   "themeToggle": {
     "day": "SIANG",

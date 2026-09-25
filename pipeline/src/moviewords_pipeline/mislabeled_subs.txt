@@ -65,3 +65,13 @@ tt8361196 OpenSubtitles/raw/en/2019/8361196/1956325138.xml unidentified film (ra
 tt8361196 OpenSubtitles/raw/en/2019/8361196/1956347816.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
 tt8361196 OpenSubtitles/raw/en/2019/8361196/1956403171.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
 tt8361196 OpenSubtitles/raw/en/2019/8361196/1956425251.xml unidentified film (rahul/siya/kabir) sub filed under Vinaya Vidheya Rama
+# 2026-09-25 subtitle-quality review: single-file folders holding another
+# film (named none of the TMDB cast; read by eye). The films drop out until
+# a genuine upload appears.
+tt0059694 OpenSubtitles/raw/en/1965/59694/1953625465.xml The Secret of My Success 1987 (Brantley, Whitfield) filed under the 1965 film
+tt0068838 OpenSubtitles/raw/en/1972/68838/1958343880.xml a modern drama (Eric, mom) filed under The Legend of Nigger Charley 1972
+# two identical uploads of a modern film (stella, monique) outvote the one
+# genuine file (audrey, gambler, sacramento); they share a generic cast word
+# ("happy") with the credits, so the cast check can't see it
+tt0038680 OpenSubtitles/raw/en/1946/38680/1956693050.xml modern film filed under Lady Luck 1946
+tt0038680 OpenSubtitles/raw/en/1946/38680/1956693051.xml modern film filed under Lady Luck 1946 (copy)

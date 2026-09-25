@@ -53,3 +53,32 @@ def test_single_letter_noise_dropped_but_a_and_i_kept():
 def test_doubled_apostrophes_collapse():
     assert tokenize("don" + "''" + "t stop") == ["don't", "stop"]
     assert tokenize("he" + "''''" + "s here") == ["he's", "here"]
+
+
+OCR_TEXT = ("l'm sure lt's fine. lf you say so, l'll go. l'm tired.\n"
+            "i'ii iike it aii, you'ii see. lt is on the lsland.\n")
+
+
+def test_count_words_repairs_ocr_confusions_in_an_ocr_damaged_file():
+    counts = count_words(OCR_TEXT)
+    for fixed in ["i'm", "it's", "if", "i'll", "like", "all", "you'll", "it", "island"]:
+        assert counts[fixed] > 0, fixed
+    for junk in ["l'm", "lt's", "lf", "l'll", "i'ii", "iike", "aii", "you'ii", "lt", "lsland"]:
+        assert junk not in counts, junk
+    assert counts["i'm"] == 2
+
+
+def test_ocr_repair_leaves_names_and_real_words_alone():
+    counts = count_words(OCR_TEXT + "lan and lra met lucy in hawaii. ill will.")
+    for kept in ["lan", "lra", "lucy", "hawaii", "ill", "will"]:
+        assert counts[kept] == 1, kept
+
+
+def test_ocr_repair_needs_several_unambiguous_markers():
+    # one stray "lt" (a lieutenant) in an otherwise clean file is left alone
+    counts = count_words("Lt Dan is here. I'm fine, it's ok.")
+    assert counts["lt"] == 1 and counts["it"] == 0
+
+
+def test_ocr_repair_leaves_roman_numerals():
+    assert count_words(OCR_TEXT + " Richard lll and Henry iii")["lll"] == 1

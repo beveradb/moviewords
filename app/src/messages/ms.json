@@ -360,7 +360,13 @@
     "wordResult": "“{word}”: {count}× dalam filem ini · {rate}/1k perkataan · disebut dalam {films} filem",
     "wordTrendLink": "“{word}” dari semasa ke semasa →",
     "wordsUnavailable": "Senarai perkataan penuh tidak tersedia untuk filem ini.",
-    "wordResultOnlyFilm": "“{word}”: {count}× dalam filem ini · {rate}/1k perkataan · satu-satunya filem yang menyebutnya"
+    "wordResultOnlyFilm": "“{word}”: {count}× dalam filem ini · {rate}/1k perkataan · satu-satunya filem yang menyebutnya",
+    "qualityAsr": "Satu-satunya sari kata yang kami ada untuk filem ini ialah kapsyen janaan automatik, jadi terdapat perkataan yang salah didengar.",
+    "qualityExcluded": "Perkataannya dikecualikan daripada setiap jumlah, carta dan kedudukan di tapak web ini.",
+    "qualityHeading": "Kualiti sari kata: rendah",
+    "qualityMachineTranslated": "Satu-satunya sari kata bahasa Inggeris yang kami ada untuk filem ini kelihatan seperti diterjemahkan oleh mesin dari bahasa lain, jadi beberapa perkataan mungkin salah.",
+    "qualityWrongCast": "Satu-satunya sari kata yang kami ada untuk filem ini tidak menamakan wataknya, jadi ia mungkin milik filem yang berbeza.",
+    "qualityAnachronism": "Satu-satunya sari kata yang kami ada untuk filem ini menggunakan perkataan yang tidak mungkin diucapkan di dalamnya, jadi ia mungkin merupakan terjemahan semula atau salah dengar."
   },
   "themeToggle": {
     "day": "SIANG",

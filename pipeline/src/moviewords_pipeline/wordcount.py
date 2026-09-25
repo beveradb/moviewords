@@ -1,6 +1,9 @@
 import re
 import unicodedata
 from collections import Counter
+from functools import lru_cache
+
+import wordfreq
 
 # Hyphenated words are deliberately split into separate tokens (e.g. "well-known" ->
 # ["well", "known"]) since hyphens aren't part of this character class; this is intentional
@@ -52,5 +55,62 @@ def tokenize(text):
     return tokens
 
 
+# OCR-ripped subtitles (read from DVD bitmaps) confuse I/l and ll/ii:
+# "l'm", "lt's", "lf", "i'ii", "aii", "iike". In an OCR-damaged file these
+# are thousands of junk tokens standing in for the commonest words. A file
+# counts as OCR-damaged when it has several tokens that are unambiguous
+# confusions; only then is each rare token swapped for a confusion variant
+# that is a far commoner word (so names like Lan/Ian, Lra/Ira survive).
+OCR_MARKERS = frozenset(
+    "l'm l'll l've l'd lt's i'ii you'ii we'ii they'ii he'ii she'ii it'ii "
+    "that'ii".split())
+MIN_OCR_MARKERS = 3
+OCR_MIN_ZIPF = 3.0
+OCR_MIN_ZIPF_GAIN = 2.0
+
+
+def _zipf(word):
+    # wordfreq scores "i'ii" as the words "i" + "ii": a token it splits is
+    # not a word it knows
+    if len(wordfreq.tokenize(word, "en")) != 1:
+        return 0.0
+    return wordfreq.zipf_frequency(word, "en")
+
+
+@lru_cache(maxsize=200_000)
+def ocr_repair(tok):
+    """The word an OCR-confused token stands for, or the token itself."""
+    if not tok.strip("il"):
+        return tok   # "lll", "iii": Roman numerals as often as not
+    variants = set()
+    if "ii" in tok:
+        variants.add(tok.replace("ii", "ll"))
+    for t in [tok, *variants]:
+        if t[0] == "l":
+            variants.add("i" + t[1:])
+        elif t[0] == "i" and len(t) > 1:
+            variants.add("l" + t[1:])
+    if not variants:
+        return tok
+    best = max(sorted(variants), key=_zipf)
+    z = _zipf(best)
+    if z >= OCR_MIN_ZIPF and z - _zipf(tok) >= OCR_MIN_ZIPF_GAIN:
+        return best
+    return tok
+
+
+def count_words_repaired(text):
+    """(word counts, how many tokens were OCR-repaired)."""
+    counts = Counter(tokenize(text))
+    if sum(counts[m] for m in OCR_MARKERS) < MIN_OCR_MARKERS:
+        return counts, 0
+    repaired, n_repaired = Counter(), 0
+    for tok, n in counts.items():
+        fixed = ocr_repair(tok)
+        repaired[fixed] += n
+        n_repaired += n if fixed != tok else 0
+    return repaired, n_repaired
+
+
 def count_words(text):
-    return Counter(tokenize(text))
+    return count_words_repaired(text)[0]

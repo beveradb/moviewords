@@ -13,7 +13,7 @@ consensus-selection.md for the study and calibration behind the thresholds.
 import math
 import statistics
 
-from . import config
+from . import config, quality
 from .derive import load_stopwords
 
 STOPWORDS = load_stopwords()
@@ -63,13 +63,69 @@ def cosine(a, b):
     return dot / (na * nb) if na and nb else 0.0
 
 
-def choose(candidates, runtime_minutes):
+def quality_flags(pool, film=None):
+    """{zip_name: [flags]} for (zip_name, fingerprint) pairs: "asr"
+    (auto-captions), "machine-translated" (OPUS's flag; for English-original
+    films also the style model - on translated films it can't tell machine
+    output from human translationese), "wrong-cast" (names none of the
+    film's characters while another file names several), "anachronism"
+    (strong profanity in a pre-1965 English-original fiction film - the
+    Production Code era: such a file is a re-translation, auto-captions or
+    a transcriber's guess). `film` is {"english": bool, "year": int,
+    "documentary": bool, "cast": name tokens or None} or None (unknown)."""
+    film = film or {}
+    flags = {name: [] for name, _ in pool}
+    for name, fp in pool:
+        q = fp.get("q")
+        if not q:
+            continue   # fingerprint from before quality features
+        if quality.is_asr(q):
+            flags[name].append("asr")
+        score = quality.mt_score(q, fp["tokens"]) if film.get("english") else None
+        if q["mt"] == 1 or (score is not None and score >= config.MT_SCORE_MAX):
+            flags[name].append("machine-translated")
+        if profanity_is_anachronism(film) and quality.strong_profanity(q.get("profanity", {})):
+            flags[name].append("anachronism")
+    if film.get("cast"):
+        hits = {name: quality.cast_hits(fp, film["cast"]) for name, fp in pool}
+        if max(hits.values()) >= config.CAST_MIN_HITS:
+            for name, n in hits.items():
+                if not n:
+                    flags[name].append("wrong-cast")
+    return flags
+
+
+def profanity_is_anachronism(film):
+    """Whether strong profanity can't be genuine in this film: English-
+    original fiction from before PROFANITY_ANACHRONISM_BEFORE."""
+    return bool(film.get("english") and not film.get("documentary")
+                and (film.get("year") or 9999) < config.PROFANITY_ANACHRONISM_BEFORE)
+
+
+def check_chosen_counts(info, counts, film=None):
+    """Film-level flags from the chosen file's full word counts: the
+    fingerprint's profanity counts cover only the published profanity list,
+    so "fucked", "fuckin" etc. are caught here (the film goes to tier low;
+    other candidates can't be weighed without their full counts)."""
+    if (profanity_is_anachronism(film or {}) and "anachronism" not in info["flags"]
+            and quality.strong_profanity(counts)):
+        info["flags"] = [*info["flags"], "anachronism"]
+        info["tier"] = "low"
+    return info
+
+
+def choose(candidates, runtime_minutes, film=None):
     """(zip_name, info) for the best of `candidates`, a best-rank-first list
     of (zip_name, fingerprint); (None, {"reason": "none"}) if nothing parses.
+    `film`: see quality_flags.
 
     info: reason (consensus | rank | single | doubled), cluster size, usable
-    count, relaxed (every file failed a gate, so gates were dropped), and
-    rejected {zip_name: gate}."""
+    count, relaxed (every file failed a gate, so gates were dropped - e.g.
+    musicals are sparse, near-wordless films tiny, and documentaries about
+    film-making read as commentary), rejected {zip_name: gate}, tier ("ok",
+    or "low" when every usable file has quality flags and the least bad was
+    kept), flags (the chosen file's quality flags) and flagged {zip_name:
+    flags} for files passed over."""
     rejected = {name: g for name, fp in candidates if (g := gate(fp))}
     usable = [(n, fp) for n, fp in candidates if n not in rejected]
     relaxed = False
@@ -78,8 +134,23 @@ def choose(candidates, runtime_minutes):
         relaxed = True
     if not usable:
         return None, {"reason": "none"}
-    info = {"usable": len(usable), "relaxed": relaxed, "rejected": rejected}
+    flags = quality_flags(usable, film)
+    clean = [(n, fp) for n, fp in usable if not flags[n]]
+    tier = "ok"
+    if clean:
+        usable = clean
+    else:
+        tier = "low"
+    info = {"usable": len(usable), "relaxed": relaxed, "rejected": rejected,
+            "tier": tier, "flagged": {n: f for n, f in flags.items() if f}}
+    name, info = _consensus(usable, runtime_minutes, info)
+    info["flags"] = flags[name]
+    if tier == "ok":
+        info["flagged"] = {n: f for n, f in info["flagged"].items() if n != name}
+    return name, info
 
+
+def _consensus(usable, runtime_minutes, info):
     if len(usable) == 1:
         return usable[0][0], info | {"reason": "single", "cluster": 1}
 

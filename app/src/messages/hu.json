@@ -360,7 +360,13 @@
     "wordResult": "„{word}”: {count}× ebben a filmben · {rate}/1000 szó · {films} filmben hangzik el",
     "wordTrendLink": "„{word}” az idő múlásával →",
     "wordsUnavailable": "A teljes szólista nem érhető el ehhez a filmhez.",
-    "wordResultOnlyFilm": "„{word}”: {count}× ebben a filmben · {rate}/1k szó · az egyetlen film, amelyben elhangzik"
+    "wordResultOnlyFilm": "„{word}”: {count}× ebben a filmben · {rate}/1k szó · az egyetlen film, amelyben elhangzik",
+    "qualityAsr": "Az egyetlen feliratunk ehhez a filmhez automatikusan generált, így néhány szót félrehallhattak.",
+    "qualityExcluded": "A szavait kihagytuk az oldal minden összesítéséből, grafikonjából és rangsorából.",
+    "qualityHeading": "Felirat minősége: alacsony",
+    "qualityMachineTranslated": "Az egyetlen angol feliratunk ehhez a filmhez úgy tűnik, gépi fordítással készült egy másik nyelvből, így néhány szó hibás lehet.",
+    "qualityWrongCast": "Az egyetlen feliratunk ehhez a filmhez nem nevezi meg a karaktereket, így lehet, hogy egy másik filmhez tartozik.",
+    "qualityAnachronism": "Az egyetlen feliratunk ehhez a filmhez olyan szavakat használ, amik el sem hangozhattak benne, így valószínűleg újrafordításról vagy félrehallásról van szó."
   },
   "themeToggle": {
     "day": "NAPPAL",

@@ -360,7 +360,13 @@
     "wordResult": "“{word}”: {count}× trong phim này · {rate}/1k từ · được nói trong {films} phim",
     "wordTrendLink": "“{word}” theo thời gian →",
     "wordsUnavailable": "Danh sách từ đầy đủ không có sẵn cho phim này.",
-    "wordResultOnlyFilm": "“{word}”: {count}× trong phim này · {rate}/1k từ · bộ phim duy nhất nói từ này"
+    "wordResultOnlyFilm": "“{word}”: {count}× trong phim này · {rate}/1k từ · bộ phim duy nhất nói từ này",
+    "qualityAsr": "Phụ đề duy nhất chúng tôi có cho bộ phim này là phụ đề được tạo tự động, vì vậy một số từ có thể bị nghe nhầm.",
+    "qualityExcluded": "Các từ trong phim này được loại ra khỏi mọi tổng số, biểu đồ và bảng xếp hạng trên trang web.",
+    "qualityHeading": "Chất lượng phụ đề: thấp",
+    "qualityMachineTranslated": "Phụ đề tiếng Anh duy nhất chúng tôi có cho bộ phim này có vẻ như được dịch tự động từ một ngôn ngữ khác, vì vậy một số từ có thể bị sai.",
+    "qualityWrongCast": "Phụ đề duy nhất chúng tôi có cho bộ phim này không nêu tên các nhân vật, vì vậy nó có thể thuộc về một bộ phim khác.",
+    "qualityAnachronism": "Bản phụ đề duy nhất mà chúng tôi có cho phim này dùng những từ không thể nào xuất hiện trong đó, nên rất có thể đây là một bản dịch lại hoặc do nghe nhầm."
   },
   "themeToggle": {
     "day": "NGÀY",

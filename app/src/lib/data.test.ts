@@ -48,3 +48,25 @@ describe('getMovieBlurb', () => {
     expect(await data.getMovieBlurb('tt3')).toBeNull()
   })
 })
+
+describe('getFilteredMovieIndex', () => {
+  const idx = [
+    { id: 'tt1', title: 'A', year: 1990, rating: 7, votes: 9, total_words: 1, unique_words: 1, genres: [], lang: 'en' },
+    { id: 'tt2', title: 'B', year: 1931, rating: 6, votes: 5, total_words: 1, unique_words: 1, genres: [], lang: 'en', q: 'low' },
+    { id: 'tt3', title: 'C', year: 2001, rating: 8, votes: 7, total_words: 1, unique_words: 1, genres: [], lang: 'fr' },
+  ]
+
+  it('leaves out low-subtitle-quality films, which count toward nothing', async () => {
+    const data = await withLangs([])
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(idx)))
+    expect((await data.getFilteredMovieIndex()).map((m) => m.id)).toEqual(['tt1', 'tt3'])
+    // the full index (search, film pages) still has them
+    expect((await data.getMovieIndex()).map((m) => m.id)).toEqual(['tt1', 'tt2', 'tt3'])
+  })
+
+  it('applies the language selection on top', async () => {
+    const data = await withLangs(['en'])
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify(idx)))
+    expect((await data.getFilteredMovieIndex()).map((m) => m.id)).toEqual(['tt1'])
+  })
+})
