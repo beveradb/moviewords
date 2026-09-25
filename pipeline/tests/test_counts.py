@@ -364,3 +364,21 @@ def test_shards_partition_the_films_and_only_fill_the_cache(tmp_path):
     assert not args[1].exists()
     assert build(zip_path, INDEX, *args, RUNTIMES) == {"processed": 0, "skipped": 2, "failed": 0}
     assert args[1].exists()
+
+
+def test_changed_runtime_rechooses_without_refetching(tmp_path, monkeypatch):
+    """runtime drives the doubled-file guard and words_per_minute: a corrected
+    runtime from a later curate must re-choose (from cached fingerprints)."""
+    from moviewords_pipeline import counts
+    line = "we must fight for the land our fathers gave us"
+    zip_path = _zip(tmp_path, {TOP: [line] * 3000, ALT1: [line] * 1500})
+    rows = [_row("tt0036777", TOP, ALT1)]
+    _build(tmp_path, zip_path, rows, {})                       # runtime unknown
+    assert _record(tmp_path, "tt0036777")["zip_name"] == TOP
+    reads = []
+    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
+    assert _build(tmp_path, zip_path, rows, {"tt0036777": 100})["processed"] == 1
+    record = _record(tmp_path, "tt0036777")
+    assert record["zip_name"] == ALT1 and record["words_per_minute"] == 150
+    assert reads == [ALT1]          # only the newly chosen file's full counts
+    assert _build(tmp_path, zip_path, rows, {"tt0036777": 100})["skipped"] == 1

@@ -89,8 +89,11 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     for row in index_rows:
         imdb_id, names = row[0], _candidate_names(row)
         record = _load(cache_dir, imdb_id)
+        # runtime feeds the doubled-file guard and words_per_minute, so a
+        # corrected runtime (a later curate) re-chooses too
         if (record and record["selection"].get("candidates") == names
-                and record.get("selection_version") == config.SELECTION_VERSION):
+                and record.get("selection_version") == config.SELECTION_VERSION
+                and record["selection"].get("runtime_minutes") == runtimes.get(imdb_id)):
             records[imdb_id] = record
         else:
             todo.append((imdb_id, names, record))
@@ -144,7 +147,8 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                           "version": config.FINGERPRINT_VERSION,
                           "selection_version": config.SELECTION_VERSION,
                           "fingerprints": fps,
-                          "selection": info | {"rank_top": names[0], "candidates": names}}
+                          "selection": info | {"rank_top": names[0], "candidates": names,
+                                               "runtime_minutes": runtime}}
                 _write_cache(cache_dir, imdb_id, record)
                 return record
 
