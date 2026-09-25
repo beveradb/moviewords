@@ -93,12 +93,17 @@ cd /opt/moviewords/pipeline
 /root/.local/bin/uv run python -m moviewords_pipeline.cli index
 # count: a full recount (FINGERPRINT_VERSION bump) reads ~242k files - run
 # 8 shards in parallel, then once unsharded to write the outputs (~25 min
-# total with the zip local; a SELECTION_VERSION bump re-chooses in ~2 min)
+# total with the zip local, ~40 with v2's quality features; a
+# SELECTION_VERSION bump re-chooses in ~2 min - scripts/vm/rechoose.sh).
+# count reads work/tmdb (English-original?) and work/tmdb_credits (cast
+# names) for the quality flags - run enrich + credits first when films are new
 for k in 0 1 2 3 4 5 6 7; do
   nohup /root/.local/bin/uv run python -u -m moviewords_pipeline.cli count --workers 2 --shard $k/8 > /opt/count.$k.log 2>&1 &
 done   # poll until all 8 logs end with a "count stage: {...}" summary
 /root/.local/bin/uv run python -m moviewords_pipeline.cli count --workers 8
 TMDB_API_KEY=... /root/.local/bin/uv run python -m moviewords_pipeline.cli enrich
+TMDB_API_KEY=... /root/.local/bin/uv run python -m moviewords_pipeline.cli credits   # ~35 min for 64k films; 1 req/film
+/root/.local/bin/uv run python scripts/audit_quality.py --out /opt/audit.json   # the quality canaries
 /root/.local/bin/uv run python scripts/scan_mislabels.py --adjudicate   # after any scope change
 /root/.local/bin/uv run python -m moviewords_pipeline.cli derive --corpus en
 /root/.local/bin/uv run python -m moviewords_pipeline.cli derive --corpus all
@@ -131,10 +136,20 @@ Gotchas that bit previous sessions (details in
   disk-bound (~1 MB/s), so avoid needless re-checks.
 - Run long stages under `nohup ... & ` with `/opt/*_DONE` marker files and
   poll - SSH sessions drop.
+- (2026-09-25) `bootstrap.sh` exited silently on a fresh image: with
+  `set -euo pipefail`, probing `rclone version` before rclone is installed
+  fails the script (now `|| true`). The `/tmp/mw_r2.env` it sources must
+  `export` its variables, or rclone never sees the `r2` remote.
+- (2026-09-25) The machine's default gcloud account may not be the
+  nomadkaraoke one: pass `--account=` explicitly to every gcloud command
+  rather than switching the global config.
+- (2026-09-25) `archive.sh` needs an explicit `NAME`: the date-only name in
+  the recipe below would overwrite that day's earlier archive.
 
 ## Refreshing the archive after new pipeline work
 
-After any run that grows the caches, re-archive before deleting the VM:
+After any run that grows the caches, re-archive before deleting the VM
+(`pipeline/scripts/vm/archive.sh` scripts this, with an explicit name):
 
 ```bash
 cd /opt/moviewords/data

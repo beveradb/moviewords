@@ -20,6 +20,12 @@ Base URL: `https://data.moviewords.org`
 | [`word_year.parquet`](https://data.moviewords.org/word_year.parquet) | 6 MB | `(word, year, count, movie_count)` for trends |
 | [`word_meta.parquet`](https://data.moviewords.org/word_meta.parquet) | 3.5 MB | per-word commonness (zipf), part of speech, distinctiveness |
 
+About 0.8% of films (mostly 1930s-60s English-original films whose only
+subtitle is machine-translated or auto-captioned) are left out of these files
+so their words can't skew the numbers; they're in `movies_flagged.parquet` and
+`words_by_movie_flagged/data.parquet` (same schemas, plus `quality` and
+`quality_flags`).
+
 The two big files are sorted copies of the same rows: use `words_by_movie` when
 you're starting from a film, `words_by_word` when you're starting from a word -
 Parquet row-group pruning makes queries against the matching sort order fast
