@@ -29,7 +29,16 @@ export interface MovieIndexEntry {
   genres: string[]
   /** ISO 639-1 original language - present in indexes built after 2026-09-14 */
   lang?: string
+  /** "low": the film's only subtitle is low quality (machine-translated,
+   * auto-captions, possibly another film). Searchable and has a page, but
+   * is in no total, chart or ranking - skip it when counting films. */
+  q?: 'low'
 }
+
+/** Whether an index entry counts toward the corpus (totals, charts, lists). */
+export const inCorpus = (m: MovieIndexEntry) => !m.q
+
+export type QualityFlag = 'asr' | 'machine-translated' | 'wrong-cast'
 
 export interface MovieDetail {
   imdb_id: string
@@ -40,6 +49,8 @@ export interface MovieDetail {
   top: [string, number][]
   top_all: [string, number][]
   distinctive: [string, number][]
+  /** Present only for films left out of the aggregates (see MovieIndexEntry.q). */
+  quality?: { tier: 'low'; flags: QualityFlag[] }
 }
 
 export interface MovieBlurb {
@@ -197,9 +208,10 @@ export function getMovieWords(id: string): Promise<MovieWords | null> {
   return wordsCache.get(url) as Promise<MovieWords | null>
 }
 
-/** The movie index filtered to the active language selection (empty = all). */
+/** The corpus's films (no low-quality entries - see inCorpus), filtered to
+ * the active language selection (empty = all). */
 export async function getFilteredMovieIndex(): Promise<MovieIndexEntry[]> {
-  const [idx, langs] = [await getMovieIndex(), activeLanguages()]
+  const [idx, langs] = [(await getMovieIndex()).filter(inCorpus), activeLanguages()]
   if (langs.length === 0) return idx
   const set = new Set(langs.includes('zh') ? [...langs, 'cn'] : langs)
   return idx.filter((m) => m.lang != null && set.has(m.lang))

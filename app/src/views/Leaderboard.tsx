@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FilmsBoard, OverviewBoard, ShiftsBoard, UbiquityBoard, WondersBoard } from '../components/boards'
-import { getFilteredMovieIndex, getLeaderboard, getMovieIndex, getWordlists } from '../lib/data'
+import { getFilteredMovieIndex, getLeaderboard, getMovieIndex, getWordlists, inCorpus } from '../lib/data'
 import { langFilterSql, lit, pq, q } from '../lib/duck'
 import { activeLanguages, languageName } from '../lib/languages'
 import { navigate, useRoute } from '../lib/route'
@@ -115,7 +115,7 @@ function WordsBoard() {
   useEffect(() => {
     getWordlists().then((w) => setStop(new Set(w.stopwords))).catch(() => {})
     getMovieIndex()
-      .then((idx) => setGenres([...new Set(idx.flatMap((m) => m.genres))].sort()))
+      .then((idx) => setGenres([...new Set(idx.filter(inCorpus).flatMap((m) => m.genres))].sort()))
       .catch(() => {})
   }, [])
 

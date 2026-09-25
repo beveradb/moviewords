@@ -360,7 +360,12 @@
     "wordResult": "”{word}”: {count}× tässä elokuvassa · {rate} / 1000 sanaa · sanotaan {films} elokuvassa",
     "wordTrendLink": "”{word}” ajan myötä →",
     "wordsUnavailable": "Koko sanaluettelo ei ole saatavilla tälle elokuvalle.",
-    "wordResultOnlyFilm": "”{word}”: {count}× tässä elokuvassa · {rate}/1k sanaa · ainoa elokuva, jossa se sanotaan"
+    "wordResultOnlyFilm": "”{word}”: {count}× tässä elokuvassa · {rate}/1k sanaa · ainoa elokuva, jossa se sanotaan",
+    "qualityAsr": "Ainoa tekstityksemme tälle elokuvalle on automaattisesti luotu, joten osa sanoista on kuultu väärin.",
+    "qualityExcluded": "Sen sanat on jätetty pois sivuston kaikista kokonaismääristä, kaavioista ja sijoituksista.",
+    "qualityHeading": "Tekstityksen laatu: heikko",
+    "qualityMachineTranslated": "Ainoa englanninkielinen tekstityksemme tälle elokuvalle vaikuttaa konekäännetyltä toisesta kielestä, joten osa sanoista voi olla väärin.",
+    "qualityWrongCast": "Ainoa tekstityksemme tälle elokuvalle ei nimeä sen hahmoja, joten se saattaa kuulua toiseen elokuvaan."
   },
   "themeToggle": {
     "day": "PÄIVÄ",

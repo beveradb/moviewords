@@ -360,7 +360,12 @@
     "wordResult": "“{word}”: {count}× neste filme · {rate}/1k palavras · dita em {films} filmes",
     "wordTrendLink": "“{word}” ao longo do tempo →",
     "wordsUnavailable": "A lista completa de palavras não está disponível para este filme.",
-    "wordResultOnlyFilm": "“{word}”: {count}× neste filme · {rate}/1k palavras · o único filme que diz isso"
+    "wordResultOnlyFilm": "“{word}”: {count}× neste filme · {rate}/1k palavras · o único filme que diz isso",
+    "qualityAsr": "A única legenda que temos para este filme foi gerada automaticamente, então algumas palavras foram mal compreendidas.",
+    "qualityExcluded": "Suas palavras ficam de fora de todos os totais, gráficos e rankings do site.",
+    "qualityHeading": "Qualidade da legenda: baixa",
+    "qualityMachineTranslated": "A única legenda em inglês que temos para este filme parece ter sido traduzida automaticamente de outro idioma, então algumas palavras podem estar erradas.",
+    "qualityWrongCast": "A única legenda que temos para este filme não nomeia seus personagens, então ela pode pertencer a um filme diferente."
   },
   "themeToggle": {
     "day": "DIA",

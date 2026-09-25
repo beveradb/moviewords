@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { MovieBlurb, MovieDetail, MovieIndexEntry } from '../lib/data'
+import type { MovieBlurb, MovieDetail, MovieIndexEntry, QualityFlag } from '../lib/data'
 import { getMovie, getMovieBlurb, getMovieIndex } from '../lib/data'
 import { navigate, useRoute } from '../lib/route'
 import { ErrorBox, HighlightWord, LangBadge, Poster, Slug, Spinner } from '../components/ui'
@@ -21,6 +21,28 @@ function Stat({ label, value, href }: { label: string; value: string; href?: str
     </a>
   ) : (
     <div className={cls}>{inner}</div>
+  )
+}
+
+const QUALITY_KEYS: Record<QualityFlag, string> = {
+  asr: 'movie.qualityAsr',
+  'machine-translated': 'movie.qualityMachineTranslated',
+  'wrong-cast': 'movie.qualityWrongCast',
+}
+
+/** Why a film's numbers are left out of the site's aggregates. */
+function QualityNote({ flags }: { flags: QualityFlag[] }) {
+  const { t } = useI18n()
+  return (
+    <div role="note" className="mt-5 border-2 border-s2 bg-paper-2 p-4 font-script text-sm">
+      <p className="font-bold uppercase">{t('movie.qualityHeading')}</p>
+      {flags.map((f) => (
+        <p key={f} className="mt-1 text-ink-2">
+          {t(QUALITY_KEYS[f])}
+        </p>
+      ))}
+      <p className="mt-1 text-ink-2">{t('movie.qualityExcluded')}</p>
+    </div>
   )
 }
 
@@ -94,6 +116,8 @@ export function MovieView({ id }: { id: string }) {
           </span>
         }
       />
+
+      {movie.quality && <QualityNote flags={movie.quality.flags.filter((f) => f in QUALITY_KEYS)} />}
 
       <div className="mt-5 flex gap-4">
         <a

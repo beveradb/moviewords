@@ -360,7 +360,12 @@
     "wordResult": "„{word}”: {count}× w tym filmie · {rate}/1000 słów · pada w {films} filmach",
     "wordTrendLink": "„{word}” na przestrzeni czasu →",
     "wordsUnavailable": "Pełna lista słów nie jest dostępna dla tego filmu.",
-    "wordResultOnlyFilm": "„{word}”: {count}× w tym filmie · {rate}/1k słów · jedyny film, w którym to pada"
+    "wordResultOnlyFilm": "„{word}”: {count}× w tym filmie · {rate}/1k słów · jedyny film, w którym to pada",
+    "qualityAsr": "Jedyne napisy, jakie mamy dla tego filmu, są generowane automatycznie, więc niektóre słowa mogą być błędnie rozpoznane.",
+    "qualityExcluded": "Słowa z tego filmu są pomijane w każdym podsumowaniu, na wykresach i w rankingach na stronie.",
+    "qualityHeading": "Jakość napisów: niska",
+    "qualityMachineTranslated": "Jedyne angielskie napisy, jakie mamy dla tego filmu, wyglądają na tłumaczenie maszynowe z innego języka, więc niektóre słowa mogą być błędne.",
+    "qualityWrongCast": "Jedyne napisy, jakie mamy dla tego filmu, nie zawierają imion postaci, więc mogą pochodzić z innego filmu."
   },
   "themeToggle": {
     "day": "DZIEŃ",

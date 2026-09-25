@@ -360,7 +360,12 @@
     "wordResult": "„{word}“: {count}× v tomto filmu · {rate}/1k slov · zazní v {films} filmech",
     "wordTrendLink": "„{word}“ v průběhu času →",
     "wordsUnavailable": "Úplný seznam slov pro tento film není k dispozici.",
-    "wordResultOnlyFilm": "„{word}“: {count}× v tomto filmu · {rate}/1k slov · jediný film, kde to zazní"
+    "wordResultOnlyFilm": "„{word}“: {count}× v tomto filmu · {rate}/1k slov · jediný film, kde to zazní",
+    "qualityAsr": "Jediné titulky, které k tomuto filmu máme, jsou automaticky generované, takže některá slova mohou být špatně rozpoznaná.",
+    "qualityExcluded": "Jeho slova jsou vyřazena ze všech součtů, grafů a žebříčků na webu.",
+    "qualityHeading": "Kvalita titulků: nízká",
+    "qualityMachineTranslated": "Jediné anglické titulky, které k tomuto filmu máme, vypadají jako strojově přeložené z jiného jazyka, takže některá slova mohou být špatně.",
+    "qualityWrongCast": "Jediné titulky, které k tomuto filmu máme, neuvádějí jména postav, takže možná patří k jinému filmu."
   },
   "themeToggle": {
     "day": "DEN",

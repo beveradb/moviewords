@@ -82,20 +82,42 @@ def run(corpus="en"):
                       'original_language': 'VARCHAR'}}
         );
     """)
-    lang_filter = (f"WHERE t.original_language = '{config.LANG}'"
+    lang_filter = (f"AND t.original_language = '{config.LANG}'"
                    if corpus == "en" else "")
+    # the count stage's per-film quality tier (selection.parquet): "low"
+    # films - only a machine-translated / auto-caption / possibly wrong-film
+    # subtitle - are kept out of every aggregate (`movies` feeds them all)
+    # but still get a film page, from the *_flagged outputs
+    sel = w / "selection.parquet"
+    tiers = (f"SELECT imdb_id, tier, flags FROM '{sel}'" if sel.exists() else
+             "SELECT NULL::VARCHAR AS imdb_id, NULL::VARCHAR AS tier, "
+             "NULL::VARCHAR AS flags WHERE false")
     con.sql(f"""
-        CREATE TABLE movies AS
+        CREATE TABLE all_movies AS
         SELECT c.imdb_id, c.title, c.year, t.countries, c.genres,
                c.runtime_minutes, c.rating, c.votes,
                s.total_words, s.unique_words, s.words_per_minute,
-               t.original_language
+               t.original_language,
+               COALESCE(q.tier, 'ok') AS quality,
+               COALESCE(q.flags, '[]') AS quality_flags
         FROM curated c
         JOIN stats s USING (imdb_id)
         JOIN tmdb t USING (imdb_id)
-        {lang_filter};
+        LEFT JOIN ({tiers}) q USING (imdb_id)
+        WHERE COALESCE(q.tier, 'ok') <> 'drop' {lang_filter};
+        CREATE TABLE movies AS SELECT * EXCLUDE (quality, quality_flags)
+            FROM all_movies WHERE quality = 'ok';
+        CREATE TABLE flagged AS SELECT * FROM all_movies WHERE quality <> 'ok';
     """)
     con.sql(f"COPY movies TO '{out / 'movies.parquet'}' (FORMAT parquet)")
+    con.sql(f"COPY flagged TO '{out / 'movies_flagged.parquet'}' (FORMAT parquet)")
+    (out / "words_by_movie_flagged").mkdir(parents=True, exist_ok=True)
+    con.sql(f"""
+        COPY (
+            SELECT wc.* FROM wc JOIN flagged USING (imdb_id)
+            ORDER BY imdb_id, count DESC
+        ) TO '{out / "words_by_movie_flagged" / "data.parquet"}' (FORMAT parquet);
+    """)
 
     con.sql(f"""
         COPY (
@@ -139,6 +161,12 @@ def run(corpus="en"):
     _write_signatures(con, out)
     _write_wordlists(out)
     _write_report(con, out, corpus)
+
+
+def quality_note(tier, flags_json):
+    """The movie page's `quality` field for a flagged film: its tier and why
+    (asr, machine-translated, wrong-cast)."""
+    return {"tier": tier, "flags": json.loads(flags_json or "[]")}
 
 
 def build_signature_base(con) -> dict:
@@ -250,6 +278,10 @@ def _write_json_hot_paths(con, out):
                   "words_per_minute", "original_language"]
     meta = {row[0]: dict(zip(movie_cols, row)) for row in
             con.sql(f"SELECT {', '.join(movie_cols)} FROM movies").fetchall()}
+    for row in con.sql(f"SELECT {', '.join(movie_cols)}, quality, quality_flags "
+                       f"FROM flagged").fetchall():
+        meta[row[0]] = dict(zip(movie_cols, row)) | {
+            "quality": quality_note(row[-2], row[-1])}
 
     def flush(imdb_id, rows):
         m = meta.get(imdb_id)
@@ -271,24 +303,27 @@ def _write_json_hot_paths(con, out):
             "distinctive": [tag(wd, round(z, 2))
                             for wd, z in log_odds(counts, corpus, n_corpus=n_corpus)[:50]],
         }
+        if "quality" in m:
+            payload["quality"] = m["quality"]
         (out / "json" / "movie" / f"{imdb_id}.json").write_text(
             json.dumps(payload))
 
     # One streaming pass over the already-sorted (imdb_id, count DESC) parquet
     # instead of one query per movie: at ~30k movies, per-movie queries each
     # re-touch every row group's metadata, which turns O(n) work into hours.
-    cur = con.execute(
-        f"SELECT imdb_id, word, count FROM '{out / 'words_by_movie' / 'data.parquet'}'")
-    current, rows = None, []
-    while batch := cur.fetchmany(1_000_000):
-        for imdb_id, word, count in batch:
-            if imdb_id != current:
-                if current is not None:
-                    flush(current, rows)
-                current, rows = imdb_id, []
-            rows.append((word, count))
-    if current is not None:
-        flush(current, rows)
+    for parquet in ("words_by_movie", "words_by_movie_flagged"):
+        cur = con.execute(
+            f"SELECT imdb_id, word, count FROM '{out / parquet / 'data.parquet'}'")
+        current, rows = None, []
+        while batch := cur.fetchmany(1_000_000):
+            for imdb_id, word, count in batch:
+                if imdb_id != current:
+                    if current is not None:
+                        flush(current, rows)
+                    current, rows = imdb_id, []
+                rows.append((word, count))
+        if current is not None:
+            flush(current, rows)
 
     board = con.sql("""
         SELECT word, SUM(count)::BIGINT AS count,
@@ -322,6 +357,7 @@ def _write_report(con, out, corpus):
     counted_n = n("SELECT COUNT(*) FROM stats")
     enriched_n = n("SELECT COUNT(*) FROM tmdb WHERE imdb_id IS NOT NULL")
     final_n = n("SELECT COUNT(*) FROM movies")
+    flagged_n = n("SELECT COUNT(*) FROM flagged")
     kind = ("English-original movies" if corpus == "en"
             else "movies, all original languages")
     report = (
@@ -330,7 +366,8 @@ def _write_report(con, out, corpus):
         f"- matched (subtitle file found in OpenSubtitles corpus): {matched_n}\n"
         f"- counted (word counts + stats computed): {counted_n}\n"
         f"- enriched (TMDB metadata found): {enriched_n}\n"
-        f"- final ({kind} published): {final_n}\n\n"
+        f"- final ({kind} published): {final_n}\n"
+        f"- low subtitle quality (film page only, out of every aggregate): {flagged_n}\n\n"
         "## Drop reasons\n\n"
         f"- curated → matched ({curated_n - matched_n} dropped): no usable "
         "subtitle file found in the OpenSubtitles corpus\n"

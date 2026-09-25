@@ -30,7 +30,8 @@ from pathlib import Path
 import duckdb
 
 from moviewords_pipeline import boards
-from moviewords_pipeline.derive import load_profanity, load_stopwords, log_odds, word_meta
+from moviewords_pipeline.derive import (load_profanity, load_stopwords, log_odds,
+                                        quality_note, word_meta)
 from moviewords_pipeline.signatures_ext import extend_signatures
 
 ROOT = Path(__file__).resolve().parent.parent / "webdata"
@@ -61,6 +62,44 @@ def connect() -> duckdb.DuckDBPyConnection:
     con.sql(f"CREATE VIEW words_by_movie AS SELECT * FROM '{IN / 'words_by_movie.parquet'}'")
     con.sql(f"CREATE VIEW word_year AS SELECT * FROM '{IN / 'word_year.parquet'}'")
     return con
+
+
+def flagged_movies(con):
+    """{imdb_id: movie row dict + "quality"} for films derive kept out of the
+    aggregates for low subtitle quality (movies_flagged.parquet) - they
+    still get a film page. {} when the input predates quality tiers."""
+    path = IN / "movies_flagged.parquet"
+    if not path.exists():
+        return {}
+    cols = ["imdb_id", "title", "year", "total_words", "unique_words",
+            "words_per_minute", "quality", "quality_flags"]
+    return {r[0]: dict(zip(cols, r)) | {"quality": quality_note(r[6], r[7])}
+            for r in con.sql(f"SELECT {', '.join(cols)} FROM '{path}'").fetchall()}
+
+
+def stream_films(con, flush):
+    """flush(imdb_id, [(word, count), ...]) for every film, in one pass over
+    the (imdb_id, count DESC)-sorted words_by_movie parquet - then the
+    flagged films' - never per-film queries (see docs/ARCHITECTURE.md on the
+    sort-order contract). Returns how many films were flushed."""
+    n = 0
+    for name in ("words_by_movie.parquet", "words_by_movie_flagged.parquet"):
+        if not (IN / name).exists():
+            continue
+        cur = con.execute(f"SELECT imdb_id, word, count FROM '{IN / name}'")
+        current, rows = None, []
+        while batch := cur.fetchmany(1_000_000):
+            for imdb_id, word, count in batch:
+                if imdb_id != current:
+                    if current is not None:
+                        flush(current, rows)
+                        n += 1
+                    current, rows = imdb_id, []
+                rows.append((word, count))
+        if current is not None:
+            flush(current, rows)
+            n += 1
+    return n
 
 
 def build_full_meta(con):
@@ -104,6 +143,7 @@ def stage_movies(con):
     movie_cols = ["imdb_id", "title", "year", "total_words", "unique_words", "words_per_minute"]
     movies = {r[0]: dict(zip(movie_cols, r)) for r in
               con.sql(f"SELECT {', '.join(movie_cols)} FROM movies").fetchall()}
+    movies |= flagged_movies(con)
     (OUT / "json" / "movie").mkdir(parents=True, exist_ok=True)
 
     def tag(word, value):
@@ -123,29 +163,22 @@ def stage_movies(con):
             "distinctive": [tag(w, round(z, 2))
                             for w, z in log_odds(dict(rows), corpus, n_corpus=n_corpus)[:50]],
         }
+        if "quality" in m:
+            payload["quality"] = m["quality"]
         (OUT / "json" / "movie" / f"{imdb_id}.json").write_text(json.dumps(payload))
 
-    cur = con.execute(f"SELECT imdb_id, word, count FROM '{IN / 'words_by_movie.parquet'}'")
-    current, rows, n = None, [], 0
-    while batch := cur.fetchmany(1_000_000):
-        for imdb_id, word, count in batch:
-            if imdb_id != current:
-                if current is not None:
-                    flush(current, rows)
-                    n += 1
-                current, rows = imdb_id, []
-            rows.append((word, count))
-    if current is not None:
-        flush(current, rows)
-        n += 1
-    print(f"  wrote {n} movie JSONs")
+    print(f"  wrote {stream_films(con, flush)} movie JSONs")
 
 
 def stage_words(con):
     """json/words/<imdb_id>.json per film: EVERY word the film says as
     [word, count, films] (films = corpus document frequency), count desc then
     word - the film page's "Every word" explorer. Streams the (imdb_id,
-    count DESC)-sorted words_by_movie like stage_movies (no per-film queries)."""
+    count DESC)-sorted words_by_movie like stage_movies (no per-film queries).
+    A flagged film (low subtitle quality, not in the corpus) counts itself
+    on top of the corpus films, as corpus films do, so "the only film that
+    says it" still reads right on its page; it adds to no other film's."""
+    flagged = set(flagged_movies(con))
     films = dict(con.sql(
         "SELECT word, COUNT(*)::BIGINT FROM words_by_movie GROUP BY word").fetchall())
     out = OUT / "json" / "words"
@@ -153,23 +186,11 @@ def stage_words(con):
 
     def flush(imdb_id, rows):
         rows.sort(key=lambda r: (-r[1], r[0]))
-        payload = {"w": [[w, c, films[w]] for w, c in rows]}
+        own = 1 if imdb_id in flagged else 0
+        payload = {"w": [[w, int(c), films.get(w, 0) + own] for w, c in rows]}
         (out / f"{imdb_id}.json").write_text(json.dumps(payload, separators=(",", ":")))
 
-    cur = con.execute(f"SELECT imdb_id, word, count FROM '{IN / 'words_by_movie.parquet'}'")
-    current, rows, n = None, [], 0
-    while batch := cur.fetchmany(1_000_000):
-        for imdb_id, word, count in batch:
-            if imdb_id != current:
-                if current is not None:
-                    flush(current, rows)
-                    n += 1
-                current, rows = imdb_id, []
-            rows.append((word, int(count)))
-    if current is not None:
-        flush(current, rows)
-        n += 1
-    print(f"  wrote {n} word-list JSONs")
+    print(f"  wrote {stream_films(con, flush)} word-list JSONs")
 
 
 def stage_boards(con):

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { MovieIndexEntry, SignatureEntry } from '../lib/data'
-import { getMovie, getMovieIndex, getSignatures, getWordlists } from '../lib/data'
+import { getMovie, getMovieIndex, getSignatures, getWordlists, inCorpus } from '../lib/data'
 import { headToHead } from '../lib/compare'
 import { lit, pq, q } from '../lib/duck'
 import { navigate, useRoute } from '../lib/route'
@@ -113,7 +113,9 @@ function FilmsPerYear({ entityRef, color }: { entityRef: EntityRef; color: strin
   const { t } = useI18n()
   const [index, setIndex] = useState<MovieIndexEntry[] | null>(null)
   useEffect(() => {
-    getMovieIndex().then(setIndex).catch(() => {})
+    getMovieIndex()
+      .then((idx) => setIndex(idx.filter(inCorpus)))
+      .catch(() => {})
   }, [])
   const points = useMemo(() => {
     if (!index) return []

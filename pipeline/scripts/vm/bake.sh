@@ -29,10 +29,16 @@ for c in en all; do
   ln -s "$src/movies.parquet" "$win/movies.parquet"
   ln -s "$src/word_year.parquet" "$win/word_year.parquet"
   ln -s "$src/words_by_movie/data.parquet" "$win/words_by_movie.parquet"
+  # low-subtitle-quality films: film pages only, never in the aggregates
+  ln -s "$src/movies_flagged.parquet" "$win/movies_flagged.parquet"
+  ln -s "$src/words_by_movie_flagged/data.parquet" "$win/words_by_movie_flagged.parquet"
   cp "$src/json/signature/decades.json" "$src/json/signature/genres.json" "$win/signature/"
   # published parquets + derive's JSON (movie pages, boards, movies-index...)
   cp "$src/movies.parquet" "$src/word_year.parquet" "$src/word_meta.parquet" "$wout/"
   cp "$src/words_by_movie/data.parquet" "$wout/words_by_movie/"
+  mkdir -p "$wout/words_by_movie_flagged"
+  cp "$src/movies_flagged.parquet" "$wout/"
+  cp "$src/words_by_movie_flagged/data.parquet" "$wout/words_by_movie_flagged/"
   cp "$src/words_by_word/data.parquet" "$wout/words_by_word/"
   cp -r "$src/json" "$wout/"
 done

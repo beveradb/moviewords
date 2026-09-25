@@ -360,7 +360,12 @@
     "wordResult": "「{word}」: この映画で{count}回 ・ {rate}回/1,000語 ・ {films}本の映画で使用",
     "wordTrendLink": "「{word}」の時代ごとの推移 →",
     "wordsUnavailable": "この映画の完全な単語リストは利用できません。",
-    "wordResultOnlyFilm": "「{word}」: 本作で{count}回 · 1000語あたり{rate}回 · この言葉が登場する唯一の映画"
+    "wordResultOnlyFilm": "「{word}」: 本作で{count}回 · 1000語あたり{rate}回 · この言葉が登場する唯一の映画",
+    "qualityAsr": "この映画にご用意できた字幕は自動生成されたものだけなので、一部の単語に聞き間違いがあるかもしれません。",
+    "qualityExcluded": "この映画の単語は、サイト内のすべての集計、チャート、ランキングから除外されています。",
+    "qualityHeading": "字幕のクオリティ：低",
+    "qualityMachineTranslated": "この映画にご用意できた唯一の英語字幕は、他の言語から機械翻訳されたもののようです。そのため、一部の単語が間違っているかもしれません。",
+    "qualityWrongCast": "この映画にご用意できた唯一の字幕にはキャラクター名が含まれていないため、別の映画の字幕である可能性があります。"
   },
   "themeToggle": {
     "day": "昼",

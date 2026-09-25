@@ -360,7 +360,12 @@
     "wordResult": "“{word}”: {count}× in questo film · {rate}/1k parole · detta in {films} film",
     "wordTrendLink": "“{word}” nel tempo →",
     "wordsUnavailable": "L'elenco completo delle parole non è disponibile per questo film.",
-    "wordResultOnlyFilm": "“{word}”: {count}× in questo film · {rate}/1k parole · l'unico film a dirla"
+    "wordResultOnlyFilm": "“{word}”: {count}× in questo film · {rate}/1k parole · l'unico film a dirla",
+    "qualityAsr": "L'unico sottotitolo che abbiamo per questo film è generato automaticamente, quindi alcune parole sono state trascritte male.",
+    "qualityExcluded": "Le sue parole sono escluse da ogni totale, grafico e classifica sul sito.",
+    "qualityHeading": "Qualità dei sottotitoli: bassa",
+    "qualityMachineTranslated": "L'unico sottotitolo in inglese che abbiamo per questo film sembra tradotto automaticamente da un'altra lingua, quindi alcune parole potrebbero essere sbagliate.",
+    "qualityWrongCast": "L'unico sottotitolo che abbiamo per questo film non indica i nomi dei personaggi, quindi potrebbe appartenere a un film diverso."
   },
   "themeToggle": {
     "day": "GIORNO",
