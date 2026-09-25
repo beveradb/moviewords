@@ -42,14 +42,6 @@ def fingerprint(counts, raw_bytes):
     }
 
 
-# gate() verdicts that mean the file is not this film's dialogue at all:
-# never relaxed - a film whose every file fails one is dropped. "tiny" and
-# "sparse" do relax: when every upload is tiny the film is near-wordless
-# (Silent Movie says one word, The Red Turtle none) and when every upload
-# is sparse it's a musical (lyrics are stripped).
-HARD_GATES = frozenset({"not-english", "commentary"})
-
-
 def gate(fp):
     """Why this candidate can't be picked, or None if it's usable."""
     if fp["tokens"] < config.MIN_CANDIDATE_TOKENS:
@@ -71,13 +63,14 @@ def cosine(a, b):
     return dot / (na * nb) if na and nb else 0.0
 
 
-def quality_flags(pool, cast=None):
+def quality_flags(pool, film=None):
     """{zip_name: [flags]} for (zip_name, fingerprint) pairs: "asr"
-    (auto-captions), "machine-translated" (OPUS flag or style model),
-    "wrong-cast" (names none of the film's characters while another file
-    does, or - with plenty of distinctive names to look for, in a film
-    where that is evidence ("absolute") - names none at all). `cast` is
-    {"strict": tokens, "broad": tokens, "absolute": bool} or None."""
+    (auto-captions), "machine-translated" (OPUS's flag; for English-original
+    films also the style model - on translated films it can't tell machine
+    output from human translationese), "wrong-cast" (names none of the
+    film's characters while another file names several). `film` is
+    {"english": bool, "cast": name tokens or None} or None (unknown)."""
+    film = film or {}
     flags = {name: [] for name, _ in pool}
     for name, fp in pool:
         q = fp.get("q")
@@ -85,52 +78,45 @@ def quality_flags(pool, cast=None):
             continue   # fingerprint from before quality features
         if quality.is_asr(q):
             flags[name].append("asr")
-        score = quality.mt_score(q, fp["tokens"])
+        score = quality.mt_score(q, fp["tokens"]) if film.get("english") else None
         if q["mt"] == 1 or (score is not None and score >= config.MT_SCORE_MAX):
             flags[name].append("machine-translated")
-    if cast:
-        broad = {name: quality.cast_hits(fp, cast["broad"]) for name, fp in pool}
-        best = max(broad.values(), default=0)
-        for name, fp in pool:
-            if broad[name]:
-                continue
-            if best >= config.CAST_MIN_HITS or (
-                    cast.get("absolute", True)
-                    and len(cast["strict"]) >= config.CAST_MIN_STRICT_TOKENS
-                    and not quality.cast_hits(fp, cast["strict"])):
-                flags[name].append("wrong-cast")
+    if film.get("cast"):
+        hits = {name: quality.cast_hits(fp, film["cast"]) for name, fp in pool}
+        if max(hits.values()) >= config.CAST_MIN_HITS:
+            for name, n in hits.items():
+                if not n:
+                    flags[name].append("wrong-cast")
     return flags
 
 
-def choose(candidates, runtime_minutes, cast=None):
+def choose(candidates, runtime_minutes, film=None):
     """(zip_name, info) for the best of `candidates`, a best-rank-first list
-    of (zip_name, fingerprint); (None, info) if none is this film's dialogue
-    - info["reason"] "none" when nothing parses, "dropped" when every file
-    fails a hard gate (commentary, other language).
+    of (zip_name, fingerprint); (None, {"reason": "none"}) if nothing parses.
+    `film`: see quality_flags.
 
     info: reason (consensus | rank | single | doubled), cluster size, usable
-    count, relaxed (every file was tiny or sparse - near-wordless films,
-    musicals - so those gates were dropped), rejected {zip_name: gate}, tier ("ok", or "low" when every
-    usable file has quality flags and the least bad was kept), flags (the
-    chosen file's quality flags) and flagged {zip_name: flags} for files
-    passed over."""
+    count, relaxed (every file failed a gate, so gates were dropped - e.g.
+    musicals are sparse, near-wordless films tiny, and documentaries about
+    film-making read as commentary), rejected {zip_name: gate}, tier ("ok",
+    or "low" when every usable file has quality flags and the least bad was
+    kept), flags (the chosen file's quality flags) and flagged {zip_name:
+    flags} for files passed over."""
     rejected = {name: g for name, fp in candidates if (g := gate(fp))}
-    readable = [(n, fp) for n, fp in candidates if fp["tokens"] > 0]
-    if not readable:
-        return None, {"reason": "none"}
-    pool = [(n, fp) for n, fp in readable if n not in rejected]
+    usable = [(n, fp) for n, fp in candidates if n not in rejected]
     relaxed = False
-    if not pool:
-        pool = [(n, fp) for n, fp in readable if rejected[n] not in HARD_GATES]
-        relaxed = True
-    if not pool:
-        return None, {"reason": "dropped", "rejected": rejected, "tier": "drop",
-                      "flags": [], "flagged": {}}
-    flags = quality_flags(pool, cast)
-    usable = [(n, fp) for n, fp in pool if not flags[n]]
-    tier = "ok"
     if not usable:
-        usable, tier = pool, "low"
+        usable = [(n, fp) for n, fp in candidates if fp["tokens"] > 0]
+        relaxed = True
+    if not usable:
+        return None, {"reason": "none"}
+    flags = quality_flags(usable, film)
+    clean = [(n, fp) for n, fp in usable if not flags[n]]
+    tier = "ok"
+    if clean:
+        usable = clean
+    else:
+        tier = "low"
     info = {"usable": len(usable), "relaxed": relaxed, "rejected": rejected,
             "tier": tier, "flagged": {n: f for n, f in flags.items() if f}}
     name, info = _consensus(usable, runtime_minutes, info)

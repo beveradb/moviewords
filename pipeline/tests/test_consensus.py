@@ -176,19 +176,14 @@ def _qfp(words, n, **q):
 ASR = {"toks_per_line": 22.0, "cap_start": 0.4, "end_punct": 0.2}
 
 
-def test_commentary_only_film_is_dropped_not_published():
-    """The relaxation leak: gates used to relax when every file failed, so a
-    film whose only file was a commentary track got published."""
+def test_film_about_film_making_keeps_its_commentary_like_files():
+    """Every file reads as commentary: in practice a documentary about film
+    (Life Itself, QT8, Milius) whose real dialogue is dense film talk -
+    kept, as the gates relax."""
     talk = FILM + "movie film scene shot director actor camera".split()
-    name, info = _pick([("commentary", _fp(talk, 20_000, bytes_per_word=14))])
-    assert name is None
-    assert info["reason"] == "dropped" and info["tier"] == "drop"
-
-
-def test_other_language_only_film_is_dropped():
-    viet = Counter({"toi": 400, "khong": 330, "co": 260, "ong": 250, "the": 30})
-    name, info = _pick([("vi", fingerprint(viet, 30_000))])
-    assert name is None and info["reason"] == "dropped"
+    name, info = _pick([("a", _fp(talk, 20_000, bytes_per_word=14)),
+                        ("b", _fp(talk, 20_100, bytes_per_word=14))])
+    assert name == "a" and info["relaxed"] is True and info["tier"] == "ok"
 
 
 def test_auto_captions_lose_to_a_human_file():
@@ -219,27 +214,35 @@ def test_every_agreeing_file_machine_translated_is_low_tier():
 def test_wrong_cast_file_loses_to_one_naming_the_characters():
     """Lady Luck 1946: two identical uploads of a modern film beat the one
     genuine file on the files tie-break; the genuine one names the cast."""
-    cast = {"strict": frozenset({"cassio", "desdemona"}),
-            "broad": frozenset({"cassio", "desdemona", "moor", "venice"})}
+    film = {"cast": frozenset({"cassio", "desdemona", "moor", "venice"}), "english": True}
     cands = [("wrong_a", _qfp(OTHER, 9000)), ("wrong_b", _qfp(OTHER, 9000)),
              ("real", _qfp(FILM, 8000))]
-    name, info = choose(cands, 90, cast)
+    name, info = choose(cands, 90, film)
     assert name == "real" and info["tier"] == "ok"
     assert info["flagged"] == {"wrong_a": ["wrong-cast"], "wrong_b": ["wrong-cast"]}
 
 
-def test_lone_file_naming_none_of_a_rich_cast_is_low_tier():
-    cast = {"strict": frozenset("brabantio cassio desdemona lodovico roderigo".split()),
-            "broad": frozenset("brabantio cassio desdemona lodovico roderigo iago".split())}
-    name, info = choose([("o2001", _qfp(OTHER, 9000))], 90, cast)
-    assert name == "o2001" and info["tier"] == "low" and info["flags"] == ["wrong-cast"]
+def test_naming_none_of_the_cast_is_no_evidence_on_its_own():
+    """Narrated films (Stereo), unnamed characters, TMDB role descriptions:
+    a lone file that names none of the cast is kept at tier ok."""
+    film = {"cast": frozenset("brabantio cassio desdemona lodovico roderigo".split()),
+            "english": True}
+    name, info = choose([("only", _qfp(OTHER, 9000))], 90, film)
+    assert info["tier"] == "ok" and info["flags"] == []
 
 
-def test_sparse_cast_list_is_not_evidence_against_a_lone_file():
-    """Few distinctive names (documentaries, silents): no verdict."""
-    cast = {"strict": frozenset({"desi"}), "broad": frozenset({"desi", "hugo"})}
-    name, info = choose([("only", _qfp(FILM, 9000))], 90, cast)
-    assert info["tier"] == "ok"
+def test_style_model_only_judges_english_original_films(monkeypatch):
+    """Human translations of foreign films read as 'translationese' to the
+    style model (Ben and Charlie scored 0.999) - only OPUS's own flag
+    counts for them."""
+    from moviewords_pipeline import quality
+    monkeypatch.setattr(quality, "mt_score", lambda q, tokens: 0.99)
+    cands = [("only", _qfp(FILM, 9000))]
+    assert choose(cands, 90, {"english": True})[1]["flags"] == ["machine-translated"]
+    assert choose(cands, 90, {"english": False})[1]["tier"] == "ok"
+    assert choose(cands, 90, None)[1]["tier"] == "ok"
+    flagged_by_opus = [("only", _qfp(FILM, 9000, mt=1))]
+    assert choose(flagged_by_opus, 90, {"english": False})[1]["tier"] == "low"
 
 
 def test_fingerprints_without_quality_features_are_never_flagged():
@@ -251,12 +254,3 @@ def test_near_wordless_film_keeps_its_tiny_file():
     """Silent Movie (1976) says one word; every upload is tiny."""
     name, info = _pick([("a", _fp(["non"], 3)), ("b", _fp(["non"], 3))])
     assert name == "a" and info["relaxed"] is True and info["tier"] == "ok"
-
-
-def test_lone_file_of_a_documentary_is_not_judged_on_cast_names():
-    """Life in a Day, Under the Skin: genuine files naming none of the cast."""
-    cast = {"strict": frozenset("brabantio cassio desdemona lodovico roderigo".split()),
-            "broad": frozenset("brabantio cassio desdemona lodovico roderigo".split()),
-            "absolute": False}
-    name, info = choose([("only", _qfp(OTHER, 9000))], 90, cast)
-    assert info["tier"] == "ok"

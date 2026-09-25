@@ -104,7 +104,7 @@ def run(corpus="en"):
         JOIN stats s USING (imdb_id)
         JOIN tmdb t USING (imdb_id)
         LEFT JOIN ({tiers}) q USING (imdb_id)
-        WHERE COALESCE(q.tier, 'ok') <> 'drop' {lang_filter};
+        WHERE true {lang_filter};
         CREATE TABLE movies AS SELECT * EXCLUDE (quality, quality_flags)
             FROM all_movies WHERE quality = 'ok';
         CREATE TABLE flagged AS SELECT * FROM all_movies WHERE quality <> 'ok';

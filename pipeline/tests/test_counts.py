@@ -397,27 +397,6 @@ def test_changed_runtime_rechooses_without_refetching(tmp_path, monkeypatch):
     assert _build(tmp_path, zip_path, rows, {"tt0036777": 100})["skipped"] == 1
 
 
-VIET = "toi khong biet ong co the lam gi"
-
-
-def test_film_with_only_other_language_files_is_dropped_and_cached(tmp_path, monkeypatch):
-    """Every file fails a hard gate: the film is left out of the counts, and
-    the decision is cached so the next run doesn't read the files again."""
-    zip_path = _zip(tmp_path, {TOP: [VIET] * 300, ALT1: [REAL] * 300})
-    rows = [_row("tt0000001", TOP), ("tt0000002", ALT1, [{"name": ALT1, "bytes": 0}])]
-    out = tmp_path / "sel.parquet"
-    assert _build(tmp_path, zip_path, rows, out_selection=out) == {
-        "processed": 2, "skipped": 0, "failed": 0}
-    counted = {r[0] for r in duckdb.sql(f"SELECT DISTINCT imdb_id FROM '{tmp_path / 'wc.parquet'}'").fetchall()}
-    assert counted == {"tt0000002"}
-    sel = dict(duckdb.sql(f"SELECT imdb_id, tier FROM '{out}'").fetchall())
-    assert sel == {"tt0000001": "drop", "tt0000002": "ok"}
-    from moviewords_pipeline import counts
-    reads = []
-    monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
-    assert _build(tmp_path, zip_path, rows)["skipped"] == 2 and reads == []
-
-
 def test_new_cast_list_rechooses_from_cached_fingerprints(tmp_path, monkeypatch):
     """TMDB credits fetched after a count: the wrong-film check must run, and
     needs no reads beyond a newly chosen file."""
@@ -426,11 +405,17 @@ def test_new_cast_list_rechooses_from_cached_fingerprints(tmp_path, monkeypatch)
     rows = [_row("tt0045251", TOP, ALT1)]
     _build(tmp_path, zip_path, rows)
     assert _record(tmp_path, "tt0045251")["zip_name"] == TOP     # size rank, no agreement
-    cast = {"tt0045251": {"strict": frozenset({"cassio", "iago"}),
-                          "broad": frozenset({"cassio", "iago", "moor"})}}
+    films = {"tt0045251": {"cast": frozenset({"cassio", "iago", "moor"}), "english": True}}
     reads = []
     monkeypatch.setattr(counts.opus_zip, "open_source", lambda p: _CountingZip(zip_path, reads))
-    assert _build(tmp_path, zip_path, rows, casts=cast)["processed"] == 1
+    assert _build(tmp_path, zip_path, rows, films=films)["processed"] == 1
     record = _record(tmp_path, "tt0045251")
     assert record["zip_name"] == ALT1 and reads == [ALT1]
     assert record["selection"]["flagged"] == {TOP: ["wrong-cast"]}
+
+
+def test_selection_report_records_quality_tiers(tmp_path):
+    zip_path = _zip(tmp_path, {TOP: [REAL] * 300})
+    out = tmp_path / "sel.parquet"
+    _build(tmp_path, zip_path, [_row("tt0045251", TOP)], out_selection=out)
+    assert duckdb.sql(f"SELECT tier, flags, flagged FROM '{out}'").fetchall() == [("ok", "[]", "{}")]

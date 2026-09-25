@@ -123,23 +123,23 @@ def mt_score(q, tokens):
 
 # --- cast-name check -------------------------------------------------------
 # A subtitle names its film's characters; a wrong film filed under this id
-# names another film's. Only distinctive name tokens count: common words
-# (role names like "sheriff", everyday names like "john") appear anywhere.
+# names another film's.
 SELF_ROLES = re.compile(r"^(him|her|them)sel(f|ves)\b|^self\b|^narrator\b|^various\b", re.I)
 PARENS_RE = re.compile(r"\([^)]*\)|\[[^\]]*\]")
 NAME_TOKEN_RE = re.compile(r"[a-z]{3,}")
 
 
-def cast_tokens(credits, strict=True):
-    """Lower-case name tokens from a tmdb_credits record: each character's
-    name, or the actor's when they play themselves (documentaries). strict:
-    only distinctive ones (see _is_name_like) - evidence on their own;
-    otherwise every non-stopword token - only good for comparing one
-    candidate file with another. Empty for None (no TMDB match)."""
+def cast_tokens(credits):
+    """Lower-case name tokens (non-stopwords, 3+ letters) from a
+    tmdb_credits record: each character's name, or the actor's when they
+    play themselves (documentaries). Empty for None (no TMDB match). Only
+    good for comparing one candidate file with another: a genuine file can
+    name none of them (narrated films, unnamed characters, TMDB listing
+    role descriptions), so naming none is no evidence on its own."""
     if not credits:
         return frozenset()
-    from .derive import load_stopwords
     import unicodedata
+    from .derive import load_stopwords
     stop = load_stopwords()
     out = set()
     for character, actor in zip(credits.get("characters") or [], credits.get("actors") or []):
@@ -148,26 +148,8 @@ def cast_tokens(credits, strict=True):
             name = actor or ""
         name = unicodedata.normalize("NFKD", name.lower())
         name = "".join(ch for ch in name if not unicodedata.combining(ch))
-        for tok in NAME_TOKEN_RE.findall(name):
-            if tok not in stop and (not strict or _is_name_like(tok)):
-                out.add(tok)
+        out.update(tok for tok in NAME_TOKEN_RE.findall(name) if tok not in stop)
     return frozenset(out)
-
-
-# a token is name-like if it is rare in English, or uncommon and not a
-# dictionary word ("barber", "villager", "stagecoach" are roles, not names)
-CAST_RARE_ZIPF = 2.5
-CAST_MAX_ZIPF = 4.0
-
-
-@cache
-def _is_name_like(tok):
-    import wordfreq
-    from .word_meta2 import _wordnet
-    z = wordfreq.zipf_frequency(tok, "en")
-    if z < CAST_RARE_ZIPF:
-        return True
-    return z < CAST_MAX_ZIPF and not _wordnet().synsets(tok)
 
 
 def cast_hits(fp, tokens):

@@ -119,10 +119,11 @@ def rates(con):
 
 
 def grey_zone(con, cache_dir):
-    """Chosen files scoring just under the machine-translation threshold."""
+    """Chosen files of English-original films (the style model judges no
+    others) scoring just under the machine-translation threshold."""
     out = []
     for imdb_id, title, year, zip_name in con.sql(
-            "SELECT imdb_id, title, year, zip_name FROM films WHERE tier = 'ok'").fetchall():
+            "SELECT imdb_id, title, year, zip_name FROM films WHERE tier = 'ok' AND lang = 'en'").fetchall():
         path = cache_dir / f"{imdb_id}.json"
         if not zip_name or not path.exists():
             continue

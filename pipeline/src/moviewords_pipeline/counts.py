@@ -67,16 +67,16 @@ def in_shard(imdb_id, shard):
     return zlib.crc32(imdb_id.encode()) % n == k
 
 
-def _cast_key(cast):
-    """A stable, JSON-able summary of the cast tokens a choice was made with
-    (a later credits fetch must re-choose)."""
-    if not cast:
+def _film_key(film):
+    """A stable, JSON-able summary of the film context a choice was made
+    with: a later credits fetch or language fix must re-choose."""
+    if not film:
         return None
-    return [*sorted(cast["broad"]), f"absolute={cast.get('absolute', True)}"]
+    return {"english": film.get("english"), "cast": sorted(film.get("cast") or ())}
 
 
 def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
-          workers=1, out_selection=None, shard=None, casts=None):
+          workers=1, out_selection=None, shard=None, films=None):
     """Choose and count every indexed film, reusing per-film caches.
 
     Each film's sampled candidates are fingerprinted (cached per file) and
@@ -89,11 +89,9 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     what was chosen and why (for review). With `shard` (k, n) only that
     shard's films are counted, into the cache only - run n shards as
     separate processes (parsing is GIL-bound), then once unsharded to write
-    the outputs from the warm cache. `casts` maps imdb_id to cast name
-    tokens ({"strict", "broad"}, see quality.cast_tokens) for the
-    wrong-film check. A film whose every file fails a hard gate is cached
-    as dropped (zip_name None) and left out of the counts."""
-    casts = casts or {}
+    the outputs from the warm cache. `films` maps imdb_id to the film
+    context the quality flags need (see load_films)."""
+    films = films or {}
     if shard:
         index_rows = [row for row in index_rows if in_shard(row[0], shard)]
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -106,7 +104,7 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
         if (record and record["selection"].get("candidates") == names
                 and record.get("selection_version") == config.SELECTION_VERSION
                 and record["selection"].get("runtime_minutes") == runtimes.get(imdb_id)
-                and record["selection"].get("cast") == _cast_key(casts.get(imdb_id))):
+                and record["selection"].get("film") == _film_key(films.get(imdb_id))):
             records[imdb_id] = record
         else:
             todo.append((imdb_id, names, record))
@@ -143,13 +141,11 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                     full[name], repaired = count_words_repaired(text)
                     fps[name] = consensus.fingerprint(full[name], len(raw))
                     fps[name]["q"] = quality.features(raw, text, full[name], repaired)
-                cast = casts.get(imdb_id)
-                chosen, info = consensus.choose([(n, fps[n]) for n in names], runtime, cast)
-                if chosen is None and info["reason"] != "dropped":
-                    return None
+                film = films.get(imdb_id)
+                chosen, info = consensus.choose([(n, fps[n]) for n in names], runtime, film)
                 if chosen is None:
-                    counts = {}
-                elif chosen in full:
+                    return None
+                if chosen in full:
                     counts = full[chosen]
                 elif old and old["zip_name"] == chosen:
                     counts = old["counts"]
@@ -167,7 +163,7 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                           "fingerprints": fps,
                           "selection": info | {"rank_top": names[0], "candidates": names,
                                                "runtime_minutes": runtime,
-                                               "cast": _cast_key(cast)}}
+                                               "film": _film_key(film)}}
                 _write_cache(cache_dir, imdb_id, record)
                 return record
 
@@ -183,7 +179,7 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
     if shard:
         return {"processed": processed, "skipped": skipped, "failed": failed}
     ordered = [records[row[0]] for row in index_rows if row[0] in records]
-    _compact([r for r in ordered if r["zip_name"]], out_counts, out_stats)
+    _compact(ordered, out_counts, out_stats)
     if out_selection:
         _write_selection(ordered, out_selection)
     return {"processed": processed, "skipped": skipped, "failed": failed}
@@ -229,29 +225,23 @@ def _write_selection(records, out):
     }), out)
 
 
-def load_casts(imdb_ids, work_dir=None, genres=None):
-    """{imdb_id: {"strict", "broad", "absolute"}} cast name tokens for films
-    whose TMDB credits have been fetched (the `credits` stage) and name
-    anyone. "absolute": whether naming none of them is evidence on its own -
-    only for English-original fiction (calibration: documentaries name
-    their subjects rarely, and non-English films' TMDB characters are often
-    role descriptions in the original language). `genres`: {imdb_id:
-    [IMDb genres]}."""
+def load_films(imdb_ids, work_dir=None):
+    """{imdb_id: {"english": bool, "cast": name tokens}} - whether the film
+    is English-original (the tmdb stage's cache; the machine-translation
+    style model only applies then) and its TMDB cast (the credits stage's
+    cache, for the wrong-film check). Films with neither are left out."""
     work_dir = work_dir or config.WORK_DIR
-    genres = genres or {}
     out = {}
     for imdb_id in imdb_ids:
-        path = work_dir / "tmdb_credits" / f"{imdb_id}.json"
-        if not path.exists():
-            continue
-        credits = json.loads(path.read_text())
-        broad = quality.cast_tokens(credits, strict=False)
-        if not broad:
-            continue
+        film = {}
         tmdb = work_dir / "tmdb" / f"{imdb_id}.json"
-        lang = (json.loads(tmdb.read_text()) or {}).get("original_language") if tmdb.exists() else None
-        out[imdb_id] = {"strict": quality.cast_tokens(credits), "broad": broad,
-                        "absolute": lang == "en" and "Documentary" not in (genres.get(imdb_id) or [])}
+        if tmdb.exists():
+            film["english"] = (json.loads(tmdb.read_text()) or {}).get("original_language") == "en"
+        credits = work_dir / "tmdb_credits" / f"{imdb_id}.json"
+        if credits.exists():
+            film["cast"] = quality.cast_tokens(json.loads(credits.read_text()))
+        if film:
+            out[imdb_id] = film
     return out
 
 
@@ -260,11 +250,9 @@ def run(workers=1, shard=None):
         f"SELECT imdb_id, zip_name, candidates "
         f"FROM '{config.WORK_DIR / 'corpus_index.parquet'}'"
     ).fetchall()
-    curated = duckdb.sql(
-        f"SELECT imdb_id, runtime_minutes, genres FROM '{config.WORK_DIR / 'curated.parquet'}'"
-    ).fetchall()
-    runtimes = {i: r for i, r, _ in curated}
-    genres = {i: g for i, _, g in curated}
+    runtimes = dict(duckdb.sql(
+        f"SELECT imdb_id, runtime_minutes FROM '{config.WORK_DIR / 'curated.parquet'}'"
+    ).fetchall())
     report = build(config.RAW_DIR / "opus_en.zip", index_rows,
                    config.WORK_DIR / "counts" / config.LANG,
                    config.WORK_DIR / "word_counts.parquet",
@@ -272,5 +260,5 @@ def run(workers=1, shard=None):
                    workers=workers,
                    out_selection=config.WORK_DIR / "selection.parquet",
                    shard=shard,
-                   casts=load_casts([row[0] for row in index_rows], genres=genres))
+                   films=load_films([row[0] for row in index_rows]))
     print(f"count stage: {report}")
