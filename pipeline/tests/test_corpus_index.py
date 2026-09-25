@@ -1,3 +1,4 @@
+from moviewords_pipeline import corpus_index
 from moviewords_pipeline.corpus_index import imdb_id_from_path, rank_candidates, select_best
 
 
@@ -76,6 +77,17 @@ def test_select_best_keeps_silent_film_captions():
     assert select_best([("a.xml", 13_000)], 87) == "a.xml"
 
 
+def test_silent_era_films_admit_intertitle_only_files():
+    # Sunrise (1927): 94 min, genuine intertitle files ~350 words (~9KB),
+    # below the 5 words/min floor; a wrong film's full file is in band
+    cands = [("intertitles.xml", 9_000), ("intertitles2.xml", 8_800),
+             ("wrong_film.xml", 180_000)]
+    assert corpus_index.rank_candidates(cands, 94) == ["wrong_film.xml"]
+    ranked = corpus_index.rank_candidates(cands, 94, corpus_index.min_rate(1927))
+    assert set(ranked) == {"intertitles.xml", "intertitles2.xml", "wrong_film.xml"}
+    assert corpus_index.min_rate(1927) < corpus_index.min_rate(1930) == corpus_index.min_rate(None)
+
+
 def test_select_best_none_when_all_outside_band():
     assert select_best([("a.xml", 10)], 100) is None
 
@@ -133,7 +145,7 @@ def test_blocklist_skips_file_and_film(tmp_path, monkeypatch):
 
     pq.write_table(
         pa.table({"imdb_id": ["tt1000001", "tt1000002"],
-                  "runtime_minutes": [90, 90]}),
+                  "runtime_minutes": [90, 90], "year": [2000, 2001]}),
         str(work / "curated.parquet"))
 
     bl = tmp_path / "bl.txt"
@@ -180,7 +192,8 @@ def test_index_records_candidate_sample_with_sizes(tmp_path, monkeypatch):
             body = b"<document>" + line * reps + b"</document>"
             sizes[name] = len(body)
             z.writestr(f"OpenSubtitles/raw/en/2000/1000001/{name}.xml", body)
-    pq.write_table(pa.table({"imdb_id": ["tt1000001"], "runtime_minutes": [90]}),
+    pq.write_table(pa.table({"imdb_id": ["tt1000001"], "runtime_minutes": [90],
+                             "year": [2000]}),
                    str(work / "curated.parquet"))
     corpus_index.run()
     (row,) = duckdb.sql(

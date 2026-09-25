@@ -9,9 +9,9 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
 
-from . import config, consensus, opus_zip
+from . import config, consensus, opus_zip, quality
 from .subtitle_parser import extract_text
-from .wordcount import count_words
+from .wordcount import count_words, count_words_repaired
 
 COUNTS_SCHEMA = pa.schema([("imdb_id", pa.string()), ("word", pa.string()),
                            ("count", pa.int32())])
@@ -126,8 +126,10 @@ def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
                         # fail the film (uncached, retried next run) rather
                         # than choose without it
                         return None
-                    full[name] = count_words(extract_text(raw))
+                    text = extract_text(raw)
+                    full[name], repaired = count_words_repaired(text)
                     fps[name] = consensus.fingerprint(full[name], len(raw))
+                    fps[name]["q"] = quality.features(raw, text, full[name], repaired)
                 chosen, info = consensus.choose([(n, fps[n]) for n in names], runtime)
                 if chosen is None:
                     return None

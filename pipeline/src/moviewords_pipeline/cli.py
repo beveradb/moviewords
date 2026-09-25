@@ -1,6 +1,6 @@
 import argparse
 
-STAGES = ["download", "curate", "index", "count", "enrich", "derive"]
+STAGES = ["download", "curate", "index", "count", "enrich", "credits", "derive"]
 
 
 def main(argv=None):
@@ -33,7 +33,8 @@ def main(argv=None):
 
 def _module_for(stage):
     return {"download": "download", "curate": "curate", "index": "corpus_index",
-            "count": "counts", "enrich": "tmdb", "derive": "derive"}[stage]
+            "count": "counts", "enrich": "tmdb", "credits": "tmdb_credits",
+            "derive": "derive"}[stage]
 
 
 if __name__ == "__main__":

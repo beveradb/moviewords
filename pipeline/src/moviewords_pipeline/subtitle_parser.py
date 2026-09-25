@@ -33,7 +33,9 @@ CREDIT_RE = re.compile(
     # happens to contain both "sync" and "by" (e.g. "in sync, driven by").
     r"^\s*sync\w*\b.{0,20}?\bby\b|"
     r"corrections?\s+by|"
-    r"encoded\s+by|opensubtitles|addic7ed|www\.|https?://",
+    r"encoded\s+by|opensubtitles|addic7ed|www\.|https?://|"
+    # release-group credit animations: "© P@rM!", "nder M@nk"
+    r"©|\w@\w",
     re.IGNORECASE,
 )
 

@@ -106,3 +106,9 @@ def test_the_word_font_in_dialogue_survives():
 def test_entity_stripping_keeps_amp_and_ocr_lt():
     assert extract_text(_xml("Turn the amp up. lt's fine &amp;quot;ok&amp;quot;")) == \
         "Turn the amp up. lt's fine ok"
+
+
+def test_release_group_credit_lines_are_dropped():
+    text = extract_text(_xml("© P@rM! 2009", "nder M@nk presents", "Where's Frank?",
+                             "Meet me at 5, @ the diner."))
+    assert text == "Where's Frank?\nMeet me at 5, @ the diner."

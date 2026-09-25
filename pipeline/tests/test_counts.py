@@ -193,6 +193,9 @@ def test_majority_beats_a_larger_mislabeled_file(tmp_path):
     assert record["selection"]["reason"] == "consensus"
     assert record["selection"]["rank_top"] == TOP
     assert set(record["fingerprints"]) == {TOP, ALT1, ALT2}
+    # every fingerprint carries the quality features selection rules use
+    q = record["fingerprints"][ALT1]["q"]
+    assert {"toks_per_line", "cap_start", "mt", "style"} <= set(q)
 
 
 def test_sparse_garbage_pick_loses_to_readable_candidates(tmp_path):

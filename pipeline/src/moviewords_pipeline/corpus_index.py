@@ -37,7 +37,7 @@ def imdb_id_from_path(name):
     return "tt" + m.group(1).zfill(7)
 
 
-def rank_candidates(candidates, runtime_minutes):
+def rank_candidates(candidates, runtime_minutes, min_words_per_min=None):
     """Order a film's (zip_name, size_bytes) subtitle candidates best-first.
 
     Only files in the plausible words-per-minute band qualify, and (given
@@ -49,9 +49,10 @@ def rank_candidates(candidates, runtime_minutes):
     usual bad picks don't: a doubled/merged file is a lone outlier above the
     cluster, and a lone featurette or partial sits below it. (Forced-only
     tracks do cluster, but below the full rips, so largest-first still wins.)
-    [] if nothing is in band."""
+    [] if nothing is in band. `min_words_per_min` overrides the band's
+    floor (silent films: see min_rate)."""
     if runtime_minutes:
-        lo = runtime_minutes * config.MIN_WORDS_PER_MIN
+        lo = runtime_minutes * (min_words_per_min or config.MIN_WORDS_PER_MIN)
         hi = runtime_minutes * config.MAX_WORDS_PER_MIN
     else:
         lo, hi = config.FALLBACK_WORD_RANGE
@@ -91,6 +92,13 @@ def sample_candidates(ranked, k):
     return [ranked[round(i * (n - 1) / (k - 1))] for i in range(k)]
 
 
+def min_rate(year):
+    """The words-per-minute floor for a film released in `year`."""
+    if year is not None and year < config.SILENT_ERA_END_YEAR:
+        return config.SILENT_MIN_WORDS_PER_MIN
+    return config.MIN_WORDS_PER_MIN
+
+
 def select_best(candidates, runtime_minutes):
     """The top-ranked candidate (see rank_candidates), or None."""
     ranked = rank_candidates(candidates, runtime_minutes)
@@ -100,9 +108,10 @@ def select_best(candidates, runtime_minutes):
 def run():
     config.WORK_DIR.mkdir(parents=True, exist_ok=True)
     curated = duckdb.sql(
-        f"SELECT imdb_id, runtime_minutes FROM '{config.WORK_DIR / 'curated.parquet'}'"
+        f"SELECT imdb_id, runtime_minutes, year FROM '{config.WORK_DIR / 'curated.parquet'}'"
     ).fetchall()
-    runtimes = dict(curated)
+    runtimes = {i: r for i, r, _ in curated}
+    years = {i: y for i, _, y in curated}
     blocked_ids, blocked_files = load_blocklist()
     by_movie = defaultdict(list)
     with opus_zip.open_source() as z:
@@ -116,7 +125,7 @@ def run():
                 by_movie[imdb_id].append((info.filename, info.file_size))
     rows = []
     for imdb_id, cands in by_movie.items():
-        ranked = rank_candidates(cands, runtimes[imdb_id])
+        ranked = rank_candidates(cands, runtimes[imdb_id], min_rate(years[imdb_id]))
         if ranked:
             size = dict(cands)
             sample = sample_candidates(ranked, config.CONSENSUS_MAX_CANDIDATES)
