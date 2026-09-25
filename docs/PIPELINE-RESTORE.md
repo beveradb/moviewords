@@ -54,6 +54,11 @@ as the public data bucket; ~790MB ≈ $0.01/month):
 
 ## Recreate the VM and restore
 
+Scripted version of the steps below (detached, marker files, all the
+gotchas handled): `pipeline/scripts/vm/` - `bootstrap.sh`, `count.sh`,
+`bake.sh`, `upload.sh`. Usage and timings:
+`docs/handoffs/2026-09-25-subtitle-data-quality.md` ("Running it on the VM").
+
 ```bash
 # 1. Provision (~$0.50/h, delete when done). europe-north1 is next to the
 #    OPUS server (CSC, Finland): the 34GB zip downloads in ~10 min. 8 vCPUs
