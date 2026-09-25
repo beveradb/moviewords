@@ -17,6 +17,8 @@ if [ -f /tmp/mw_credits.tar.zst ]; then
   find $R/data/work -name '._*' -delete
 fi
 cd $R/pipeline
+# the blocklist or index rules may have changed; same output otherwise (~20 s)
+time $UV run python -u -m moviewords_pipeline.cli index
 time $UV run python -u -m moviewords_pipeline.cli count --workers 8
 time $UV run python scripts/audit_quality.py --out /opt/audit.json > /opt/audit.md
 touch /opt/RECHOOSE_DONE
