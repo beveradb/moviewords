@@ -31,7 +31,15 @@ fetch "${PREFIX}words_by_movie/data.parquet" words_by_movie.parquet
 # low-subtitle-quality films' page data (published since 2026-09-25;
 # rebuild_web_data skips them when absent)
 fetch_optional() {
-  fetch "$@" || { echo "  (not published: $1)"; rm -f "$DEST/$2.tmp"; }
+  # not `fetch ... || ...`: set -e is off inside a function called from an
+  # `||` list, so a failed curl would fall through to fetch's mv
+  if [ -s "$DEST/$2" ]; then
+    echo "cached  $2"
+  elif curl -fSs --retry 3 -o "$DEST/$2.tmp" "$BASE/$1"; then
+    mv "$DEST/$2.tmp" "$DEST/$2"
+  else
+    echo "  (not published: $1)"; rm -f "$DEST/$2.tmp"
+  fi
 }
 fetch_optional "${PREFIX}movies_flagged.parquet" movies_flagged.parquet
 fetch_optional "${PREFIX}words_by_movie_flagged/data.parquet" words_by_movie_flagged.parquet
