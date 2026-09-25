@@ -37,6 +37,11 @@ describe('MovieView quality note', () => {
     expect(note.textContent).toMatch(/left out of every total/)
   })
 
+  it('explains an anachronism flag', async () => {
+    await mount({ ...movie, quality: { tier: 'low', flags: ['anachronism'] } })
+    expect(screen.getByRole('note').textContent).toMatch(/couldn't have been said/)
+  })
+
   it('shows nothing for an ordinary film', async () => {
     await mount(movie)
     expect(screen.queryByRole('note')).toBeNull()

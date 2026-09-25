@@ -365,7 +365,8 @@
     "qualityExcluded": "Ang mga salita nito ay hindi isinama sa bawat kabuuan, chart, at ranking sa site.",
     "qualityHeading": "Kalidad ng subtitle: mababa",
     "qualityMachineTranslated": "Ang tanging English subtitle na mayroon kami para sa pelikulang ito ay mukhang machine-translated mula sa ibang wika, kaya maaaring mali ang ilang salita.",
-    "qualityWrongCast": "Ang tanging subtitle na mayroon kami para sa pelikulang ito ay hindi pinapangalanan ang mga karakter nito, kaya maaaring kabilang ito sa ibang pelikula."
+    "qualityWrongCast": "Ang tanging subtitle na mayroon kami para sa pelikulang ito ay hindi pinapangalanan ang mga karakter nito, kaya maaaring kabilang ito sa ibang pelikula.",
+    "qualityAnachronism": "Ang tanging subtitle na mayroon kami para sa pelikulang ito ay gumagamit ng mga salitang imposibleng nabanggit dito, kaya malamang na isa itong muling pagsasalin o maling pagkakarinig."
   },
   "themeToggle": {
     "day": "ARAW",

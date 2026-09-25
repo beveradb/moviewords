@@ -365,7 +365,8 @@
     "qualityExcluded": "Suas palavras ficam de fora de todos os totais, gráficos e rankings do site.",
     "qualityHeading": "Qualidade da legenda: baixa",
     "qualityMachineTranslated": "A única legenda em inglês que temos para este filme parece ter sido traduzida automaticamente de outro idioma, então algumas palavras podem estar erradas.",
-    "qualityWrongCast": "A única legenda que temos para este filme não nomeia seus personagens, então ela pode pertencer a um filme diferente."
+    "qualityWrongCast": "A única legenda que temos para este filme não nomeia seus personagens, então ela pode pertencer a um filme diferente.",
+    "qualityAnachronism": "A única legenda que temos para este filme usa palavras que não poderiam ter sido ditas nele, então é provável que seja uma retradução ou que alguém tenha ouvido errado."
   },
   "themeToggle": {
     "day": "DIA",

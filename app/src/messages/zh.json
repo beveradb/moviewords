@@ -365,7 +365,8 @@
     "qualityExcluded": "它的台词词汇不计入本站的任何总计、图表和排名中。",
     "qualityHeading": "字幕质量：低",
     "qualityMachineTranslated": "这部电影我们只有一份英文字幕，而且看起来像是从其他语言机翻的，所以有些词可能不准确。",
-    "qualityWrongCast": "这部电影我们仅有的字幕没有标注角色名，所以它可能匹配的是另一部电影。"
+    "qualityWrongCast": "这部电影我们仅有的字幕没有标注角色名，所以它可能匹配的是另一部电影。",
+    "qualityAnachronism": "我们仅有的这部电影的字幕里，出现了一些在那个年代不可能说出的词，所以这很可能是重新翻译的版本，或者是听译出错了。"
   },
   "themeToggle": {
     "day": "日间",

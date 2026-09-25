@@ -365,7 +365,8 @@
     "qualityExcluded": "Jeho slova jsou vyřazena ze všech součtů, grafů a žebříčků na webu.",
     "qualityHeading": "Kvalita titulků: nízká",
     "qualityMachineTranslated": "Jediné anglické titulky, které k tomuto filmu máme, vypadají jako strojově přeložené z jiného jazyka, takže některá slova mohou být špatně.",
-    "qualityWrongCast": "Jediné titulky, které k tomuto filmu máme, neuvádějí jména postav, takže možná patří k jinému filmu."
+    "qualityWrongCast": "Jediné titulky, které k tomuto filmu máme, neuvádějí jména postav, takže možná patří k jinému filmu.",
+    "qualityAnachronism": "Jediné titulky, které k tomuto filmu máme, obsahují slova, která v něm nemohla zaznít, takže jde pravděpodobně o nový překlad nebo přeslechnutí."
   },
   "themeToggle": {
     "day": "DEN",

@@ -254,3 +254,26 @@ def test_near_wordless_film_keeps_its_tiny_file():
     """Silent Movie (1976) says one word; every upload is tiny."""
     name, info = _pick([("a", _fp(["non"], 3)), ("b", _fp(["non"], 3))])
     assert name == "a" and info["relaxed"] is True and info["tier"] == "ok"
+
+
+def test_profanity_in_a_production_code_era_film_is_an_anachronism():
+    """Showdown (1963): "Tell your fucking dogs to don't get too close." -
+    a re-translation. Distant Drums, Reefer Madness: the same."""
+    film = {"english": True, "year": 1963, "documentary": False}
+    swears = _qfp(FILM, 9000, profanity={"fucking": 1})
+    clean = _qfp(FILM, 8000)
+    name, info = choose([("swears", swears), ("clean", clean)], 90, film)
+    assert name == "clean" and info["flagged"] == {"swears": ["anachronism"]}
+    assert choose([("swears", swears)], 90, film)[1]["flags"] == ["anachronism"]
+
+
+def test_profanity_is_no_anachronism_in_documentaries_later_films_or_translations():
+    """Portrait of Jason, Warrendale (1967 documentaries), Chelsea Girls
+    (1966): genuine. A translated film's subtitle words aren't its own."""
+    swears = [("only", _qfp(FILM, 9000, profanity={"fuck": 3, "shit": 2}))]
+    for film in ({"english": True, "year": 1963, "documentary": True},
+                 {"english": True, "year": 1966, "documentary": False},
+                 {"english": False, "year": 1950, "documentary": False}):
+        assert choose(swears, 90, film)[1]["tier"] == "ok", film
+    mild = [("only", _qfp(FILM, 9000, profanity={"damn": 4, "hell": 2}))]
+    assert choose(mild, 90, {"english": True, "year": 1950})[1]["tier"] == "ok"

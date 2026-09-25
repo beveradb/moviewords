@@ -365,7 +365,8 @@
     "qualityExcluded": "Sen sanat on jätetty pois sivuston kaikista kokonaismääristä, kaavioista ja sijoituksista.",
     "qualityHeading": "Tekstityksen laatu: heikko",
     "qualityMachineTranslated": "Ainoa englanninkielinen tekstityksemme tälle elokuvalle vaikuttaa konekäännetyltä toisesta kielestä, joten osa sanoista voi olla väärin.",
-    "qualityWrongCast": "Ainoa tekstityksemme tälle elokuvalle ei nimeä sen hahmoja, joten se saattaa kuulua toiseen elokuvaan."
+    "qualityWrongCast": "Ainoa tekstityksemme tälle elokuvalle ei nimeä sen hahmoja, joten se saattaa kuulua toiseen elokuvaan.",
+    "qualityAnachronism": "Ainoa tälle elokuvalle löytämämme tekstitys käyttää sanoja, joita siinä ei olisi voitu sanoa, joten kyseessä on todennäköisesti uudelleenkäännös tai kuulovirhe."
   },
   "themeToggle": {
     "day": "PÄIVÄ",

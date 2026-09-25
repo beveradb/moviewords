@@ -87,6 +87,14 @@ def features(raw, text, counts, ocr_repaired=0):
     }
 
 
+STRONG_PROFANITY_RE = re.compile(r"^(mother)?fuck|^cunt")
+
+
+def strong_profanity(q):
+    """How many times the file says fuck/motherfucker/cunt (any form)."""
+    return sum(n for w, n in q.get("profanity", {}).items() if STRONG_PROFANITY_RE.match(w))
+
+
 def is_asr(q):
     """Auto-generated captions: long unpunctuated, mostly lower-case lines."""
     return (q["toks_per_line"] >= 12 and q["cap_start"] < 0.75

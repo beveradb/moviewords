@@ -365,7 +365,8 @@
     "qualityExcluded": "Le sue parole sono escluse da ogni totale, grafico e classifica sul sito.",
     "qualityHeading": "Qualità dei sottotitoli: bassa",
     "qualityMachineTranslated": "L'unico sottotitolo in inglese che abbiamo per questo film sembra tradotto automaticamente da un'altra lingua, quindi alcune parole potrebbero essere sbagliate.",
-    "qualityWrongCast": "L'unico sottotitolo che abbiamo per questo film non indica i nomi dei personaggi, quindi potrebbe appartenere a un film diverso."
+    "qualityWrongCast": "L'unico sottotitolo che abbiamo per questo film non indica i nomi dei personaggi, quindi potrebbe appartenere a un film diverso.",
+    "qualityAnachronism": "L'unico sottotitolo che abbiamo per questo film usa parole che non avrebbero potuto essere pronunciate al suo interno, quindi probabilmente si tratta di una ritraduzione o di un errore di ascolto."
   },
   "themeToggle": {
     "day": "GIORNO",

@@ -365,7 +365,8 @@
     "qualityExcluded": "A szavait kihagytuk az oldal minden összesítéséből, grafikonjából és rangsorából.",
     "qualityHeading": "Felirat minősége: alacsony",
     "qualityMachineTranslated": "Az egyetlen angol feliratunk ehhez a filmhez úgy tűnik, gépi fordítással készült egy másik nyelvből, így néhány szó hibás lehet.",
-    "qualityWrongCast": "Az egyetlen feliratunk ehhez a filmhez nem nevezi meg a karaktereket, így lehet, hogy egy másik filmhez tartozik."
+    "qualityWrongCast": "Az egyetlen feliratunk ehhez a filmhez nem nevezi meg a karaktereket, így lehet, hogy egy másik filmhez tartozik.",
+    "qualityAnachronism": "Az egyetlen feliratunk ehhez a filmhez olyan szavakat használ, amik el sem hangozhattak benne, így valószínűleg újrafordításról vagy félrehallásról van szó."
   },
   "themeToggle": {
     "day": "NAPPAL",

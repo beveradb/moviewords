@@ -38,7 +38,7 @@ export interface MovieIndexEntry {
 /** Whether an index entry counts toward the corpus (totals, charts, lists). */
 export const inCorpus = (m: MovieIndexEntry) => !m.q
 
-export type QualityFlag = 'asr' | 'machine-translated' | 'wrong-cast'
+export type QualityFlag = 'asr' | 'machine-translated' | 'wrong-cast' | 'anachronism'
 
 export interface MovieDetail {
   imdb_id: string

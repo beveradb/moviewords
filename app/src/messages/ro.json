@@ -365,7 +365,8 @@
     "qualityExcluded": "Cuvintele sale sunt excluse din fiecare total, grafic și clasament de pe site.",
     "qualityHeading": "Calitatea subtitrării: scăzută",
     "qualityMachineTranslated": "Singura subtitrare în engleză pe care o avem pentru acest film pare tradusă automat din altă limbă, așa că unele cuvinte ar putea fi greșite.",
-    "qualityWrongCast": "Singura subtitrare pe care o avem pentru acest film nu numește personajele, așa că s-ar putea să aparțină unui alt film."
+    "qualityWrongCast": "Singura subtitrare pe care o avem pentru acest film nu numește personajele, așa că s-ar putea să aparțină unui alt film.",
+    "qualityAnachronism": "Singura subtitrare pe care o avem pentru acest film folosește cuvinte care nu ar fi putut fi rostite în el, deci este probabil vorba de o retraducere sau de o eroare de ascultare."
   },
   "themeToggle": {
     "day": "ZI",

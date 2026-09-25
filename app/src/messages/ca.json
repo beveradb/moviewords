@@ -365,7 +365,8 @@
     "qualityExcluded": "Les seves paraules queden excloses de tots els totals, gràfics i rànquings del lloc web.",
     "qualityHeading": "Qualitat dels subtítols: baixa",
     "qualityMachineTranslated": "L'únic subtítol en anglès que tenim per a aquesta pel·lícula sembla traduït automàticament d'un altre idioma, així que algunes paraules poden ser incorrectes.",
-    "qualityWrongCast": "L'únic subtítol que tenim per a aquesta pel·lícula no anomena els seus personatges, així que podria pertànyer a una pel·lícula diferent."
+    "qualityWrongCast": "L'únic subtítol que tenim per a aquesta pel·lícula no anomena els seus personatges, així que podria pertànyer a una pel·lícula diferent.",
+    "qualityAnachronism": "L'únic subtítol que tenim d'aquesta pel·lícula utilitza paraules que no s'hi podrien haver dit, així que probablement es tracta d'una retraducció o d'un error d'audició."
   },
   "themeToggle": {
     "day": "DIA",

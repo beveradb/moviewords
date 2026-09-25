@@ -365,7 +365,8 @@
     "qualityExcluded": "Kelimeleri sitedeki tüm toplamlardan, grafiklerden ve sıralamalardan çıkarıldı.",
     "qualityHeading": "Altyazı kalitesi: düşük",
     "qualityMachineTranslated": "Bu film için elimizdeki tek İngilizce altyazı başka bir dilden makine çevirisi gibi görünüyor, bu yüzden bazı kelimeler yanlış olabilir.",
-    "qualityWrongCast": "Bu film için elimizdeki tek altyazı karakterlerin isimlerini içermiyor, bu yüzden başka bir filme ait olabilir."
+    "qualityWrongCast": "Bu film için elimizdeki tek altyazı karakterlerin isimlerini içermiyor, bu yüzden başka bir filme ait olabilir.",
+    "qualityAnachronism": "Bu film için elimizdeki tek altyazı, o dönemde söylenmiş olması imkansız kelimeler içeriyor, bu yüzden muhtemelen sonradan yapılmış bir çeviri veya yanlış duyulmuş bir metin."
   },
   "themeToggle": {
     "day": "GÜNDÜZ",

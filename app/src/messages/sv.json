@@ -365,7 +365,8 @@
     "qualityExcluded": "Dess ord utelämnas från alla totaler, listor och rankningar på sajten.",
     "qualityHeading": "Undertextens kvalitet: låg",
     "qualityMachineTranslated": "Den enda engelska undertexten vi har för den här filmen verkar vara maskinöversatt från ett annat språk, så vissa ord kan vara felaktiga.",
-    "qualityWrongCast": "Den enda undertexten vi har för den här filmen anger inte karaktärernas namn, så den kan tillhöra en annan film."
+    "qualityWrongCast": "Den enda undertexten vi har för den här filmen anger inte karaktärernas namn, så den kan tillhöra en annan film.",
+    "qualityAnachronism": "Den enda undertexten vi har för den här filmen använder ord som inte kan ha sagts i den, så det är troligen en nyöversättning eller en felhörning."
   },
   "themeToggle": {
     "day": "DAG",

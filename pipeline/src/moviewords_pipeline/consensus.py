@@ -68,8 +68,11 @@ def quality_flags(pool, film=None):
     (auto-captions), "machine-translated" (OPUS's flag; for English-original
     films also the style model - on translated films it can't tell machine
     output from human translationese), "wrong-cast" (names none of the
-    film's characters while another file names several). `film` is
-    {"english": bool, "cast": name tokens or None} or None (unknown)."""
+    film's characters while another file names several), "anachronism"
+    (strong profanity in a pre-1965 English-original fiction film - the
+    Production Code era: such a file is a re-translation, auto-captions or
+    a transcriber's guess). `film` is {"english": bool, "year": int,
+    "documentary": bool, "cast": name tokens or None} or None (unknown)."""
     film = film or {}
     flags = {name: [] for name, _ in pool}
     for name, fp in pool:
@@ -81,6 +84,10 @@ def quality_flags(pool, film=None):
         score = quality.mt_score(q, fp["tokens"]) if film.get("english") else None
         if q["mt"] == 1 or (score is not None and score >= config.MT_SCORE_MAX):
             flags[name].append("machine-translated")
+        if (film.get("english") and not film.get("documentary")
+                and (film.get("year") or 9999) < config.PROFANITY_ANACHRONISM_BEFORE
+                and quality.strong_profanity(q)):
+            flags[name].append("anachronism")
     if film.get("cast"):
         hits = {name: quality.cast_hits(fp, film["cast"]) for name, fp in pool}
         if max(hits.values()) >= config.CAST_MIN_HITS:

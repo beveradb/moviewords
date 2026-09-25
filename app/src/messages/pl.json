@@ -365,7 +365,8 @@
     "qualityExcluded": "Słowa z tego filmu są pomijane w każdym podsumowaniu, na wykresach i w rankingach na stronie.",
     "qualityHeading": "Jakość napisów: niska",
     "qualityMachineTranslated": "Jedyne angielskie napisy, jakie mamy dla tego filmu, wyglądają na tłumaczenie maszynowe z innego języka, więc niektóre słowa mogą być błędne.",
-    "qualityWrongCast": "Jedyne napisy, jakie mamy dla tego filmu, nie zawierają imion postaci, więc mogą pochodzić z innego filmu."
+    "qualityWrongCast": "Jedyne napisy, jakie mamy dla tego filmu, nie zawierają imion postaci, więc mogą pochodzić z innego filmu.",
+    "qualityAnachronism": "Jedyne napisy, jakie mamy do tego filmu, zawierają słowa, które nie mogły w nim paść, więc to prawdopodobnie nowe tłumaczenie lub przesłyszenie."
   },
   "themeToggle": {
     "day": "DZIEŃ",

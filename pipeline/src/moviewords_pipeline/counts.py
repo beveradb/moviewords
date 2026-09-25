@@ -72,7 +72,7 @@ def _film_key(film):
     with: a later credits fetch or language fix must re-choose."""
     if not film:
         return None
-    return {"english": film.get("english"), "cast": sorted(film.get("cast") or ())}
+    return {k: sorted(v) if k == "cast" else v for k, v in sorted(film.items())}
 
 
 def build(zip_path, index_rows, cache_dir, out_counts, out_stats, runtimes,
@@ -225,15 +225,20 @@ def _write_selection(records, out):
     }), out)
 
 
-def load_films(imdb_ids, work_dir=None):
-    """{imdb_id: {"english": bool, "cast": name tokens}} - whether the film
-    is English-original (the tmdb stage's cache; the machine-translation
-    style model only applies then) and its TMDB cast (the credits stage's
-    cache, for the wrong-film check). Films with neither are left out."""
+def load_films(imdb_ids, work_dir=None, curated=None):
+    """{imdb_id: film context for consensus.quality_flags} - whether the
+    film is English-original (the tmdb stage's cache), its year and whether
+    it's a documentary (`curated`: {imdb_id: (year, genres)}), and its TMDB
+    cast (the credits stage's cache, for the wrong-film check)."""
     work_dir = work_dir or config.WORK_DIR
+    curated = curated or {}
     out = {}
     for imdb_id in imdb_ids:
         film = {}
+        if imdb_id in curated:
+            year, genres = curated[imdb_id]
+            film["year"] = year
+            film["documentary"] = "Documentary" in (genres or [])
         tmdb = work_dir / "tmdb" / f"{imdb_id}.json"
         if tmdb.exists():
             film["english"] = (json.loads(tmdb.read_text()) or {}).get("original_language") == "en"
@@ -250,9 +255,10 @@ def run(workers=1, shard=None):
         f"SELECT imdb_id, zip_name, candidates "
         f"FROM '{config.WORK_DIR / 'corpus_index.parquet'}'"
     ).fetchall()
-    runtimes = dict(duckdb.sql(
-        f"SELECT imdb_id, runtime_minutes FROM '{config.WORK_DIR / 'curated.parquet'}'"
-    ).fetchall())
+    curated = duckdb.sql(
+        f"SELECT imdb_id, runtime_minutes, year, genres FROM '{config.WORK_DIR / 'curated.parquet'}'"
+    ).fetchall()
+    runtimes = {i: r for i, r, _, _ in curated}
     report = build(config.RAW_DIR / "opus_en.zip", index_rows,
                    config.WORK_DIR / "counts" / config.LANG,
                    config.WORK_DIR / "word_counts.parquet",
@@ -260,5 +266,6 @@ def run(workers=1, shard=None):
                    workers=workers,
                    out_selection=config.WORK_DIR / "selection.parquet",
                    shard=shard,
-                   films=load_films([row[0] for row in index_rows]))
+                   films=load_films([row[0] for row in index_rows],
+                                    curated={i: (y, g) for i, _, y, g in curated}))
     print(f"count stage: {report}")

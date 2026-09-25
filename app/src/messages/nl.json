@@ -365,7 +365,8 @@
     "qualityExcluded": "De woorden ervan worden weggelaten uit elk totaal, elke grafiek en elke ranglijst op de site.",
     "qualityHeading": "Kwaliteit ondertiteling: laag",
     "qualityMachineTranslated": "De enige Engelse ondertiteling die we voor deze film hebben, lijkt machinaal vertaald uit een andere taal, dus sommige woorden kunnen verkeerd zijn.",
-    "qualityWrongCast": "De enige ondertiteling die we voor deze film hebben, noemt de personages niet, dus hij hoort misschien bij een andere film."
+    "qualityWrongCast": "De enige ondertiteling die we voor deze film hebben, noemt de personages niet, dus hij hoort misschien bij een andere film.",
+    "qualityAnachronism": "De enige ondertiteling die we voor deze film hebben, gebruikt woorden die er niet in gezegd konden zijn, dus het is waarschijnlijk een nieuwe vertaling of een luisterfout."
   },
   "themeToggle": {
     "day": "DAG",

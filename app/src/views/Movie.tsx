@@ -28,6 +28,7 @@ const QUALITY_KEYS: Record<QualityFlag, string> = {
   asr: 'movie.qualityAsr',
   'machine-translated': 'movie.qualityMachineTranslated',
   'wrong-cast': 'movie.qualityWrongCast',
+  anachronism: 'movie.qualityAnachronism',
 }
 
 /** Why a film's numbers are left out of the site's aggregates. */

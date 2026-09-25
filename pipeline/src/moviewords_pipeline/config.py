@@ -79,7 +79,12 @@ MIN_CANDIDATE_TOKENS = 200
 # candidate names CAST_MIN_HITS+ of them.
 MT_SCORE_MAX = 0.8
 CAST_MIN_HITS = 2
+# Strong profanity in an English-original fiction film before this year is
+# an anachronism (the audit's pre-1968 canary: every genuine hit was a
+# 1965-67 underground film or a documentary).
+PROFANITY_ANACHRONISM_BEFORE = 1965
 FINGERPRINT_VERSION = 2   # 2: quality features (fp["q"]), OCR repair, credit junk
 # 2: distinct-text voting (Baahubali 2); 3: quality tiers, hard gates;
-# 4: no hard gates, style model for English-original only, relative cast rule
-SELECTION_VERSION = 4
+# 4: no hard gates, style model for English-original only, relative cast rule;
+# 5: anachronistic profanity
+SELECTION_VERSION = 5
