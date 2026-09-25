@@ -245,3 +245,9 @@ def test_sparse_cast_list_is_not_evidence_against_a_lone_file():
 def test_fingerprints_without_quality_features_are_never_flagged():
     name, info = _pick([("old", _fp(FILM, 9000))])
     assert info["tier"] == "ok" and info["flags"] == []
+
+
+def test_near_wordless_film_keeps_its_tiny_file():
+    """Silent Movie (1976) says one word; every upload is tiny."""
+    name, info = _pick([("a", _fp(["non"], 3)), ("b", _fp(["non"], 3))])
+    assert name == "a" and info["relaxed"] is True and info["tier"] == "ok"

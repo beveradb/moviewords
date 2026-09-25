@@ -43,8 +43,11 @@ def fingerprint(counts, raw_bytes):
 
 
 # gate() verdicts that mean the file is not this film's dialogue at all:
-# never relaxed - a film whose every file fails one is dropped
-HARD_GATES = frozenset({"tiny", "not-english", "commentary"})
+# never relaxed - a film whose every file fails one is dropped. "tiny" and
+# "sparse" do relax: when every upload is tiny the film is near-wordless
+# (Silent Movie says one word, The Red Turtle none) and when every upload
+# is sparse it's a musical (lyrics are stripped).
+HARD_GATES = frozenset({"not-english", "commentary"})
 
 
 def gate(fp):
@@ -101,11 +104,11 @@ def choose(candidates, runtime_minutes, cast=None):
     """(zip_name, info) for the best of `candidates`, a best-rank-first list
     of (zip_name, fingerprint); (None, info) if none is this film's dialogue
     - info["reason"] "none" when nothing parses, "dropped" when every file
-    fails a hard gate (commentary, other language, tiny).
+    fails a hard gate (commentary, other language).
 
     info: reason (consensus | rank | single | doubled), cluster size, usable
-    count, relaxed (every file was sparse, as musicals are, so that gate
-    was dropped), rejected {zip_name: gate}, tier ("ok", or "low" when every
+    count, relaxed (every file was tiny or sparse - near-wordless films,
+    musicals - so those gates were dropped), rejected {zip_name: gate}, tier ("ok", or "low" when every
     usable file has quality flags and the least bad was kept), flags (the
     chosen file's quality flags) and flagged {zip_name: flags} for files
     passed over."""
