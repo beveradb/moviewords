@@ -70,19 +70,20 @@ wrong films replaced on Othello, Avatar and Werewolf.
 Consensus can't help when the folder has only one file, or when every file
 is bad. For that we needed to recognise a bad file on its own.
 
-### The canary: "fuck" in films made before 1969
+### The canary: "fuck" in films made before 1968
 
 From 1934 to 1968, Hollywood films were made under the Production Code,
 which banned profanity outright. It was replaced by the MPAA ratings system
 in November 1968. Before that, the word essentially never reached the screen
 in mainstream films. M\*A\*S\*H (1970) is commonly cited as the first major
 American studio film to use it; a few 1967 British films got there first.
-So every pre-1969 English-original film where our data said "fuck" was a
-lead worth reading.
+So every English-original film from before 1968 where our data said "fuck"
+was a lead worth reading. (1968 itself is a transition year: the ratings
+arrived that November.)
 
-The live data had **56 such films** (146 counting translated films). We
-read every line in context for the 39 English-original films in the first
-audit:
+Before these fixes, **56** pre-1968 English-original films in the live data
+used strong profanity, and **39** of them said "fuck" (146 films counting
+translated ones). We read every line in context for those 39:
 
 | What it was | Films | Example |
 |---|---|---|
@@ -170,24 +171,45 @@ three rules before shipping:
   genuine films (Cronenberg's Stereo, Astral) than wrong ones. The two real
   wrong films it found are on a manual blocklist instead.
 
-## Result: the pre-1969 "fuck" line now
+## Result: the pre-1968 profanity line now
 
-Pre-1968 English-original films using the word dropped from **56 to 12**.
+Pre-1968 English-original films using strong profanity dropped from
+**56 to 12**.
 The rest are genuine or at the edge:
 
 - **Genuine:** 1960s direct-cinema documentaries and underground films that
   recorded real, unscripted speech: Warrendale (1967), Portrait of Jason
   (1967), Titicut Follies (1967), Dont Look Back (1967), Chelsea Girls
   (1966), David Holzman's Diary (1967), and Symbiopsychotaxiplasm: Take One
-  (1968), a documentary of a film crew arguing.
+  (1968, just outside the pre-1968 count), a documentary of a film crew
+  arguing.
 - **Plausible but unverifiable:** Primary (1960), a direct-cinema record of
   the Kennedy-Humphrey primary: "Well, fuck." as vote counts come in.
 - **Edge cases after the 1965 cutoff:** What's Up, Tiger Lily? (1966), a
   likely mishearing; A Very Special Favor (1965); You're a Big Boy Now
   (1966); Herostratus and The Touch of Her Flesh (both 1967).
 
-So the blips left before 1969 are real history: documentaries and the
+So the blips left before 1968 are real history: documentaries and the
 underground working outside the Production Code.
+
+## The launch chart, redrawn
+
+The chart from the launch posts (English-language films, per million words
+of dialogue), redrawn on the cleaned data. It now counts **word families**
+(fuck\* = fuck, fucking, fucked, motherfucker...): the single word "fuck" is
+only about 42% of its family, against about 86% for "shit", so single words
+understated the gap between the lines.
+
+![Swearing in English-language films 1930-2023, word families](launch/swearing-chart-families-2026-09-25.png)
+
+- Before 1965 all three families are now essentially flat at zero. The ~12
+  per million "shit" and "fuck" that the launch chart showed around 1950 was
+  bad subtitle files.
+- The 1968 break is unchanged. fuck\* overtakes shit\* around 1987 and
+  reaches about 3,200 per million words by 2023; damn\* fades after the 1970s.
+- Source and data: `docs/launch/swearing-chart-families-2026-09-25.source.html`
+  and `swearing-data-families-2026-09-25.json` (3-year rolling average, from
+  the live English-original slice, low-quality films excluded).
 
 ## How we keep it honest
 

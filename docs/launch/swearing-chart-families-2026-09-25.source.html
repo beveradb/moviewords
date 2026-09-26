@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- Source for docs/launch/swearing-chart-families-2026-09-25.png (launch chart redrawn on the cleaned corpus, word families).
+     Data: swearing-data-families-2026-09-25.json (English-original films, 3-yr rolling rate per
+     million words). Render: open in Playwright at 1600x1000, screenshot. -->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Courier Prime'; font-weight: 400; src: url('../../app/public/fonts/courier-prime-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Courier Prime'; font-weight: 700; src: url('../../app/public/fonts/courier-prime-700-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Inter'; font-weight: 100 900; src: url('../../app/public/fonts/inter-latin.woff2') format('woff2'); }
+  :root { --paper: #faf9f5; --ink: #201d1a; --ink2: #6e675e; --ink3: #a39b8f; --rule: #e8e5dc; }
+  html, body { margin: 0; background: var(--paper); }
+  body { width: 1600px; height: 1000px; box-sizing: border-box; padding: 56px 72px 40px; font-family: Inter, sans-serif; color: var(--ink); }
+  h1 { font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 52px; margin: 0 0 10px; letter-spacing: -0.5px; }
+  .sub { font-size: 23px; color: var(--ink2); margin: 0 0 18px; }
+  svg text { font-family: Inter, sans-serif; }
+  .foot { display: flex; justify-content: space-between; font-size: 17px; color: var(--ink2); margin-top: 6px; }
+  .brand { font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 22px; color: var(--ink); }
+  .brand span { background: #ffd84d; padding: 0 4px; }
+</style>
+</head>
+<body>
+  <h1>How Hollywood learned to swear</h1>
+  <p class="sub">How often each word family is spoken in English-language films, per million words of dialogue (3-year rolling average)</p>
+  <svg id="chart" width="1456" height="720"></svg>
+  <div class="foot">
+    <div>Source: English subtitles of 34,432 English-language films, 1930-2023 (OPUS OpenSubtitles), updated 2026-09-25 after data-quality fixes. * word families, e.g. fuck* = fuck, fucking, fucked, motherfucker...</div>
+    <div class="brand">MOVIE<span>WORDS</span>.org</div>
+  </div>
+<script>
+const COLORS = { damn: '#3e6fa8', shit: '#cc5a2e', fuck: '#128a5e' }
+fetch('swearing-data-families-2026-09-25.json').then(r => r.json()).then(data => {
+  const svg = document.getElementById('chart'), NS = 'http://www.w3.org/2000/svg'
+  const W = 1456, H = 720, m = { l: 70, r: 110, t: 20, b: 50 }
+  const x0 = 1930, x1 = 2023, yMax = 3500
+  const x = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r)
+  const y = v => H - m.b - v / yMax * (H - m.t - m.b)
+  const el = (tag, attrs, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; svg.appendChild(e); return e }
+
+  for (let v = 0; v <= yMax; v += 500) {
+    el('line', { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: v ? '#e8e5dc' : '#a39b8f', 'stroke-width': v ? 1 : 1.5 })
+    el('text', { x: m.l - 14, y: y(v) + 6, 'text-anchor': 'end', 'font-size': 18, fill: '#6e675e' }, v.toLocaleString('en-US'))
+  }
+  for (let v = 1930; v <= 2020; v += 10)
+    el('text', { x: x(v), y: H - m.b + 32, 'text-anchor': 'middle', 'font-size': 18, fill: '#6e675e' }, v)
+
+  // 1968 marker: the Production Code gives way to the MPAA rating system (1 Nov 1968)
+  el('line', { x1: x(1968), x2: x(1968), y1: y(yMax) + 10, y2: y(0), stroke: '#201d1a', 'stroke-width': 1.5, 'stroke-dasharray': '6 5' })
+  el('text', { x: x(1968) - 14, y: y(yMax) + 34, 'text-anchor': 'end', 'font-size': 20, 'font-weight': 700, fill: '#201d1a' }, '1968: the Hays Code is replaced')
+  el('text', { x: x(1968) - 14, y: y(yMax) + 60, 'text-anchor': 'end', 'font-size': 20, fill: '#6e675e' }, 'by the MPAA ratings system (G, M, R, X)')
+
+  for (const [word, pts] of Object.entries(data)) {
+    el('path', { d: pts.map(([yr, v], i) => `${i ? 'L' : 'M'}${x(yr).toFixed(1)},${y(v).toFixed(1)}`).join(''), fill: 'none', stroke: COLORS[word], 'stroke-width': 3.5, 'stroke-linejoin': 'round' })
+    const [ly, lv] = pts[pts.length - 1]
+    el('circle', { cx: x(ly), cy: y(lv), r: 5, fill: COLORS[word], stroke: '#faf9f5', 'stroke-width': 2 })
+    el('text', { x: x(ly) + 14, y: y(lv) + 8, 'font-size': 24, 'font-weight': 700, fill: '#201d1a' }, `${word}*`)
+  }
+  document.body.dataset.ready = '1'
+})
+</script>
+</body>
+</html>
