@@ -83,9 +83,6 @@
     "seriesLegend": {
       "exploreTitle": "「{word}」を探索"
     },
-    "slug": {
-      "defaultPrefix": "INT."
-    },
     "wordFilterBar": {
       "allButton": "すべての言葉",
       "anyKindButton": "すべての種類",

@@ -71,13 +71,13 @@ export function SeriesLegend({ series }: { series: Series[] }) {
   )
 }
 
-/** Screenplay slug-line header: INT. PULP FICTION - 1994 */
+/** Screenplay slug-line header: PULP FICTION - 1994 */
 export function Slug({ prefix, text, right }: { prefix?: string; text: React.ReactNode; right?: React.ReactNode }) {
-  const { t } = useI18n()
   return (
     <div className="slug flex items-baseline justify-between border-b-2 border-ink pb-1 text-sm sm:text-base">
       <span>
-        {prefix ?? t('ui.slug.defaultPrefix')} {text}
+        {prefix && `${prefix} `}
+        {text}
       </span>
       {right && <span className="text-ink-2">{right}</span>}
     </div>

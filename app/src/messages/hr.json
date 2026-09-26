@@ -83,9 +83,6 @@
     "seriesLegend": {
       "exploreTitle": "Istraži “{word}”"
     },
-    "slug": {
-      "defaultPrefix": "INT."
-    },
     "wordFilterBar": {
       "allButton": "sve riječi",
       "anyKindButton": "bilo koja vrsta",

@@ -83,9 +83,6 @@
     "seriesLegend": {
       "exploreTitle": "“{word}” 탐색"
     },
-    "slug": {
-      "defaultPrefix": "실내."
-    },
     "wordFilterBar": {
       "allButton": "모든 단어",
       "anyKindButton": "모든 종류",

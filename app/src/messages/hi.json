@@ -83,9 +83,6 @@
     "seriesLegend": {
       "exploreTitle": "“{word}” को एक्सप्लोर करो"
     },
-    "slug": {
-      "defaultPrefix": "INT."
-    },
     "wordFilterBar": {
       "allButton": "सभी शब्द",
       "anyKindButton": "किसी भी तरह के",
