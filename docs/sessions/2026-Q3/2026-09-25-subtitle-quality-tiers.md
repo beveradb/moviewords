@@ -1,6 +1,6 @@
 # Subtitle quality tiers - 2026-09-25
 
-**Project:** moviewords   **Branch:** feat/sess-20260925-1353-subtitle-data-quality   **Status:** done - PR #43 merged (7d247e9), app deployed, data published + purged, prod verified, VM deleted
+**Project:** moviewords   **Branch:** feat/sess-20260925-1353-subtitle-data-quality   **Status:** done - PR #43 merged (7d247e9), data published + purged, prod verified, VM deleted; docs PR #44 (DATA-QUALITY.md, FAQ, handoff for parked follow-ups)
 
 ## Summary
 
@@ -37,6 +37,21 @@ aggregate (Andrew's policy). Design, calibration and rejected ideas:
    hit narrated films), plus an anachronism flag the style model misses.
 3. Bake + publish on the VM; upload 102 min (865k files).
 
+## Decisions & rationale
+
+- Policy (Andrew): a film whose only subtitle is low quality keeps its page
+  with a note but is out of every aggregate; nothing is dropped.
+- Style model judges English-original films only - on human translations of
+  foreign films it reads translationese as MT (~40% precision).
+- Cast check is relative-only; single-file wrong films go on the blocklist
+  (lone-file rule hit narrated/unnamed-character films).
+- No hard gates: "commentary-only" films were documentaries about film.
+- Anachronism flag: strong profanity in pre-1965 English-original fiction;
+  the 1965-68 underground/documentary hits are genuine.
+- Follow-ups (silent films' TMDB, cross-film scan, grey zone, translated-film
+  MT, faster upload) parked: each needs a full re-bake + ~1.7h upload, which
+  Andrew didn't want now.
+
 ## Gotchas
 
 - `bootstrap.sh` exited silently on a fresh image (pipefail on the rclone
@@ -63,6 +78,14 @@ aggregate (Andrew's policy). Design, calibration and rejected ideas:
   each; the VM's disk read 0 MB/s (page cache), CPU 67% idle, 0.7 MB/s out -
   latency-bound at ~300 files/s with 64 transfers. Ideas in the follow-ups
   handoff.
+
+## Related docs
+
+- `docs/DATA-QUALITY.md` - the whole story for readers (share this one)
+- `docs/superpowers/plans/2026-09-25-subtitle-quality.md` - design + calibration
+- `docs/handoffs/2026-09-26-subtitle-quality-followups.md` - parked work
+- `docs/sessions/2026-Q3/2026-09-25-content-consensus-selection.md` - PR #41
+- Study data: `~/Projects/beveradb/moviewords-quality-study-2026-09-25/`
 
 ## Open threads
 
