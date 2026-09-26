@@ -2,6 +2,11 @@
 
 **Created:** 2026-09-24 (launch day, afternoon)   **For:** a fresh Claude session   **Priority:** 1 = high (data correctness, visible to users), 2-3 = medium
 
+> **Status 2026-09-25:** #1 DONE (subtitle selection PRs #38, #41, #43 - see
+> `docs/DATA-QUALITY.md`), #2 DONE (film-page word explorer, PR #40), #3 DONE
+> (Trends rating filter, PR #39). Still open: #4 and #5 below. Subtitle-quality
+> work continues in `docs/handoffs/2026-09-26-subtitle-quality-followups.md`.
+
 ## Context
 
 The Show HN was auto-killed (spam filter; mods emailed), so we moved on to
@@ -16,7 +21,7 @@ Reddit and Bluesky with a single chart - **swearing in English-language films,
 Commenters' questions surfaced the three follow-ups below. All numbers are from
 the published R2 data (`https://data.moviewords.org/all/...`), checked 2026-09-24.
 
-## 1. Bad / truncated subtitle files (data correctness) - do first
+## 1. Bad / truncated subtitle files (data correctness) - do first (DONE)
 
 > **DONE 2026-09-24** (branch `feat/sess-20260924-1100-subtitle-file-selection`).
 > Root cause was the index stage's size estimate (raw XML bytes / 8; the
@@ -72,7 +77,7 @@ stands. The damage is at the **film level**: movie pages, per-film rankings
   incomplete" note on the movie page.
 - Needs a re-bake + R2 publish (see `moviewords-status` memory for recipes).
 
-## 2. Per-film word lookup (feature)
+## 2. Per-film word lookup (feature) (DONE)
 
 **Ask:** "how many times does *The Wolf of Wall Street* say fuck?" There's no
 way to answer that on the site today:
@@ -89,7 +94,7 @@ avoid making mobile pay the 35 MB WASM cold-boot) or pre-baking per-film full
 word lists (size check needed - 51k films). Would also make a nice Reddit reply
 tool. Do **after** #1, or it will surface the broken files more prominently.
 
-## 3. MPAA ratings (analysis / possible follow-up post)
+## 3. MPAA ratings (analysis / possible follow-up post) (DONE)
 
 A commenter asked whether R/X-rated films are included. **Yes** - there's no
 rating filter; it's every film with English subtitles in the corpus. But we
