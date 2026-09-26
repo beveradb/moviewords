@@ -7,7 +7,7 @@
 set -euxo pipefail
 exec >>/opt/bootstrap.log 2>&1        # plain redirect - never `> >(tee ...)` (see count.sh)
 BRANCH=${1:-main}
-CACHE=${CACHE:-moviewords-work-cache-2026-09-25.tar.zst}
+CACHE=${CACHE:-moviewords-work-cache-2026-09-25-fpv2.tar.zst}
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -q && apt-get install -y -q git zstd curl unzip
 # Debian's rclone (1.60) makes R2 return 501 for every unchanged file
