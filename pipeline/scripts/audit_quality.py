@@ -10,10 +10,13 @@ Prints a markdown report; --out saves the findings so the next run can
 docs/handoffs/2026-09-25-subtitle-data-quality.md, #11):
 
 - tiers: films per quality tier / flag, by era and language
-- profanity: strong swearing in English-original films before 1968 (the
-  Production Code era - genuine hits are 1960s documentaries/underground)
+- profanity: strong swearing (fuck/cunt/shit families) in English-original
+  films before 1968 (the Production Code era - genuine hits are 1960s
+  documentaries/underground films and profanity_verified.txt)
 - anachronisms: words that can't be said before a year (internet, email...)
 - rates: implausible words per minute (non-silent films under 10, over 200)
+- silent rates: films from before talkies speaking at talkie rates (a
+  silent film's genuine subtitle is its intertitles, ~10-20 words/min)
 - grey zone: machine-translation scores just under the flag threshold
 - known cases: films whose subtitles went wrong before
 """
@@ -27,10 +30,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 import duckdb  # noqa: E402
 
 from moviewords_pipeline import config, quality  # noqa: E402
+from moviewords_pipeline.counts import load_profanity_verified  # noqa: E402
 
-STRONG_PROFANITY = ("fuck", "fucking", "fucked", "fucker", "fuckin", "motherfucker",
-                    "motherfucking", "cunt")
 PROFANITY_BEFORE = 1968
+# Before this year every film is silent (The Jazz Singer, Oct 1927, was a
+# part-talkie; 1928 mixes both). Genuine intertitles run 10-20 words/min,
+# wordy ones up to ~65 (The Great White Silence, Orochi); wrong films and
+# commentary tracks filed under silents ran 59-135.
+SILENT_BEFORE = 1928
+SILENT_RATE_MAX = 45
 # word -> first year it can plausibly be said in a film's dialogue
 ANACHRONISMS = {
     "internet": 1993, "email": 1990, "emails": 1990, "website": 1994,
@@ -48,6 +56,9 @@ KNOWN = {
     "tt0107818": "Philadelphia (1993): a Vietnamese file",
     "tt4849438": "Baahubali 2 (2017): 3 copies of another film",
     "tt0113277": "Heat (1995): DVD commentary track",
+    "tt0018379": "7th Heaven (1927): silent - only file was a modern gymnastics drama (blocklisted)",
+    "tt0019290": "The Power of the Press (1928): the 1943 film beat the intertitles",
+    "tt0037166": "Passage to Marseille (1944): \"SHIT.\" transcription slip",
 }
 GREY_ZONE = (0.4, config.MT_SCORE_MAX)
 
@@ -86,13 +97,33 @@ def tiers(con):
 
 
 def profanity(con):
-    words = ", ".join(f"'{w}'" for w in STRONG_PROFANITY)
-    return [dict(zip(("imdb_id", "title", "year", "genres", "hits"), r)) for r in con.sql(f"""
-        SELECT f.imdb_id, f.title, f.year, f.genres, SUM(wc.count)::INT AS hits
+    """Films saying any word of the fuck/cunt/shit families (the pipeline's
+    own quality.STRONG_PROFANITY_RE, so "fuckin'", "shithead" and "shit's"
+    count and "shittim" doesn't)."""
+    verified = load_profanity_verified()
+    films = {}
+    for imdb_id, title, year, genres, word, n in con.sql(f"""
+        SELECT f.imdb_id, f.title, f.year, f.genres, wc.word, wc.count::INT
         FROM films f JOIN wc USING (imdb_id)
         WHERE f.tier = 'ok' AND f.lang = 'en' AND f.year < {PROFANITY_BEFORE}
-          AND wc.word IN ({words})
-        GROUP BY ALL ORDER BY f.year, f.imdb_id
+          AND (wc.word LIKE '%fuck%' OR wc.word LIKE '%shit%' OR wc.word LIKE 'cunt%')
+        ORDER BY f.year, f.imdb_id, wc.count DESC
+    """).fetchall():
+        if not quality.STRONG_PROFANITY_RE.match(word):
+            continue
+        r = films.setdefault(imdb_id, {"imdb_id": imdb_id, "title": title, "year": year,
+                                       "genres": genres, "hits": 0, "words": [],
+                                       "verified": imdb_id in verified})
+        r["hits"] += n
+        r["words"].append(f"{word} x{n}")
+    return list(films.values())
+
+
+def silent_rates(con):
+    return [dict(zip(("imdb_id", "title", "year", "wpm", "total_words"), r)) for r in con.sql(f"""
+        SELECT imdb_id, title, year, round(words_per_minute, 1), total_words FROM films
+        WHERE tier = 'ok' AND year < {SILENT_BEFORE} AND words_per_minute > {SILENT_RATE_MAX}
+        ORDER BY words_per_minute DESC
     """).fetchall()]
 
 
@@ -168,10 +199,13 @@ def report(findings, baseline=None):
               for r in findings["tiers"]]
     sections = [
         ("profanity", f"Strong profanity, English-original, before {PROFANITY_BEFORE} (tier ok)",
-         lambda r: f"{r['year']} {r['title']} ({r['imdb_id']}) x{r['hits']} {r['genres']}"),
+         lambda r: f"{r['year']} {r['title']} ({r['imdb_id']}) {', '.join(r['words'])} "
+                   f"{r['genres']}{' - verified genuine' if r['verified'] else ''}"),
         ("anachronisms", "Anachronisms (tier ok)",
          lambda r: f"{r['year']} {r['title']} ({r['imdb_id']}): {r['words']}"),
         ("rates", "Implausible words per minute (tier ok)",
+         lambda r: f"{r['wpm']} wpm - {r['year']} {r['title']} ({r['imdb_id']}), {r['total_words']} words"),
+        ("silent_rates", f"Silent era (before {SILENT_BEFORE}) at talkie rates, over {SILENT_RATE_MAX} words/min (tier ok)",
          lambda r: f"{r['wpm']} wpm - {r['year']} {r['title']} ({r['imdb_id']}), {r['total_words']} words"),
         ("grey_zone", f"Machine-translation grey zone {GREY_ZONE} (tier ok)",
          lambda r: f"{r['mt_score']} - {r['year']} {r['title']} ({r['imdb_id']})"),
@@ -202,6 +236,7 @@ def main():
     con = connect(args.work)
     findings = {"tiers": tiers(con), "profanity": profanity(con),
                 "anachronisms": anachronisms(con), "rates": rates(con),
+                "silent_rates": silent_rates(con),
                 "grey_zone": grey_zone(con, args.work / "counts" / config.LANG),
                 "known": known(con)}
     baseline = json.loads(args.baseline.read_text()) if args.baseline else None

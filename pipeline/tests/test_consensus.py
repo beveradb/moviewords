@@ -277,3 +277,34 @@ def test_profanity_is_no_anachronism_in_documentaries_later_films_or_translation
         assert choose(swears, 90, film)[1]["tier"] == "ok", film
     mild = [("only", _qfp(FILM, 9000, profanity={"damn": 4, "hell": 2}))]
     assert choose(mild, 90, {"english": True, "year": 1950})[1]["tier"] == "ok"
+
+
+def test_shit_is_an_anachronism_in_a_production_code_era_film_too():
+    """Passage to Marseille (1944): two uploads have "ANOTHER! / SHIT." where
+    the other three have "Another! / Hi, Grand-Pere." (a transcription slip)."""
+    film = {"english": True, "year": 1944, "documentary": False}
+    slip = _qfp(FILM, 9000, profanity={"shit": 1})
+    clean = _qfp(FILM, 8900)
+    name, info = choose([("slip", slip), ("clean", clean)], 90, film)
+    assert name == "clean" and info["flagged"] == {"slip": ["anachronism"]}
+
+
+def test_verified_genuine_profanity_is_no_anachronism():
+    """The Connection (1961): read line by line, genuine - its "shit" (heroin
+    slang) is why New York's censors banned it."""
+    film = {"english": True, "year": 1961, "documentary": False, "profanity_verified": True}
+    only = [("only", _qfp(FILM, 9000, profanity={"shit": 9, "bullshit": 1}))]
+    assert choose(only, 90, film)[1]["tier"] == "ok"
+
+
+def test_chosen_files_full_counts_catch_family_words_the_fingerprint_lacks():
+    """Tripoli (1950): "shithead" isn't on the published profanity list, so
+    only the chosen file's full counts show it."""
+    from moviewords_pipeline.consensus import check_chosen_counts
+    film = {"english": True, "year": 1950, "documentary": False}
+    info = {"tier": "ok", "flags": []}
+    info = check_chosen_counts(info, {"shithead": 1, "the": 50}, film)
+    assert info["tier"] == "low" and info["flags"] == ["anachronism"]
+    ok = check_chosen_counts({"tier": "ok", "flags": []}, {"shithead": 1},
+                             film | {"profanity_verified": True})
+    assert ok["tier"] == "ok"

@@ -72,7 +72,8 @@ def quality_flags(pool, film=None):
     (strong profanity in a pre-1965 English-original fiction film - the
     Production Code era: such a file is a re-translation, auto-captions or
     a transcriber's guess). `film` is {"english": bool, "year": int,
-    "documentary": bool, "cast": name tokens or None} or None (unknown)."""
+    "documentary": bool, "profanity_verified": bool, "cast": name tokens or
+    None} or None (unknown)."""
     film = film or {}
     flags = {name: [] for name, _ in pool}
     for name, fp in pool:
@@ -97,8 +98,10 @@ def quality_flags(pool, film=None):
 
 def profanity_is_anachronism(film):
     """Whether strong profanity can't be genuine in this film: English-
-    original fiction from before PROFANITY_ANACHRONISM_BEFORE."""
+    original fiction from before PROFANITY_ANACHRONISM_BEFORE, unless its
+    swearing was read and found genuine (profanity_verified.txt)."""
     return bool(film.get("english") and not film.get("documentary")
+                and not film.get("profanity_verified")
                 and (film.get("year") or 9999) < config.PROFANITY_ANACHRONISM_BEFORE)
 
 

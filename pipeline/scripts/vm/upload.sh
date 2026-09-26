@@ -4,11 +4,13 @@
 #   sudo setsid bash upload.sh </dev/null >/dev/null 2>&1 &
 # Logs /opt/upload.log; touches /opt/UPLOAD_DONE. Posters are unchanged by a
 # recount and aren't on the VM, so upload_r2.sh skips them with a warning.
-# ~1.5h for ~770k small files when most changed; much less otherwise.
+# ~20 min for ~865k small files when most changed (512 transfers; 64 took
+# 102 min on 2026-09-25); much less otherwise.
 set -euo pipefail
 exec >>/opt/upload.log 2>&1
 source /tmp/mw_r2.env
 rclone version | head -1          # must be >= 1.65 (bootstrap.sh installs one)
 cd /opt/moviewords/pipeline
+ulimit -n 65536                   # 512 parallel transfers (upload_r2.sh)
 time bash scripts/upload_r2.sh    # RCLONE_RETRIES=1 by default there
 touch /opt/UPLOAD_DONE

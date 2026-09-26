@@ -93,3 +93,19 @@ def test_features_are_json_serialisable():
 def test_features_count_profanity_per_file():
     q, _ = _features("Fuck the cow yellow. Oh, shit. Hello there.")
     assert q["profanity"] == {"fuck": 1, "shit": 1}
+
+
+def test_strong_profanity_covers_the_fuck_shit_and_cunt_families():
+    counts = {"fuckin": 1, "motherfucker": 1, "cunt": 1, "shit": 1, "bullshit": 1,
+              "shithead": 1, "shitty": 1, "chickenshit": 1, "shit's": 1}
+    assert quality.strong_profanity(counts) == 9
+
+
+def test_strong_profanity_skips_look_alikes_and_mild_words():
+    """The Ten Commandments' "shittim wood" (Exodus), shiitake and romanised
+    Japanese (The Wind Cannot Read's "shitsurei", Halls of Montezuma's
+    "shitai") aren't swearing."""
+    counts = {"shittim": 3, "shitake": 1, "shiitake": 1, "shitai": 1, "shita": 1,
+              "shitsurei": 1, "shiteru": 1, "shitara": 1, "shitemo": 1,
+              "damn": 4, "hell": 2, "bastard": 1}
+    assert quality.strong_profanity(counts) == 0

@@ -430,3 +430,14 @@ def test_anachronistic_profanity_off_the_published_list_is_caught_on_the_chosen_
     _build(tmp_path, zip_path, [_row("tt0028346", TOP)], films=films)
     sel = _record(tmp_path, "tt0028346")["selection"]
     assert sel["tier"] == "low" and sel["flags"] == ["anachronism"]
+
+
+def test_load_films_marks_verified_genuine_profanity(tmp_path):
+    """profanity_verified.txt exempts a film from the anachronism flag; the
+    flag is part of the film key, so adding a film re-chooses it."""
+    from moviewords_pipeline.counts import _film_key, load_films
+    films = load_films(["tt0054763", "tt0037166"], work_dir=tmp_path,
+                       curated={"tt0054763": (1961, ["Drama"]), "tt0037166": (1944, ["Drama"])})
+    assert films["tt0054763"]["profanity_verified"] is True
+    assert "profanity_verified" not in films["tt0037166"]
+    assert _film_key(films["tt0054763"]) != _film_key(films["tt0037166"] | {"year": 1961})

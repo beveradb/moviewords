@@ -87,11 +87,18 @@ def features(raw, text, counts, ocr_repaired=0):
     }
 
 
-STRONG_PROFANITY_RE = re.compile(r"^(mother)?fuck|^cunt")
+# fuck and cunt, any form (fuckin', motherfucker...); shit only in its
+# English forms (bullshit, shithead, shit's...) - a bare ^shit prefix also
+# matches romanised Japanese (shitai, shitsurei, shiteru) and "shittim"
+# (the acacia wood of Exodus)
+STRONG_PROFANITY_RE = re.compile(
+    r"^(mother)?fuck|^cunt"
+    r"|^(bull|horse|chicken|dip|ape|bat)?shit(s|e|ty|tier|tiest|ting|ted|ter|ters|head|heads"
+    r"|load|loads|less|face|faced|hole|holes|bag|bags|storm|show|'s)?$")
 
 
 def strong_profanity(counts):
-    """How many times fuck/motherfucker/cunt (any form) occur in `counts`
+    """How many times the fuck, cunt and shit families occur in `counts`
     (word counts, or a fingerprint's q["profanity"])."""
     return sum(n for w, n in counts.items() if STRONG_PROFANITY_RE.match(w))
 

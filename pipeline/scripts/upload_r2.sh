@@ -41,10 +41,15 @@ export RCLONE_CONFIG_R2_PROVIDER=Cloudflare
 export RCLONE_CONFIG_R2_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID"
 export RCLONE_CONFIG_R2_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY"
 export RCLONE_CONFIG_R2_ENDPOINT="https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com"
-# ~680k small objects (mostly trend JSONs): per-request latency, not
-# bandwidth, is the limit. rclone's default 4 transfers would take ~14h;
-# 64 takes ~1.5h. Override via the environment if needed.
-export RCLONE_TRANSFERS="${RCLONE_TRANSFERS:-64}" RCLONE_CHECKERS="${RCLONE_CHECKERS:-64}"
+# ~865k small objects (mostly per-word and per-film JSONs): per-request
+# latency, not bandwidth, is the limit, and R2 has no per-bucket write rate
+# limit (only 1 write/s per key). Measured 2026-09-25 (20k 4KB files from a
+# laptop): 64 transfers ~200 files/s (the 2026-09-25 publish: 102 min),
+# 256 ~540/s, 512 ~780/s, 1024 no faster; s5cmd at 256 ~380/s. An unchanged
+# file costs only a listing + local MD5 (20k in 2s); --fast-list was slower
+# (one sequential listing instead of parallel per-directory ones). Override
+# via the environment if needed; 512 needs `ulimit -n` of a few thousand.
+export RCLONE_TRANSFERS="${RCLONE_TRANSFERS:-512}" RCLONE_CHECKERS="${RCLONE_CHECKERS:-512}"
 export RCLONE_NO_UPDATE_MODTIME=true   # silences R2's harmless 501 modtime noise
 # One attempt per pass: each file already gets rclone's low-level retries,
 # and a whole-pass retry re-checks all ~770k files. With an old rclone the
