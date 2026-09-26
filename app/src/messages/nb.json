@@ -83,9 +83,6 @@
     "seriesLegend": {
       "exploreTitle": "Utforsk «{word}»"
     },
-    "slug": {
-      "defaultPrefix": "INT."
-    },
     "wordFilterBar": {
       "allButton": "alle ord",
       "anyKindButton": "alle typer",

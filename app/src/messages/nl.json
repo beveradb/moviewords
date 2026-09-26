@@ -83,9 +83,6 @@
     "seriesLegend": {
       "exploreTitle": "Ontdek “{word}”"
     },
-    "slug": {
-      "defaultPrefix": "INT."
-    },
     "wordFilterBar": {
       "allButton": "alle woorden",
       "anyKindButton": "elk type",

@@ -83,9 +83,6 @@
     "seriesLegend": {
       "exploreTitle": "Teroka “{word}”"
     },
-    "slug": {
-      "defaultPrefix": "INT."
-    },
     "wordFilterBar": {
       "allButton": "semua perkataan",
       "anyKindButton": "sebarang jenis",

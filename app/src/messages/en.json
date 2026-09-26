@@ -71,9 +71,6 @@
     "seriesLegend": {
       "exploreTitle": "Explore “{word}”"
     },
-    "slug": {
-      "defaultPrefix": "INT."
-    },
     "highlightWord": {
       "title": "“{word}” - {display}",
       "spokenTimes": "spoken {count} times"

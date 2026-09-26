@@ -83,9 +83,6 @@
     "seriesLegend": {
       "exploreTitle": "Khám phá “{word}”"
     },
-    "slug": {
-      "defaultPrefix": "INT."
-    },
     "wordFilterBar": {
       "allButton": "tất cả các từ",
       "anyKindButton": "bất kỳ loại nào",
