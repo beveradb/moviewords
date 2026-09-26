@@ -1,7 +1,7 @@
 # Movie Words - moviewords
 
 **Live: https://moviewords.org** — explore the words spoken in
-**two corpora: 35,066 English-original films (default) and 64,579 films of
+**two corpora: 34,556 English-original films (default) and 64,046 films of
 every original language** (translated subtitles, clearly labeled): what any
 movie actually says, how words rise and fall across decades, and what makes a
 film, a decade, or a genre sound like itself.
@@ -23,6 +23,7 @@ that says "dude" the most is, of course, *The Big Lebowski* (120×).
 | `app/` | The website: Vite + React + Tailwind + DuckDB-WASM, hosted on Cloudflare Pages. Dev guide in [`app/README.md`](app/README.md) |
 | `docs/ARCHITECTURE.md` | **Start here to understand or reproduce the system** — architecture, methodology, dataset contract, decisions, toolchain |
 | `docs/FAQ.md` | **Methodology, limitations, and licensing questions** — subtitles vs scripts, corpus bias, copyright position, poster policy |
+| `docs/DATA-QUALITY.md` | **How bad subtitle files were found and handled** — wrong films, commentary tracks, machine-translated and auto-captioned subtitles, and why old films "said" words they never said |
 | `docs/superpowers/` | Original design spec and implementation plan |
 | `docs/sessions/` | Session records (how this was actually built, with gotchas) |
 

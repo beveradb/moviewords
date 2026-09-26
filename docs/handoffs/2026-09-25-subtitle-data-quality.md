@@ -1,5 +1,9 @@
 # Handoff: subtitle data quality - never show inaccurate data
 
+> **DONE 2026-09-25 (PR #43).** Outcome: `docs/DATA-QUALITY.md` and
+> `docs/sessions/2026-Q3/2026-09-25-subtitle-quality-tiers.md`; parked
+> follow-ups in `docs/handoffs/2026-09-26-subtitle-quality-followups.md`.
+
 **Created:** 2026-09-25   **For:** a fresh Claude session   **Priority:** high - data correctness is the site's credibility
 
 ## The goal
