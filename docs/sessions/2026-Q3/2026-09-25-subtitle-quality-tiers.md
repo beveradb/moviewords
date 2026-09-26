@@ -51,7 +51,12 @@ aggregate (Andrew's policy). Design, calibration and rejected ideas:
 
 ## Open threads
 
-- 17 newly admitted silent-era films have no posters (run fetch_posters).
+All parked in `docs/handoffs/2026-09-26-subtitle-quality-followups.md`
+(each needs a full re-bake + upload, so do them together).
+
+
+- 17 newly admitted silent-era films aren't live: no TMDB record (enrich
+  never ran for them) - needs enrich + credits + posters + a re-bake.
 - Single-file wrong films: a cross-film "whose cast does it name?" scan.
 - MT detection for translated films needs its own labelled model.
 - ~230 English-original films in the MT grey zone (0.4-0.8): review list in
