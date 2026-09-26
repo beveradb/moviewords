@@ -1,6 +1,6 @@
 # "Shit"-family audit, silent films, cast scan, faster upload - 2026-09-25/26
 
-**Project:** moviewords   **Branch:** feat/sess-20260925-2151-shit-family-audit   **Status:** data published + purged, prod verified, VM deleted; PR open
+**Project:** moviewords   **Branch:** feat/sess-20260925-2151-shit-family-audit   **Status:** done - PR #47 merged (600e8e2), data published + purged, prod verified, VM deleted
 
 ## Summary
 
@@ -75,8 +75,14 @@ follow-ups #1, #2 and #5 into one re-bake. Write-up for readers:
 
 ## Open threads
 
-- Post the Reddit follow-up in OKStamped's thread (draft in the session /
-  DATA-QUALITY round 4).
+- Post the Reddit follow-up in OKStamped's thread (Andrew posts). Draft:
+  "Checked them all: every pre-1960 "shit" was a subtitle error -
+  transcription slips (one upload of Passage to Marseille has "SHIT." where
+  three others have "Hi, Grand-Père"), mishearings ("eating bird shit" =
+  bird seed), and a 1927 silent film whose only subtitle file was a modern
+  gymnastics drama. Fixed and republished; the earliest genuine ones are
+  1960s independents and documentaries, like The Connection (1961), which
+  New York's censors banned over its heroin slang."
 - Handoff #3 (grey zone) and #4 (MT in translated films) remain parked.
 - Punctuated speech-recognition uploads: mostly accurate, occasional
   mishearings; no detector yet (profanity catches only the swearing ones).
