@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen, act, fireEvent } from '@testing-library/react'
 import { I18nProvider } from '../i18n'
-import { Poster } from './ui'
+import { Poster, Slug } from './ui'
 
 describe('Poster', () => {
   it('offers AVIF with a JPEG fallback', async () => {
@@ -45,5 +45,17 @@ describe('Poster', () => {
     await act(async () => { fireEvent.error(container.querySelector('img')!) })
     expect(container.querySelector('picture')).toBeNull()
     expect(screen.getByText('Lost Film')).toBeTruthy()
+  })
+})
+
+describe('Slug', () => {
+  it('shows just the text when no prefix is given', () => {
+    const { container } = render(<Slug text="GOODFELLAS - 1990" />)
+    expect(container.querySelector('.slug > span')?.textContent).toBe('GOODFELLAS - 1990')
+  })
+
+  it('puts a given prefix before the text', () => {
+    const { container } = render(<Slug prefix="2." text="GOODFELLAS" />)
+    expect(container.querySelector('.slug > span')?.textContent).toBe('2. GOODFELLAS')
   })
 })
