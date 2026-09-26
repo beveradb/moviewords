@@ -7,8 +7,9 @@ Background: `docs/sessions/2026-Q3/2026-09-25-subtitle-quality-tiers.md`,
 
 ## Start here
 
-- Restore `r2:moviewords-pipeline-cache/moviewords-work-cache-2026-09-25-fpv2.tar.zst`
-  (fingerprint v2 + selection v6; a SELECTION_VERSION bump re-chooses in
+- Restore `r2:moviewords-pipeline-cache/moviewords-work-cache-2026-09-26-sel8.tar.zst`
+  (fingerprint v2 + selection v8, the 17 silent films enriched; bootstrap.sh's
+  default; a SELECTION_VERSION bump re-chooses in
   ~2 min, locally or via `pipeline/scripts/vm/rechoose.sh`).
 - Publish recipe: `pipeline/scripts/vm/{bootstrap,rechoose,bake,upload}.sh`.
 
