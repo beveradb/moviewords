@@ -75,3 +75,15 @@ tt0068838 OpenSubtitles/raw/en/1972/68838/1958343880.xml a modern drama (Eric, m
 # ("happy") with the credits, so the cast check can't see it
 tt0038680 OpenSubtitles/raw/en/1946/38680/1956693050.xml modern film filed under Lady Luck 1946
 tt0038680 OpenSubtitles/raw/en/1946/38680/1956693051.xml modern film filed under Lady Luck 1946 (copy)
+# 2026-09-25 pre-1968 "shit"-family audit + silent-era word-rate outliers,
+# read line by line (docs/audits/2026-09-25-*.csv). A lone wrong file drops
+# the film: it has no genuine subtitle in OPUS.
+tt0018379 OpenSubtitles/raw/en/1927/18379/1957858003.xml 7th Heaven 1927 (silent): a modern gymnastics drama
+tt5896468 OpenSubtitles/raw/en/1964/5896468/1957484241.xml Dog Star Man (wordless): two viewers talking over it in 2022
+tt0010040 OpenSubtitles/raw/en/1919/10040/1958795706.xml Daddy-Long-Legs 1919 (silent): Ah! My Goddess: The Movie
+tt0016669 OpenSubtitles/raw/en/1926/16669/262502.xml La Boheme 1926 (silent): Puccini's opera libretto
+tt0198559 OpenSubtitles/raw/en/1920/198559/1951630127.xml South 1919 (silent): a modern historian's commentary
+# tt0019290 -> 1953280440.xml (the genuine intertitles)
+tt0019290 OpenSubtitles/raw/en/1928/19290/1955420510.xml The Power of the Press 1943 sub filed under the 1928 silent
+# tt0128274 -> 1956669213.xml ("No shilly-shallying")
+tt0128274 OpenSubtitles/raw/en/1962/128274/1961483793.xml Invasion of the Star Creatures: "No shitty-shallying" mishearing

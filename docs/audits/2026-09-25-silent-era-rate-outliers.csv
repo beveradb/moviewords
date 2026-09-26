@@ -1,0 +1,10 @@
+imdb_id,title,year,words_per_min,files_in_folder,verdict,evidence,action
+tt0010040,Daddy-Long-Legs,1919,87.9,1,wrong film,"The anime Ah! My Goddess: The Movie (""Belldandy"", ""a Goddess with a First Class License"")",blocklist file (film leaves the site)
+tt0198559,South,1919,78.3,1,not the film,"A modern historian's commentary over Hurley's footage (""As the titles indicate..."", ""Taken on the 27th of August 1915"")",blocklist file (film leaves the site)
+tt0016669,La Bohème,1926,80.4,1,wrong film,"Puccini's opera libretto (""Let's sacrifice the chair!"", Rodolfo/Marcello) - a sung version, not the Lillian Gish silent's intertitles",blocklist file (film leaves the site)
+tt0018379,7th Heaven,1927,59.0,1,wrong film,A modern gymnastics drama (see the shit-family verdicts),blocklist file (film leaves the site)
+tt0019290,The Power of the Press,1928,134.9,2,wrong film,"The 1943 film of the same name (""tires, gas and sugar... rationed""); the folder's other file is the genuine intertitles (""If I were a man, I'd punch your nose."")",blocklist file -> intertitle file chosen
+tt0013169,Love One Another,1922,62.6,1,genuine,Dreyer; wordy intertitles,keep
+tt1764657,The Great White Silence,1924,63.2,1,genuine,Ponting's long explanatory intertitles,keep
+tt0016185,Orochi,1925,62.6,1,genuine,Intertitles/narration,keep
+tt0019130,The Man Who Laughs,1928,46.1,1,genuine,Intertitles,keep

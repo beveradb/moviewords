@@ -2,6 +2,7 @@ import json
 import os
 import zipfile
 import zlib
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
 import duckdb
@@ -226,13 +227,24 @@ def _write_selection(records, out):
     }), out)
 
 
+PROFANITY_VERIFIED_PATH = Path(__file__).with_name("profanity_verified.txt")
+
+
+def load_profanity_verified():
+    """imdb_ids whose pre-1965 strong profanity was read and found genuine."""
+    return {line.split()[0] for line in PROFANITY_VERIFIED_PATH.read_text().splitlines()
+            if line.strip() and not line.startswith("#")}
+
+
 def load_films(imdb_ids, work_dir=None, curated=None):
     """{imdb_id: film context for consensus.quality_flags} - whether the
     film is English-original (the tmdb stage's cache), its year and whether
-    it's a documentary (`curated`: {imdb_id: (year, genres)}), and its TMDB
-    cast (the credits stage's cache, for the wrong-film check)."""
+    it's a documentary (`curated`: {imdb_id: (year, genres)}), whether its
+    early swearing was verified genuine (profanity_verified.txt), and its
+    TMDB cast (the credits stage's cache, for the wrong-film check)."""
     work_dir = work_dir or config.WORK_DIR
     curated = curated or {}
+    verified = load_profanity_verified()
     out = {}
     for imdb_id in imdb_ids:
         film = {}
@@ -240,6 +252,8 @@ def load_films(imdb_ids, work_dir=None, curated=None):
             year, genres = curated[imdb_id]
             film["year"] = year
             film["documentary"] = "Documentary" in (genres or [])
+        if imdb_id in verified:
+            film["profanity_verified"] = True
         tmdb = work_dir / "tmdb" / f"{imdb_id}.json"
         if tmdb.exists():
             film["english"] = (json.loads(tmdb.read_text()) or {}).get("original_language") == "en"

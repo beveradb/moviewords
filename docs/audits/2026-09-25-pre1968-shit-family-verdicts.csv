@@ -1,0 +1,33 @@
+imdb_id,title,year,hits,files_in_folder,verdict,evidence,action
+tt0018379,7th Heaven,1927,shit x4 bullshit x1,1,wrong film,"Silent film; the only file is a modern gymnastics drama (""worthless piece of shit and Millman's always gonna be better than me"", ""qualifiers in four weeks""), 59 words/min",blocklist file (film leaves the site: no genuine file)
+tt0021152,Montana Moon,1930,bullshit x1,1,mishearing,"""I'm not going to have any more bullshit..."" (a father to his daughter); file reads like punctuated speech recognition (""Now, I want to tying a knot in there"")",anachronism rule -> tier low
+tt0023066,Is My Face Red?,1932,shit x1,1,mishearing,"""Shit, mama."" after ""two cups of sugar""; next line ""Yes, you found my brow.""",anachronism rule -> tier low
+tt0032047,Torture Ship,1939,shit x1,1,mishearing,"""Go get me some of that sweety shit..."" / ""Herring, yes, sir.""",anachronism rule -> tier low
+tt0037166,Passage to Marseille,1944,shit x1,5,transcriber slip,"2 identical all-caps files have ""ANOTHER! / SHIT."" in a French-speaking scene (likely ""Chut!""); the 3 other files have ""Another! / Hi, Grand-Pere."" with no such line",anachronism rule -> clean file chosen
+tt0039152,Angel and the Badman,1947,shit x1,6,transcriber guess,"2 identical files have ""[Oh shit!]"" where the other 4 have dialogue (""I know him, he has got a gun alright"")",anachronism rule -> clean file chosen
+tt0043072,Tripoli,1950,shithead x1,1,mishearing,"""Stony, you were dressing shithead guard away from Hamet's horse."" (garbled); same file has ""Fixate those bros for the police""",anachronism rule -> tier low
+tt0043751,Lone Star,1952,shit x1,1,mishearing,"""Say you, you've been eating bird shit or somethin'?"" (likely ""bird seed"")",anachronism rule -> tier low
+tt0052030,Onionhead,1958,shit x1,1,mishearing,"""I'll see you, rotten shit!""",anachronism rule -> tier low
+tt0053448,Witness in the Dark,1959,shit x1,1,mishearing,"""Shit, flipping kids, no manners these days."" (British B-film, 1959)",anachronism rule -> tier low
+tt0054205,Primary,1960,shit x1,2,plausible (unverifiable),"Direct-cinema documentary: ""JACKIE: Shit."" as Republicans switch to Humphrey; same file has the ""Well, fuck."" already judged plausible",keep (documentary)
+tt0054763,The Connection,1961,shit x9 shit's x1 bullshit x1,3,genuine,"Shirley Clarke's junkie drama; all 3 uploads agree; ""shit"" as heroin slang (""it isn't the shit that will do you in, it's the lack of it"") is why New York's censors banned the film",keep (verified exemption)
+tt0055534,Too Late Blues,1961,shit x1,1,likely mishearing,"First line: ""Hey you little shit, give me that sax!"" in a 1961 Paramount release; nearby ""Beer Ghost?""",anachronism rule -> tier low
+tt0056285,No Place Like Homicide!,1961,shit x1,2,transcriber slip,"""Oh, shit. / The phone."" where the other file has ""Dead! / The phone.""",anachronism rule -> clean file chosen
+tt0054861,The Exiles,1961,shit x1,4,genuine,"Kent Mackenzie's semi-scripted portrait of Native Americans in Los Angeles; all 4 uploads agree (""Shit. / Them guys chicken out..."")",keep (verified exemption)
+tt0055464,Something Wild,1961,shit x2,1,likely mishearing,"""The little shit."" x2 (one repeated line) in a 1961 United Artists release; unverifiable",anachronism rule -> tier low
+tt0056082,House of Women,1962,shit x1,1,likely mishearing,"""Shit."" after a notice is read aloud, in a 1962 Warner release",anachronism rule -> tier low
+tt0057427,The Trial,1962,shit x1,13,transcriber completed a cut-off word,"8 files have ""Oh, shit."", the 5 files of an independent transcription have ""Oh, sh..."" - the next line is ""I hope you didn't say what I thought you did""",anachronism rule -> clean file chosen
+tt0128274,Invasion of the Star Creatures,1962,shitty x1,2,mishearing,"""No shitty-shallying around"" where the other file has ""No shilly-shallying""",blocklist file -> clean file chosen
+tt5896468,Dog Star Man,1964,shit x4 shitty x1,1,not the film,"Brakhage's wordless film; the only file is two viewers talking over it in 2022 (""WIFI on the train is shit"", ""I mean 2022, shit..."")",blocklist file (film leaves the site: no genuine file)
+tt0060862,The Professionals,1966,shit x1,8,plausible (unverified),"""I don't give a shit!"" in all 8 uploads, including 2 of the oldest; 1966 is past the anachronism cutoff",keep
+tt0060666,Manos: The Hands of Fate,1966,shit x1,2,unverified,"""Oh, shit."" as police chase the kids; both files are the same text; independent 1966 production",keep
+tt0060358,Dutchman,1966,shit x11,1,genuine,"LeRoi Jones's play, filmed; the lines are the play's (""What a lotta shit that is"")",keep
+tt0060268,Cul-de-sac,1966,shit x1,8,plausible,"""In the shit."" in all 8 uploads; British, Polanski",keep
+tt0138355,Chafed Elbows,1966,chickenshit x1 bullshit x1,1,genuine,Robert Downey Sr. underground comedy,keep
+tt0061465,Chelsea Girls,1966,shit x2 bullshit x1,2,genuine,Warhol; unscripted,keep
+tt0061809,In Cold Blood,1967,bullshit x1,10,genuine,"""$43 and a smile and bullshit?"" in all 10 uploads",keep
+tt0061589,Bob Dylan: Dont Look Back,1967,shit x6 bullshit x1,5,genuine,Direct-cinema documentary,keep
+tt0062144,Portrait of Jason,1967,shit x22 bullshit x5,2,genuine,Documentary interview,keep
+tt0062474,Warrendale,1967,bullshit x5,1,genuine,Direct-cinema documentary,keep
+tt0062374,Titicut Follies,1967,shit x1,5,genuine,Direct-cinema documentary,keep
+tt0062864,David Holzman's Diary,1967,shit x2 shitting x1,1,genuine,Faux-documentary with improvised street interviews,keep

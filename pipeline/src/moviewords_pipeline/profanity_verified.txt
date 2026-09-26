@@ -1,0 +1,8 @@
+# English-original fiction films from before PROFANITY_ANACHRONISM_BEFORE
+# (config.py) whose strong profanity was read line by line and is genuine:
+# the anachronism flag skips them. Documentaries are exempt anyway. Add a
+# film only after reading its chosen file's lines in context - see
+# docs/audits/2026-09-25-pre1968-shit-family-verdicts.csv.
+# Format: imdb_id [comment...]
+tt0054763 The Connection (1961): heroin slang ("shit"), why New York's censors banned it; all 3 uploads agree
+tt0054861 The Exiles (1961): semi-scripted portrait of Native Americans in Los Angeles; all 4 uploads agree
