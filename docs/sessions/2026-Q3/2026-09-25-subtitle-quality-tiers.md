@@ -49,6 +49,21 @@ aggregate (Andrew's policy). Design, calibration and rejected ideas:
 - Cache archive: `moviewords-work-cache-2026-09-25-fpv2.tar.zst` (use
   `scripts/vm/archive.sh` with a NAME - date-only names overwrite).
 
+## After shipping
+
+- Andrew checked the pre-1969 "fuck" trend (English only): the 4 films left
+  are genuine - Primary (1960; "Well, fuck." at a vote count, plausible
+  candid audio, unverifiable), Chelsea Girls (1966), Warrendale (1967) and
+  Symbiopsychotaxiplasm: Take One (1968, crew arguing on camera; outside the
+  "before 1968" canary). Kept.
+- The whole story, written for readers (and the Reddit reply): 
+  `docs/DATA-QUALITY.md`. FAQ, README, pipeline README and llms.txt updated;
+  CLAUDE.md now says to run the audit before any publish.
+- Upload analysis (Andrew asked why 102 min): 865k files, one HTTPS PUT
+  each; the VM's disk read 0 MB/s (page cache), CPU 67% idle, 0.7 MB/s out -
+  latency-bound at ~300 files/s with 64 transfers. Ideas in the follow-ups
+  handoff.
+
 ## Open threads
 
 All parked in `docs/handoffs/2026-09-26-subtitle-quality-followups.md`

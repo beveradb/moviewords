@@ -24,3 +24,13 @@
 
 See `app/README.md` for the full i18n section (helper signatures, RTL
 handling, pipeline details).
+
+## Data quality
+
+- Before publishing any recount, run `pipeline/scripts/audit_quality.py`
+  (`--baseline` against the previous run's `--out`) and read what changed -
+  the canaries (pre-1968 profanity, anachronisms, word rates, known cases)
+  are how bad subtitle files were found. Background: `docs/DATA-QUALITY.md`.
+- Judge detection rules by reading flagged files, not by the counts alone:
+  three plausible rules were wrong in practice (see DATA-QUALITY.md,
+  "Things we tried and threw away").
