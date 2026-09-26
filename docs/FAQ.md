@@ -19,17 +19,39 @@ ground-truth screenplays. Mitigations:
   spares contractions, diacritic folding, digit-adjacent rejection, and more)
   was motivated by a real artifact found in the corpus and is pinned by a
   test.
+- In OCR-damaged files, I/l and ll/ii confusions (`l'm`, `lt's`, `i'ii`) are
+  repaired before counting.
 - Aggregate views (trends, decade/genre signatures) average over thousands of
   films, so individual transcription quirks wash out; single-film pages are
-  where a bad subtitle file would show, and the selection band below rejects
-  the worst of those.
+  where a bad subtitle file would show - see the next two answers and
+  [DATA-QUALITY.md](DATA-QUALITY.md).
 
 ### How do you pick which subtitle file to use for a film?
 
-One file per film: the largest file whose estimated token rate falls within a
-plausibility band of 20-250 tokens per minute of the film's runtime. That
-rejects wrong-cut, partial, and junk files. Films with no in-band file are
-dropped from the corpus.
+One file per film, chosen by content consensus. A film's folder holds one file
+per OpenSubtitles upload; we keep files with a plausible word rate for the
+runtime, read up to 12 of them, and take the most typical file of the largest
+group that agree with each other. Commentary tracks, files in another
+language, auto-generated captions, machine-translated "English", and files
+that name none of the film's characters while another upload does are passed
+over. The full story, with examples: [DATA-QUALITY.md](DATA-QUALITY.md).
+
+### Why do some films say "Subtitle quality: low"?
+
+Every subtitle we have for them is auto-generated captions, looks
+machine-translated from another language, or contains words that couldn't
+have been said in the film (like "fuck" in a 1950s Hollywood film). About 0.8%
+of films. They keep their page so you can still look them up, but their words
+are left out of every total, trend, chart, and ranking.
+
+### Why do a few films before 1969 still use "fuck"?
+
+Because they really did. Hollywood's Production Code banned profanity until
+the MPAA ratings replaced it in late 1968, but 1960s documentaries and
+underground films recorded real, unscripted speech - Warrendale, Portrait of
+Jason, Chelsea Girls, Titicut Follies, Dont Look Back. Before the fixes in
+[DATA-QUALITY.md](DATA-QUALITY.md), dozens of 1930s-60s films showed it too;
+those came from machine-translated, auto-captioned, or wrong-film subtitles.
 
 ### What about non-English films?
 
@@ -130,7 +152,8 @@ data; we don't curate words out of it.
 ### Something looks wrong / I found a bug in the data.
 
 Email [andrew@beveridge.uk](mailto:andrew@beveridge.uk) or open an issue on
-[GitHub](https://github.com/beveradb/moviewords). Corrections to the
+[GitHub](https://github.com/beveradb/moviewords). Several of the fixes in
+[DATA-QUALITY.md](DATA-QUALITY.md) started as reports like that. Corrections to the
 pipeline are welcome - every derivation step is open source and reproducible
 from the runbook in `pipeline/README.md`.
 

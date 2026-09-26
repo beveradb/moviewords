@@ -1,6 +1,6 @@
 # Movie Words
 
-> What ~65,000 films actually say. Movie Words reduces the English subtitles of 64,579 films to word frequencies and compares them with log-odds to surface each film's, decade's, and genre's signature vocabulary. Only derived word counts are published - no subtitle text is redistributed.
+> What ~65,000 films actually say. Movie Words reduces the English subtitles of 64,046 films to word frequencies and compares them with log-odds to surface each film's, decade's, and genre's signature vocabulary. Only derived word counts are published - no subtitle text is redistributed.
 
 Movie Words is a static, serverless site: the UI reads pre-baked JSON and runs SQL in the browser (DuckDB-WASM) over data on a public Cloudflare R2 bucket at https://data.moviewords.org. Non-English films are counted from their English subtitles (translations), which is clearly labelled in the UI.
 
@@ -13,7 +13,7 @@ Movie Words is a static, serverless site: the UI reads pre-baked JSON and runs S
 - [Genres](https://moviewords.org/#/genres): vocabulary by genre
 
 ## Data
-- [Films index (JSON)](https://data.moviewords.org/all/json/movies-index.json): 64,579 films with title, year, genres, runtime, rating and total word count
+- [Films index (JSON)](https://data.moviewords.org/all/json/movies-index.json): 64,577 films with title, year, genres, runtime, rating and total word count (531 marked `"q": "low"` have low-quality subtitles and are left out of every aggregate)
 - [Languages manifest (JSON)](https://data.moviewords.org/all/json/languages.json): selectable original languages and their film counts
 - [Word frequencies by year (Parquet)](https://data.moviewords.org/all/word_year.parquet): per-word counts per year across the whole corpus
 - [Year totals (JSON)](https://data.moviewords.org/all/json/year-totals.json): total words per year (rate denominators)
@@ -24,6 +24,7 @@ Movie Words is a static, serverless site: the UI reads pre-baked JSON and runs S
 - [Architecture and methodology](https://github.com/beveradb/moviewords/blob/main/docs/ARCHITECTURE.md): how the dataset and site are built
 - [Data dictionary](https://github.com/beveradb/moviewords/blob/main/docs/DATA.md): file formats and fields
 - [FAQ, limitations and licensing](https://github.com/beveradb/moviewords/blob/main/docs/FAQ.md): methodology, corpus bias, copyright position
+- [Data quality](https://github.com/beveradb/moviewords/blob/main/docs/DATA-QUALITY.md): how wrong, machine-translated and auto-captioned subtitle files were found and handled
 - [Source code](https://github.com/beveradb/moviewords): full pipeline and app
 
 ## Notes

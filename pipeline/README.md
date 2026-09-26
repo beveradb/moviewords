@@ -84,6 +84,12 @@ uv run python -m moviewords_pipeline.cli index
 # (content-word cosine >= 0.85; near-identical re-uploads count as one text,
 # so a wrong file uploaded 3 times can't outvote real translations).
 # Fingerprints are cached per file, so a re-run only fetches new candidates.
+# Each candidate's fingerprint also carries quality features (quality.py):
+# files that are auto-captions, machine-translated (English-original films),
+# name none of the TMDB cast while another upload does, or swear in a
+# pre-1965 English-original film are passed over; if every file is flagged
+# the film gets tier "low" (page only, out of every aggregate - see
+# docs/DATA-QUALITY.md). Needs the enrich + credits caches for those checks.
 # work/selection.parquet records every choice and why. A full recount is
 # ~242k reads: ~2h against the remote zip from a laptop; on a VM, download
 # the zip and run `count --shard K/N` x N processes (GIL-bound parsing), then
@@ -95,6 +101,14 @@ uv run python -m moviewords_pipeline.cli count [--workers 12] [--shard K/N]
 # Requires TMDB_API_TOKEN or TMDB_API_KEY environment variable
 # Per-movie cache in work/tmdb/ (skips already-fetched films)
 TMDB_API_KEY=... uv run python -m moviewords_pipeline.cli enrich
+
+# TMDB cast lists (work/tmdb_credits/, 1 request per film, ~35 min for 64k)
+# for the wrong-film check; re-run count afterwards (re-chooses from cache)
+TMDB_API_KEY=... uv run python -m moviewords_pipeline.cli credits
+
+# Quality canaries (tiers, pre-1968 profanity, anachronisms, word rates,
+# the machine-translation grey zone, known past failures); --baseline diffs
+uv run python scripts/audit_quality.py --out audit.json [--baseline old.json]
 
 # Derive all published artifacts (parquets, JSON hot paths, decade/genre
 # signatures, word_meta with Zipf + WordNet POS classes). First run downloads
@@ -237,6 +251,8 @@ Artifacts land in `data/out/`:
   popularity/votes, genres, keywords, spoken languages, production
   countries/companies, director/writers/composer/cinematographer/producers, top
   cast). Archived for future analyses; not auto-published (no app consumer yet).
+- `movies_flagged.parquet` + `words_by_movie_flagged/data.parquet` — films whose
+  only subtitle is low quality: film pages only, in no aggregate
 - `report.md` — summary statistics and stage-by-stage drop reasons
 
 All outputs are uploaded to the R2 bucket `moviewords-data/` via `upload_r2.sh`.
