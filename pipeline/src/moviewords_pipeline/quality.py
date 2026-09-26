@@ -87,10 +87,14 @@ def features(raw, text, counts, ocr_repaired=0):
     }
 
 
-# fuck, cunt and shit, any form (fuckin', motherfucker, bullshit, shithead,
-# shit's...) - but not "shittim" (the acacia wood of Exodus) or shiitake
+# fuck and cunt, any form (fuckin', motherfucker...); shit only in its
+# English forms (bullshit, shithead, shit's...) - a bare ^shit prefix also
+# matches romanised Japanese (shitai, shitsurei, shiteru) and "shittim"
+# (the acacia wood of Exodus)
 STRONG_PROFANITY_RE = re.compile(
-    r"^(mother)?fuck|^cunt|^(bull|horse|chicken|dip|ape|bat)?shit(?!tim|ake)")
+    r"^(mother)?fuck|^cunt"
+    r"|^(bull|horse|chicken|dip|ape|bat)?shit(s|e|ty|tier|tiest|ting|ted|ter|ters|head|heads"
+    r"|load|loads|less|face|faced|hole|holes|bag|bags|storm|show|'s)?$")
 
 
 def strong_profanity(counts):

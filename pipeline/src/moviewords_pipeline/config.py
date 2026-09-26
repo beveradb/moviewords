@@ -88,5 +88,6 @@ FINGERPRINT_VERSION = 2   # 2: quality features (fp["q"]), OCR repair, credit ju
 # 2: distinct-text voting (Baahubali 2); 3: quality tiers, hard gates;
 # 4: no hard gates, style model for English-original only, relative cast rule;
 # 5: anachronistic profanity; 6: ...also on the chosen file's full counts;
-# 7: ...the shit family too, verified-genuine exemptions
-SELECTION_VERSION = 7
+# 7: ...the shit family too, verified-genuine exemptions; 8: ...only its
+# English forms (7's ^shit matched romanised Japanese: shitai, shitsurei)
+SELECTION_VERSION = 8

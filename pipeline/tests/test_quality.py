@@ -102,6 +102,10 @@ def test_strong_profanity_covers_the_fuck_shit_and_cunt_families():
 
 
 def test_strong_profanity_skips_look_alikes_and_mild_words():
-    """The Ten Commandments' "shittim wood" (Exodus) and shiitake aren't swearing."""
-    counts = {"shittim": 3, "shitake": 1, "shiitake": 1, "damn": 4, "hell": 2, "bastard": 1}
+    """The Ten Commandments' "shittim wood" (Exodus), shiitake and romanised
+    Japanese (The Wind Cannot Read's "shitsurei", Halls of Montezuma's
+    "shitai") aren't swearing."""
+    counts = {"shittim": 3, "shitake": 1, "shiitake": 1, "shitai": 1, "shita": 1,
+              "shitsurei": 1, "shiteru": 1, "shitara": 1, "shitemo": 1,
+              "damn": 4, "hell": 2, "bastard": 1}
     assert quality.strong_profanity(counts) == 0
