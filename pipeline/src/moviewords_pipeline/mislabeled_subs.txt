@@ -87,3 +87,23 @@ tt0198559 OpenSubtitles/raw/en/1920/198559/1951630127.xml South 1919 (silent): a
 tt0019290 OpenSubtitles/raw/en/1928/19290/1955420510.xml The Power of the Press 1943 sub filed under the 1928 silent
 # tt0128274 -> 1956669213.xml ("No shilly-shallying")
 tt0128274 OpenSubtitles/raw/en/1962/128274/1961483793.xml Invasion of the Star Creatures: "No shitty-shallying" mishearing
+# 2026-09-25 scripts/scan_cast_crossfilm.py: chosen files naming 3+
+# distinctive cast names of another film and none of their own. 19 hits,
+# read by hand: 10 wrong (below), 9 legitimately share names (same play or
+# story, a re-cut, alternate-title duplicates, a documentary and a drama
+# about the same case).
+tt10690676 OpenSubtitles/raw/en/2017/10690676/1957874256.xml Dying of the Light 2014 sub filed under Dark 2017
+tt1825735 OpenSubtitles/raw/en/2010/1825735/1954379455.xml Metropolis 1927 sub filed under Dark Metropolis
+tt1091207 OpenSubtitles/raw/en/2009/1091207/1954464829.xml Teenage Angst 2008 sub filed under Teenage Dirtbag
+tt1645074 OpenSubtitles/raw/en/2011/1645074/1959443608.xml The Four 2012 sub filed under Four 2011
+tt0362538 OpenSubtitles/raw/en/2004/362538/1958357808.xml Noise 2007 (car-alarm vigilante) sub filed under Noise 2004
+tt0352394 OpenSubtitles/raw/en/2003/352394/74822.xml From Hell 2001 sub filed under Hellborn 2003
+tt0352394 OpenSubtitles/raw/en/2003/352394/205293.xml From Hell 2001 sub filed under Hellborn 2003 (copy)
+tt1741225 OpenSubtitles/raw/en/2010/1741225/1956740741.xml the I Am 2010 police thriller (tt1497617) filed under the other I Am 2010
+tt1741225 OpenSubtitles/raw/en/2010/1741225/1956740742.xml the I Am 2010 police thriller (tt1497617) (copy)
+tt0309897 OpenSubtitles/raw/en/2001/309897/111629.xml Chabrol's Nada 1974 sub filed under Nothing More 2001
+tt0309897 OpenSubtitles/raw/en/2001/309897/2306.xml Chabrol's Nada 1974 sub filed under Nothing More 2001 (copy)
+# tt0153545 Vijeta 1982 -> 1960874867.xml (3 Viy 1967 uploads outvoted it)
+tt0153545 OpenSubtitles/raw/en/1982/153545/103996.xml Viy 1967 sub filed under Vijeta 1982
+tt0153545 OpenSubtitles/raw/en/1982/153545/256301.xml Viy 1967 sub filed under Vijeta 1982 (copy)
+tt0153545 OpenSubtitles/raw/en/1982/153545/139144.xml Viy 1967 sub filed under Vijeta 1982 (copy)
