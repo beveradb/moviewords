@@ -5,8 +5,8 @@ moviewords.org counts the words in one subtitle file per film. After launch
 right: 1950s westerns swearing like Scorsese films, a 1927 silent film with
 a full modern vocabulary, the wrong film's words on a film's page. This doc
 explains what was going wrong, how we found it, and how the pipeline now
-handles it. It covers three rounds of fixes, 2026-09-24/25: PRs #38, #41
-and #43.
+handles it. It covers four rounds of fixes, 2026-09-24/26: PRs #38, #41,
+#43 and the "shit"-family round (round 4).
 
 Technical detail lives elsewhere. The consensus design and calibration are
 in `docs/superpowers/plans/2026-09-24-content-consensus-selection.md`, and
@@ -192,6 +192,11 @@ The rest are genuine or at the edge:
 So the blips left before 1968 are real history: documentaries and the
 underground working outside the Production Code.
 
+Round 4 (below) extended the check to the "shit" family. With it, the only
+strong profanity left before 1965 is Primary (a documentary) and two 1961
+independent dramas whose lines were read and are genuine (The Connection
+and The Exiles). The audit lists 20 films before 1968, all 1960-67.
+
 ## The launch chart, redrawn
 
 The chart from the launch posts (English-language films, per million words
@@ -211,12 +216,83 @@ understated the gap between the lines.
   and `swearing-data-families-2026-09-25.json` (3-year rolling average, from
   the live English-original slice, low-quality films excluded).
 
+## Round 4: "shit" before 1968, silent films, and whose cast a file names
+
+While answering questions on Reddit, we queried the live data for the
+"shit" family (shit, bullshit, shitty, shithead, shit's...) in
+English-original films before 1968, instead of just "fuck". It returned 32
+films, including a 1927 silent film. The anachronism check from round 3
+only knew fuck and cunt, so these had slipped through. We read every hit in
+context and compared it with the film's other uploads. The verdicts are in
+`docs/audits/2026-09-25-pre1968-shit-family-verdicts.csv`.
+
+| What it was | Films | Example |
+|---|---|---|
+| Genuine | 11 | The Connection (1961), whose heroin slang ("shit") got it banned by New York's censors; Dutchman (1966); the 1966-67 documentaries and underground films |
+| Plausible but unverified | 4 | The Professionals (1966): "I don't give a shit!" in all 8 uploads; Cul-de-sac (1966); Primary (1960); Manos (1966) |
+| **Transcription slip** | 4 | Passage to Marseille (1944): two uploads have "SHIT." where three others have "Hi, Grand-Père."; The Trial (1962): one transcriber finished a word the actor breaks off ("Oh, sh...") |
+| **Mishearing** | 11 | Lone Star (1952): "you've been eating bird shit" (bird seed); Invasion of the Star Creatures: "No shitty-shallying" |
+| **Not the film at all** | 2 | 7th Heaven (1927, silent): a modern gymnastics drama; Dog Star Man (1964, wordless): two viewers talking over it in 2022 |
+
+The single-file mishearings are mostly recent uploads that read like
+modern speech recognition: punctuated and fluent, but with lines like
+"Fixate those bros for the police". Round 3's auto-caption detector only
+recognises the older, unpunctuated kind.
+
+What changed:
+
+- **The anachronism check covers the whole family.** Films with a clean
+  upload now use it (Passage to Marseille, Angel and the Badman, The Trial,
+  No Place Like Homicide!, plus Bordertown, The Leather Boys and Fail Safe,
+  whose flagged uploads were a slip, a variant and a featurette). Films
+  whose only file has a slip go to "Subtitle quality: low": Montana Moon,
+  Is My Face Red?, Torture Ship, Tripoli, Lone Star, Aunt Clara, Onionhead,
+  Witness in the Dark, Too Late Blues, Something Wild and House of Women.
+  The words are almost all right, but a 1952 western didn't say "shit",
+  and we'd rather leave a film out than count what it never said.
+- **Verified exceptions.** Two 1961 independent dramas, The Connection and
+  The Exiles, genuinely use the word. They're listed in
+  `pipeline/src/moviewords_pipeline/profanity_verified.txt`, and a film only
+  goes on that list after its lines have been read.
+- **Only English forms count.** A first version matched anything starting
+  with "shit", and three films with Japanese dialogue (*shitai*,
+  *shitsurei*) were flagged. Reading the flagged files caught it before
+  publishing.
+- **Silent films speaking at talkie rates.** Silent films' subtitles are
+  their intertitles, about 10-20 words a minute, while talkies run 60-90.
+  Every pre-1928 film faster than 45 words a minute was read. Four carried
+  another film or a commentary track as their only file: Daddy-Long-Legs
+  (1919) had the anime *Ah! My Goddess*, La Bohème (1926) Puccini's opera,
+  South (1919) a historian's commentary, and 7th Heaven the gymnastics
+  drama. The Power of the Press (1928) carried the 1943 film of the same
+  name, beating its genuine intertitles. A word-rate *rule* would not work:
+  wordy genuine intertitles (The Great White Silence, Orochi) run up to 63
+  words a minute, faster than 7th Heaven's 59. So these went on the
+  blocklist instead, and the audit now lists every fast silent film for
+  reading. Verdicts: `docs/audits/2026-09-25-silent-era-rate-outliers.csv`.
+- **Whose cast does a file name?** A new scan
+  (`pipeline/scripts/scan_cast_crossfilm.py`) asks, for every chosen file,
+  whether it names several distinctive character names of *another* film
+  in the corpus and none of its own. Of its 19 hits, 9 legitimately share
+  names (the same play, a re-cut, a documentary and a drama about one
+  case). 10 were wrong films: Dark (2017) carried *Dying of the Light*,
+  Hellborn carried *From Hell*, Nothing More carried Chabrol's *Nada*, and
+  Vijeta (1982) had three uploads of *Viy* outvoting its one genuine file.
+- **Films with no genuine file leave the site.** When a film's only upload
+  is another film, there's nothing true to show, so it is removed rather
+  than shown with a note: 13 films (the 5 silent or wordless ones above, 8
+  from the cast scan).
+- Also in this round: the 17 silent-era films admitted in round 3 got
+  their TMDB records and went live (The Last Laugh, Man with a Movie
+  Camera, Go West...).
+
 ## How we keep it honest
 
 - `pipeline/scripts/audit_quality.py` reruns these checks after every
   recount and diffs them against the previous run:
   - films per quality tier
-  - pre-1968 profanity
+  - pre-1968 strong profanity (the fuck, cunt and shit families)
+  - silent films speaking at talkie rates
   - anachronistic words ("internet" in 1941)
   - implausible words per minute
   - the machine-translation borderline cases
@@ -228,7 +304,11 @@ understated the gap between the lines.
 ## What's still imperfect
 
 - **Films with a single upload that belongs to another film.** Nothing
-  disagrees with it. A planned check will ask whose cast a file names.
+  disagrees with it. The cast scan catches it only when the other film is
+  also in the corpus.
+- **Modern speech-recognition files.** Punctuated machine transcripts are
+  mostly right but mishear the odd word. The profanity check catches the
+  mishearings that turn into swearing, not the others.
 - **Machine-translated subtitles of translated films,** beyond
   OpenSubtitles' own flag.
 - **About 230 English-original films in the machine-translation borderline
